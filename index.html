@@ -2032,60 +2032,55 @@
 
                 // Delegación de eventos para modal triggers (prevenir duplicación en móvil)
                 let isProcessing = false;
-                let lastTrigger = null;
+                let lastClickedElement = null;
                 let lastClickTime = 0;
                 
-                const openModalSafely = (trigger) => {
+                const handleNewsClick = (e, eventType) => {
+                    const trigger = e.target.closest('.modal-trigger');
+                    if (!trigger) return;
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
                     const now = Date.now();
                     
-                    // Prevenir múltiples clics en menos de 600ms en el mismo elemento
-                    if (isProcessing || (trigger === lastTrigger && (now - lastClickTime) < 600)) {
-                        console.log('🚫 Clic duplicado bloqueado');
+                    // Prevenir duplicados: mismo elemento en menos de 500ms
+                    if (trigger === lastClickedElement && (now - lastClickTime) < 500) {
+                        console.log(`🚫 Clic duplicado bloqueado (${eventType})`);
+                        return;
+                    }
+                    
+                    // Prevenir si ya estamos procesando otro clic
+                    if (isProcessing) {
+                        console.log(`🚫 Ya procesando otra noticia (${eventType})`);
                         return;
                     }
                     
                     isProcessing = true;
-                    lastTrigger = trigger;
+                    lastClickedElement = trigger;
                     lastClickTime = now;
                     
-                    console.log('✅ Abriendo modal de noticia');
+                    console.log(`✅ Abriendo noticia (${eventType})`);
                     
-                    try {
-                        const { link, title, author, date, subtitle } = trigger.dataset;
-                        this.openNewsPopup(
-                            decodeURIComponent(link),
-                            decodeURIComponent(title),
-                            decodeURIComponent(author),
-                            decodeURIComponent(date),
-                            decodeURIComponent(subtitle || '')
-                        );
-                    } finally {
-                        // Permitir nuevos clics después de 300ms
-                        setTimeout(() => {
-                            isProcessing = false;
-                        }, 300);
-                    }
+                    const { link, title, author, date, subtitle } = trigger.dataset;
+                    this.openNewsPopup(
+                        decodeURIComponent(link),
+                        decodeURIComponent(title),
+                        decodeURIComponent(author),
+                        decodeURIComponent(date),
+                        decodeURIComponent(subtitle || '')
+                    );
+                    
+                    // Resetear flag después de 300ms
+                    setTimeout(() => {
+                        isProcessing = false;
+                    }, 300);
                 };
                 
-                // Manejar evento táctil (móvil)
-                this.elements.resultsContainer.addEventListener('touchend', (e) => {
-                    const trigger = e.target.closest('.modal-trigger');
-                    if (trigger) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openModalSafely(trigger);
-                    }
-                }, { passive: false });
-                
-                // Manejar evento click (desktop y backup para móvil)
-                this.elements.resultsContainer.addEventListener('click', (e) => {
-                    const trigger = e.target.closest('.modal-trigger');
-                    if (trigger) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openModalSafely(trigger);
-                    }
-                }, { passive: false });
+                // Manejar eventos táctiles (móvil) y clicks (desktop)
+                this.elements.resultsContainer.addEventListener('touchend', (e) => handleNewsClick(e, 'touch'), { passive: false });
+                this.elements.resultsContainer.addEventListener('click', (e) => handleNewsClick(e, 'click'), { passive: false });
 
                 // Toggle del desplegable de periódicos
                 const newspapersButton = document.getElementById('newspapersButton');
@@ -2717,20 +2712,18 @@
             displayNews(news) {
                 console.log(`📰 displayNews llamado con ${news.length} noticias`);
                 
-                // Contar subtítulos
+                // Estadística de subtítulos
                 const withSubtitle = news.filter(n => n.subtitle && n.subtitle.trim()).length;
-                console.log(`📊 Noticias CON subtítulo: ${withSubtitle} de ${news.length} (${Math.round(withSubtitle/news.length*100)}%)`);
+                console.log(`📊 ${withSubtitle} de ${news.length} noticias tienen subtítulo (${Math.round(withSubtitle/news.length*100)}%)`);
                 
                 this.elements.resultsContainer.innerHTML = '';
 
                 news.forEach((item, index) => {
-                    if (index < 5) {  // Log primeras 5 noticias
-                        console.log(`📋 #${index + 1}:`, {
-                            titulo: item.title.substring(0, 50) + '...',
-                            tieneSubtitulo: !!item.subtitle,
-                            subtitulo: item.subtitle ? item.subtitle.substring(0, 50) + '...' : 'NO',
-                            fecha: item.date
-                        });
+                    if (index < 3) {  // Log solo las primeras 3 noticias
+                        console.log(`📋 Noticia ${index + 1}:`);
+                        console.log(`   📰 Título: "${item.title.substring(0, 50)}..."`);
+                        console.log(`   📝 Subtítulo: ${item.subtitle ? '"' + item.subtitle.substring(0, 50) + '..."' : '❌ NO TIENE'}`);
+                        console.log(`   🕐 Fecha: "${item.date}"`);
                     }
                     
                     const isPopupMode = this.elements.readingModeSwitch.checked;
@@ -2759,24 +2752,19 @@
 
                     this.elements.resultsContainer.appendChild(newsElement);
                     
-                    // Verificar subtítulos en DOM (solo primeras 3 para no saturar)
+                    // Verificar subtítulo en DOM (solo primeras 3)
                     if (index < 3 && item.subtitle) {
                         setTimeout(() => {
-                            const subtitleEl = newsElement.querySelector('.news-subtitle');
-                            if (subtitleEl) {
-                                const styles = window.getComputedStyle(subtitleEl);
-                                console.log(`🔍 #${index + 1} subtítulo en DOM:`, {
-                                    existe: true,
-                                    display: styles.display,
-                                    visibility: styles.visibility,
-                                    height: styles.height,
-                                    overflow: styles.overflow,
-                                    textContent: subtitleEl.textContent.substring(0, 40) + '...'
-                                });
+                            const subtitleInDOM = newsElement.querySelector('.news-subtitle');
+                            if (subtitleInDOM) {
+                                const styles = window.getComputedStyle(subtitleInDOM);
+                                console.log(`🔍 Noticia ${index + 1} - Subtítulo en DOM: ✅`);
+                                console.log(`   Display: ${styles.display}, Visibility: ${styles.visibility}`);
+                                console.log(`   Height: ${styles.height}, Overflow: ${styles.overflow}`);
                             } else {
-                                console.log(`❌ #${index + 1} subtítulo NO encontrado en DOM (pero debería estar)`);
+                                console.log(`❌ Noticia ${index + 1} - Subtítulo NO encontrado en DOM`);
                             }
-                        }, 50);
+                        }, 100);
                     }
                 });
             }
