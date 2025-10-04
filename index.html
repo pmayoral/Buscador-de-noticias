@@ -2469,7 +2469,11 @@
 
             isDateText(text) {
                 if (!text) return false;
-                const dateKeywords = ['hace', 'hour', 'day', 'ago', 'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+                const dateKeywords = [
+                    'hace', 'hour', 'day', 'ago', 'min', 'minute', 'minuto', 'hora', 'día', 'week', 'semana', 'month', 'mes',
+                    'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+                    'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+                ];
                 return dateKeywords.some(keyword => text.toLowerCase().includes(keyword));
             }
 
@@ -2477,31 +2481,83 @@
                 if (!dateStr) return 'Fecha no disponible';
 
                 const now = new Date();
+                const originalDate = dateStr;
 
+                // Log para depuración
+                if (Math.random() < 0.1) {  // Solo 10% para no saturar
+                    console.log(`🕒 parseDate recibió: "${originalDate}"`);
+                }
+
+                // Minutos - Español
+                if (dateStr.includes('minuto')) {
+                    const match = dateStr.match(/(\d+)\s*minuto/i);
+                    const minutes = match ? parseInt(match[1]) : 1;
+                    return minutes === 1 ? 'Hace 1 minuto' : `Hace ${minutes} minutos`;
+                }
+
+                // Horas - Español
+                if (dateStr.includes('hora')) {
+                    const match = dateStr.match(/(\d+)\s*hora/i);
+                    const hours = match ? parseInt(match[1]) : 1;
+                    return hours === 1 ? 'Hace 1 hora' : `Hace ${hours} horas`;
+                }
+
+                // Días - Español
+                if (dateStr.includes('día')) {
+                    const match = dateStr.match(/(\d+)\s*día/i);
+                    const days = match ? parseInt(match[1]) : 1;
+                    return days === 1 ? 'Hace 1 día' : `Hace ${days} días`;
+                }
+
+                // Horas - Inglés
                 if (dateStr.includes('hour') || dateStr.includes('hr')) {
                     const match = dateStr.match(/(\d+)\s*(hour|hr)/i);
                     const hours = match ? parseInt(match[1]) : 1;
                     return hours === 1 ? 'Hace 1 hora' : `Hace ${hours} horas`;
                 }
 
+                // Minutos - Inglés
                 if (dateStr.includes('minute') || dateStr.includes('min')) {
                     const match = dateStr.match(/(\d+)\s*(minute|min)/i);
                     const minutes = match ? parseInt(match[1]) : 1;
                     return minutes === 1 ? 'Hace 1 minuto' : `Hace ${minutes} minutos`;
                 }
 
+                // Días - Inglés
                 if (dateStr.includes('day')) {
                     const match = dateStr.match(/(\d+)\s*day/i);
                     const days = match ? parseInt(match[1]) : 1;
                     return days === 1 ? 'Hace 1 día' : `Hace ${days} días`;
                 }
 
-                if (dateStr.includes('hace') || dateStr.includes('Hace')) {
+                // Semanas
+                if (dateStr.includes('week') || dateStr.includes('semana')) {
+                    const match = dateStr.match(/(\d+)\s*(week|semana)/i);
+                    const weeks = match ? parseInt(match[1]) : 1;
+                    return weeks === 1 ? 'Hace 1 semana' : `Hace ${weeks} semanas`;
+                }
+
+                // Meses
+                if (dateStr.includes('month') || dateStr.includes('mes')) {
+                    const match = dateStr.match(/(\d+)\s*(month|mes)/i);
+                    const months = match ? parseInt(match[1]) : 1;
+                    return months === 1 ? 'Hace 1 mes' : `Hace ${months} meses`;
+                }
+
+                // Ya está en formato "Hace X..."
+                if (dateStr.includes('Hace') || dateStr.includes('hace')) {
                     return dateStr;
                 }
 
+                // Intentar parsear como fecha absoluta
                 const parsed = new Date(dateStr);
-                return !isNaN(parsed.getTime()) ? this.formatDate(parsed) : dateStr;
+                if (!isNaN(parsed.getTime())) {
+                    return this.formatDate(parsed);
+                }
+
+                // Si nada funciona, devolver el original
+                console.warn(`⚠️ No se pudo parsear fecha: "${originalDate}"`);
+                return dateStr;
             }
 
             formatDate(date) {
@@ -2522,54 +2578,42 @@
 
                 const now = new Date();
 
-                if (dateStr.includes('minuto')) {
-                    const match = dateStr.match(/(\d+)\s*minuto/i);
+                // Minutos - Español e Inglés
+                if (dateStr.includes('minuto') || dateStr.includes('minute') || dateStr.includes('min')) {
+                    const match = dateStr.match(/(\d+)\s*(minuto|minute|min)/i);
                     const minutes = match ? parseInt(match[1]) : 1;
                     return new Date(now.getTime() - (minutes * 60 * 1000));
                 }
 
-                if (dateStr.includes('hora')) {
-                    const match = dateStr.match(/(\d+)\s*hora/i);
+                // Horas - Español e Inglés
+                if (dateStr.includes('hora') || dateStr.includes('hour') || dateStr.includes('hr')) {
+                    const match = dateStr.match(/(\d+)\s*(hora|hour|hr)/i);
                     const hours = match ? parseInt(match[1]) : 1;
                     return new Date(now.getTime() - (hours * 60 * 60 * 1000));
                 }
 
-                if (dateStr.includes('día')) {
-                    const match = dateStr.match(/(\d+)\s*día/i);
+                // Días - Español e Inglés
+                if (dateStr.includes('día') || dateStr.includes('day')) {
+                    const match = dateStr.match(/(\d+)\s*(día|day)/i);
                     const days = match ? parseInt(match[1]) : 1;
                     return new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
                 }
 
-                if (dateStr.includes('hour') || dateStr.includes('hr')) {
-                    const match = dateStr.match(/(\d+)\s*(hour|hr)/i);
-                    const hours = match ? parseInt(match[1]) : 1;
-                    return new Date(now.getTime() - (hours * 60 * 60 * 1000));
-                }
-
-                if (dateStr.includes('minute') || dateStr.includes('min')) {
-                    const match = dateStr.match(/(\d+)\s*(minute|min)/i);
-                    const minutes = match ? parseInt(match[1]) : 1;
-                    return new Date(now.getTime() - (minutes * 60 * 1000));
-                }
-
-                if (dateStr.includes('day')) {
-                    const match = dateStr.match(/(\d+)\s*day/i);
-                    const days = match ? parseInt(match[1]) : 1;
-                    return new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
-                }
-
-                if (dateStr.includes('week')) {
-                    const match = dateStr.match(/(\d+)\s*week/i);
+                // Semanas - Español e Inglés
+                if (dateStr.includes('semana') || dateStr.includes('week')) {
+                    const match = dateStr.match(/(\d+)\s*(semana|week)/i);
                     const weeks = match ? parseInt(match[1]) : 1;
                     return new Date(now.getTime() - (weeks * 7 * 24 * 60 * 60 * 1000));
                 }
 
-                if (dateStr.includes('month')) {
-                    const match = dateStr.match(/(\d+)\s*month/i);
+                // Meses - Español e Inglés
+                if (dateStr.includes('mes') || dateStr.includes('month')) {
+                    const match = dateStr.match(/(\d+)\s*(mes|month)/i);
                     const months = match ? parseInt(match[1]) : 1;
                     return new Date(now.getTime() - (months * 30 * 24 * 60 * 60 * 1000));
                 }
 
+                // Intentar parsear como fecha absoluta
                 const parsed = new Date(dateStr);
                 return !isNaN(parsed.getTime()) ? parsed : new Date(0);
             }
