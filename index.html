@@ -331,10 +331,16 @@
 
         .news-subtitle {
             color: #666;
-            font-size: 0.85em;
-            line-height: 1.4;
-            margin: 10px 0 0 0;
-            display: block;
+            font-size: 0.8em;
+            line-height: 1.3;
+            margin: 8px 0 0 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: calc(1.3em * 4);
+            max-height: calc(1.3em * 4);
             cursor: pointer;
         }
 
@@ -1063,13 +1069,16 @@
             }
 
             .news-subtitle {
-                font-size: 0.9em !important;
+                font-size: 0.85em !important;
                 display: block !important;
-                margin-top: 10px !important;
-                line-height: 1.5 !important;
+                margin-top: 8px !important;
+                line-height: 1.4 !important;
                 visibility: visible !important;
                 opacity: 1 !important;
-                color: #555 !important;
+                height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                color: #666 !important;
             }
 
             .modal-tweets-section {
@@ -2021,15 +2030,27 @@
                 this.elements.modalClose.addEventListener('click', () => this.closeModal());
                 this.elements.modalBack.addEventListener('click', () => this.goBack());
 
-                // Delegación de eventos para modal triggers
-                let processingClick = false;
-                this.elements.resultsContainer.addEventListener('click', (e) => {
-                    const trigger = e.target.closest('.modal-trigger');
-                    if (trigger && !processingClick) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        processingClick = true;
+                // Delegación de eventos para modal triggers (prevenir duplicación en móvil)
+                let isProcessing = false;
+                let lastTrigger = null;
+                let lastClickTime = 0;
+                
+                const openModalSafely = (trigger) => {
+                    const now = Date.now();
+                    
+                    // Prevenir múltiples clics en menos de 600ms en el mismo elemento
+                    if (isProcessing || (trigger === lastTrigger && (now - lastClickTime) < 600)) {
+                        console.log('🚫 Clic duplicado bloqueado');
+                        return;
+                    }
+                    
+                    isProcessing = true;
+                    lastTrigger = trigger;
+                    lastClickTime = now;
+                    
+                    console.log('✅ Abriendo modal de noticia');
+                    
+                    try {
                         const { link, title, author, date, subtitle } = trigger.dataset;
                         this.openNewsPopup(
                             decodeURIComponent(link),
@@ -2038,10 +2059,33 @@
                             decodeURIComponent(date),
                             decodeURIComponent(subtitle || '')
                         );
-                        
-                        setTimeout(() => { processingClick = false; }, 300);
+                    } finally {
+                        // Permitir nuevos clics después de 300ms
+                        setTimeout(() => {
+                            isProcessing = false;
+                        }, 300);
                     }
-                });
+                };
+                
+                // Manejar evento táctil (móvil)
+                this.elements.resultsContainer.addEventListener('touchend', (e) => {
+                    const trigger = e.target.closest('.modal-trigger');
+                    if (trigger) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openModalSafely(trigger);
+                    }
+                }, { passive: false });
+                
+                // Manejar evento click (desktop y backup para móvil)
+                this.elements.resultsContainer.addEventListener('click', (e) => {
+                    const trigger = e.target.closest('.modal-trigger');
+                    if (trigger) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openModalSafely(trigger);
+                    }
+                }, { passive: false });
 
                 // Toggle del desplegable de periódicos
                 const newspapersButton = document.getElementById('newspapersButton');
@@ -2275,9 +2319,14 @@
 
                 let googleNewsUrl = this.buildGoogleNewsUrl(query, selectedValue, numResults);
 
+                console.log('🔍 Buscando noticias con:', query);
+                console.log('📱 User Agent:', navigator.userAgent);
+
                 for (let i = 0; i < this.proxies.length; i++) {
                     const proxy = this.proxies[i];
                     try {
+                        console.log(`🌐 Intentando proxy ${i + 1}/${this.proxies.length}:`, proxy);
+                        
                         const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
                         
                         // Timeout adaptativo: 10 segundos en ordenador, 20 en móvil
@@ -2296,20 +2345,33 @@
                         
                         clearTimeout(timeoutId);
 
+                        console.log(`✅ Respuesta del proxy ${i + 1}:`, response.status);
+
                         if (response.ok) {
                             const htmlContent = await response.text();
+                            console.log(`📄 HTML recibido (${htmlContent.length} caracteres)`);
+                            
                             const news = this.parseGoogleNewsResults(htmlContent);
+                            console.log(`📰 Noticias parseadas: ${news.length}`);
 
                             if (news.length > 0) {
                                 allResults.push(...news);
+                                console.log(`✅ Éxito con proxy ${i + 1}!`);
                                 break;
+                            } else {
+                                console.log(`⚠️ Proxy ${i + 1} no devolvió noticias, probando siguiente...`);
                             }
                         }
                     } catch (error) {
+                        console.error(`❌ Error con proxy ${i + 1}:`, error.message);
+                        if (i === this.proxies.length - 1) {
+                            console.error('❌ Todos los proxies fallaron');
+                        }
                         continue;
                     }
                 }
 
+                console.log(`📊 Total noticias encontradas: ${allResults.length}`);
                 return allResults;
             }
 
@@ -2454,6 +2516,12 @@
                 if (!dateStr) return 'Fecha no disponible';
 
                 const now = new Date();
+                const originalDate = dateStr;
+
+                // Log para depuración
+                if (Math.random() < 0.1) {  // Solo 10% para no saturar
+                    console.log(`🕒 parseDate recibió: "${originalDate}"`);
+                }
 
                 // Minutos - Español
                 if (dateStr.includes('minuto')) {
@@ -2523,6 +2591,7 @@
                 }
 
                 // Si nada funciona, devolver el original
+                console.warn(`⚠️ No se pudo parsear fecha: "${originalDate}"`);
                 return dateStr;
             }
 
@@ -2646,9 +2715,23 @@
             }
 
             displayNews(news) {
+                console.log(`📰 displayNews llamado con ${news.length} noticias`);
+                
+                // Contar subtítulos
+                const withSubtitle = news.filter(n => n.subtitle && n.subtitle.trim()).length;
+                console.log(`📊 Noticias CON subtítulo: ${withSubtitle} de ${news.length} (${Math.round(withSubtitle/news.length*100)}%)`);
+                
                 this.elements.resultsContainer.innerHTML = '';
 
                 news.forEach((item, index) => {
+                    if (index < 5) {  // Log primeras 5 noticias
+                        console.log(`📋 #${index + 1}:`, {
+                            titulo: item.title.substring(0, 50) + '...',
+                            tieneSubtitulo: !!item.subtitle,
+                            subtitulo: item.subtitle ? item.subtitle.substring(0, 50) + '...' : 'NO',
+                            fecha: item.date
+                        });
+                    }
                     
                     const isPopupMode = this.elements.readingModeSwitch.checked;
                     const linkHTML = isPopupMode ?
@@ -2675,6 +2758,26 @@
                     `;
 
                     this.elements.resultsContainer.appendChild(newsElement);
+                    
+                    // Verificar subtítulos en DOM (solo primeras 3 para no saturar)
+                    if (index < 3 && item.subtitle) {
+                        setTimeout(() => {
+                            const subtitleEl = newsElement.querySelector('.news-subtitle');
+                            if (subtitleEl) {
+                                const styles = window.getComputedStyle(subtitleEl);
+                                console.log(`🔍 #${index + 1} subtítulo en DOM:`, {
+                                    existe: true,
+                                    display: styles.display,
+                                    visibility: styles.visibility,
+                                    height: styles.height,
+                                    overflow: styles.overflow,
+                                    textContent: subtitleEl.textContent.substring(0, 40) + '...'
+                                });
+                            } else {
+                                console.log(`❌ #${index + 1} subtítulo NO encontrado en DOM (pero debería estar)`);
+                            }
+                        }, 50);
+                    }
                 });
             }
 
@@ -5065,13 +5168,13 @@
                     }
                 } else {
                     // Para otros periódicos, orden original
-                    if (content.metaDescription && content.metaDescription.trim().length > 20) {
-                        summaryText = content.metaDescription;
-                    } else if (content.footerSummary && content.footerSummary.trim().length > 20) {
-                        summaryText = content.footerSummary;
-                    } else if (domain !== 'eldiario.es' && this.currentSubtitle && this.currentSubtitle.trim().length > 10) {
-                        // Para eldiario.es NO usar currentSubtitle porque contiene texto del artículo
-                        summaryText = this.currentSubtitle;
+                if (content.metaDescription && content.metaDescription.trim().length > 20) {
+                    summaryText = content.metaDescription;
+                } else if (content.footerSummary && content.footerSummary.trim().length > 20) {
+                    summaryText = content.footerSummary;
+                } else if (domain !== 'eldiario.es' && this.currentSubtitle && this.currentSubtitle.trim().length > 10) {
+                    // Para eldiario.es NO usar currentSubtitle porque contiene texto del artículo
+                    summaryText = this.currentSubtitle;
                     }
                 }
 
