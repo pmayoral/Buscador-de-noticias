@@ -2710,23 +2710,36 @@
                     }
                 }
                 
-                // FALLBACK AGRESIVO: Buscar CUALQUIER texto que parezca un subtítulo
+                // FALLBACK ULTRA AGRESIVO: Buscar CUALQUIER texto que pueda ser un subtítulo
                 console.log('🔄🔄🔄 FALLBACK ACTIVADO - Buscando texto largo...');
-                const allElements = item.querySelectorAll('div, span, p');
+                const allElements = item.querySelectorAll('*'); // Todos los elementos
                 console.log(`📊 Encontrados ${allElements.length} elementos para revisar`);
                 
                 let mejorCandidato = null;
                 let mejorScore = 0;
                 
                 for (const element of allElements) {
-                    // Obtener solo el texto directo (sin hijos)
-                    const text = element.textContent?.trim() || '';
+                    // Obtener solo el texto de este elemento (sin hijos profundos)
+                    let text = '';
+                    for (const node of element.childNodes) {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            text += node.textContent;
+                        }
+                    }
+                    text = text.trim();
                     
-                    // Ignorar elementos con hijos complejos (probablemente no son subtítulos)
-                    if (element.querySelector('h1, h2, h3, h4, h5, h6, a')) continue;
+                    // Si no hay texto directo, tomar todo el textContent
+                    if (!text) {
+                        text = element.textContent?.trim() || '';
+                        // Pero ignorar si tiene muchos elementos hijos (probablemente es un contenedor)
+                        if (element.querySelectorAll('*').length > 5) continue;
+                    }
                     
-                    // Debe tener un mínimo de texto
-                    if (text.length < 30) continue;
+                    // Ignorar elementos con enlaces o títulos
+                    if (element.querySelector('h1, h2, h3, h4, h5, h6')) continue;
+                    
+                    // Debe tener al menos 20 caracteres (MÁS PERMISIVO)
+                    if (text.length < 20) continue;
                     
                     // No debe ser una fecha
                     if (this.isDateText(text)) continue;
@@ -2734,19 +2747,27 @@
                     // Calcular "score" de qué tan probable es que sea un subtítulo
                     let score = 0;
                     
-                    // Texto entre 50 y 300 caracteres es ideal
-                    if (text.length >= 50 && text.length <= 300) score += 10;
-                    else if (text.length > 30 && text.length < 1000) score += 5;
+                    // Longitud de texto (MÁS PERMISIVO)
+                    if (text.length >= 30 && text.length <= 400) score += 10;
+                    else if (text.length >= 20 && text.length < 1000) score += 5;
                     
-                    // Si tiene punto final, probablemente es una descripción
-                    if (text.endsWith('.') || text.endsWith('...')) score += 3;
+                    // Si tiene punto final o puntos suspensivos
+                    if (text.endsWith('.') || text.endsWith('...') || text.endsWith('…')) score += 3;
                     
-                    // Si tiene múltiples palabras, es mejor
+                    // Cantidad de palabras
                     const palabras = text.split(/\s+/).length;
-                    if (palabras >= 10 && palabras <= 50) score += 5;
+                    if (palabras >= 5 && palabras <= 100) score += 5;
+                    if (palabras >= 10 && palabras <= 50) score += 3;
                     
                     // Si tiene comas, probablemente es una oración
                     if (text.includes(',')) score += 2;
+                    
+                    // Penalizar si tiene muchos números (probablemente no es descripción)
+                    const numCount = (text.match(/\d/g) || []).length;
+                    if (numCount > text.length * 0.3) score -= 5;
+                    
+                    // Bonificar si parece prosa (tiene artículos, verbos comunes, etc.)
+                    if (/\b(el|la|los|las|un|una|es|son|fue|ha|hay|con|para|por)\b/i.test(text)) score += 3;
                     
                     // Actualizar mejor candidato
                     if (score > mejorScore) {
@@ -2755,13 +2776,13 @@
                     }
                 }
                 
-                if (mejorCandidato) {
+                if (mejorCandidato && mejorScore >= 5) { // Umbral mínimo MÁS BAJO
                     const text = mejorCandidato.textContent?.trim();
                     console.log(`✅✅✅ SUBTITULO ENCONTRADO (score: ${mejorScore}): "${text.substring(0, 50)}..."`);
                     return mejorCandidato;
                 }
                 
-                console.log(`❌❌❌ NO SE ENCONTRO SUBTITULO`);
+                console.log(`❌❌❌ NO SE ENCONTRO SUBTITULO (mejor score: ${mejorScore})`);
                 return null;
             }
 
@@ -5910,4 +5931,5 @@ CÓMO AGREGAR UN NUEVO PERIÓDICO:
 3. Agregar eliminación de elementos específicos si es necesario
 4. Probar con varias noticias del periódico
 
+ -->
  -->
