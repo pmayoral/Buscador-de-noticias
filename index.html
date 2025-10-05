@@ -1668,15 +1668,46 @@
         window.addEventListener('DOMContentLoaded', function() {
             const info = obtenerInfoDispositivo();
             
-            const mensaje = `📱 INFORMACIÓN DEL DISPOSITIVO\n\n` +
-                          `🖥️ Tipo: ${info.tipoDispositivo}\n` +
-                          `💻 Sistema: ${info.sistema}\n` +
-                          `🌐 Navegador: ${info.navegador}\n` +
-                          `📐 Resolución: ${info.resolucion}\n` +
-                          `🗣️ Idioma: ${info.idioma}\n\n` +
-                          `🔍 UserAgent:\n${navigator.userAgent}`;
+            // Crear un div flotante con la información
+            const infoDiv = document.createElement('div');
+            infoDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 99999;
+                max-width: 90%;
+                max-height: 80%;
+                overflow-y: auto;
+            `;
             
-            alert(mensaje);
+            infoDiv.innerHTML = `
+                <h3 style="margin: 0 0 15px 0; color: #667eea;">📱 Información del Dispositivo</h3>
+                <p><strong>🖥️ Tipo:</strong> ${info.tipoDispositivo}</p>
+                <p><strong>💻 Sistema:</strong> ${info.sistema}</p>
+                <p><strong>🌐 Navegador:</strong> ${info.navegador}</p>
+                <p><strong>📐 Resolución:</strong> ${info.resolucion}</p>
+                <p><strong>🗣️ Idioma:</strong> ${info.idioma}</p>
+                <p style="margin-top: 15px;"><strong>🔍 UserAgent (copia esto):</strong></p>
+                <textarea readonly style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 12px; font-family: monospace;">${navigator.userAgent}</textarea>
+                <button id="closeInfoBtn" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%;">Cerrar</button>
+            `;
+            
+            document.body.appendChild(infoDiv);
+            
+            // Cerrar al hacer clic en el botón
+            document.getElementById('closeInfoBtn').addEventListener('click', function() {
+                infoDiv.remove();
+            });
+            
+            // Auto-seleccionar el textarea al hacer clic
+            infoDiv.querySelector('textarea').addEventListener('click', function() {
+                this.select();
+            });
         });
         // ===== FIN DETECCIÓN =====
 
