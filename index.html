@@ -2808,20 +2808,17 @@
                 const urls = news.map(n => n.link);
                 const uniqueUrls = new Set(urls);
                 const hasDuplicates = urls.length !== uniqueUrls.size;
-                console.log(`🔍 URLs únicas: ${uniqueUrls.size} de ${urls.length} ${hasDuplicates ? '⚠️ HAY DUPLICADOS' : '✅ Sin duplicados'}`);
+                console.log(`🔍 URLs únicas: ${uniqueUrls.size} de ${urls.length} ${hasDuplicates ? '⚠️ HAY DUPLICADOS EN EL ARRAY' : '✅ Sin duplicados en el array'}`);
                 
-                // DEBUG: Mostrar información visible en pantalla
-                let debugDiv = document.getElementById('debug-info');
-                if (!debugDiv) {
-                    debugDiv = document.createElement('div');
-                    debugDiv.id = 'debug-info';
-                    debugDiv.style.cssText = 'position: fixed; top: 80px; right: 10px; background: red; color: white; padding: 10px; z-index: 99999; font-size: 12px; border-radius: 5px; max-width: 200px;';
-                    document.body.appendChild(debugDiv);
+                // Si hay duplicados, mostrar cuáles
+                if (hasDuplicates) {
+                    const urlCounts = {};
+                    urls.forEach(url => {
+                        urlCounts[url] = (urlCounts[url] || 0) + 1;
+                    });
+                    const duplicatedUrls = Object.entries(urlCounts).filter(([url, count]) => count > 1);
+                    console.warn('⚠️ URLs duplicadas:', duplicatedUrls.map(([url, count]) => `${url} (${count} veces)`));
                 }
-                const callCount = (parseInt(debugDiv.dataset.calls || '0') + 1);
-                debugDiv.dataset.calls = callCount;
-                const existingNews = this.elements.resultsContainer.children.length;
-                debugDiv.innerHTML = `🔍 DEBUG<br>Llamadas: ${callCount}<br>Noticias: ${news.length}<br>URLs únicas: ${uniqueUrls.size}<br>${hasDuplicates ? '⚠️ DUPLICADOS' : '✅ OK'}<br>En pantalla: ${existingNews}`;
                 
                 this.elements.resultsContainer.innerHTML = '';
 
