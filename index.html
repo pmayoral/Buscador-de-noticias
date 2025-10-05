@@ -1682,7 +1682,7 @@
             // Mostrar logs con estos emojis importantes
             if (message.includes('🌐') || message.includes('📡') || message.includes('📰') || 
                 message.includes('🗑️') || message.includes('❌') || message.includes('✅') || 
-                message.includes('⚠️')) {
+                message.includes('⚠️') || message.includes('🔧')) {
                 addDebugLog('log', message);
             }
         };
@@ -2592,6 +2592,7 @@
             }
 
             parseGoogleNewsResults(html) {
+                console.log('🔧 VERSIÓN: 2.0 - Con selectores de móvil para subtítulos');
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const news = [];
