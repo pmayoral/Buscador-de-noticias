@@ -2804,6 +2804,12 @@
                 const withSubtitle = news.filter(n => n.subtitle && n.subtitle.trim()).length;
                 console.log(`📊 ${withSubtitle} de ${news.length} noticias tienen subtítulo (${Math.round(withSubtitle/news.length*100)}%)`);
                 
+                // DEBUG: Verificar URLs duplicadas
+                const urls = news.map(n => n.link);
+                const uniqueUrls = new Set(urls);
+                const hasDuplicates = urls.length !== uniqueUrls.size;
+                console.log(`🔍 URLs únicas: ${uniqueUrls.size} de ${urls.length} ${hasDuplicates ? '⚠️ HAY DUPLICADOS' : '✅ Sin duplicados'}`);
+                
                 // DEBUG: Mostrar información visible en pantalla
                 let debugDiv = document.getElementById('debug-info');
                 if (!debugDiv) {
@@ -2815,7 +2821,7 @@
                 const callCount = (parseInt(debugDiv.dataset.calls || '0') + 1);
                 debugDiv.dataset.calls = callCount;
                 const existingNews = this.elements.resultsContainer.children.length;
-                debugDiv.innerHTML = `🔍 DEBUG<br>Llamadas: ${callCount}<br>Noticias a mostrar: ${news.length}<br>Ya en pantalla: ${existingNews}`;
+                debugDiv.innerHTML = `🔍 DEBUG<br>Llamadas: ${callCount}<br>Noticias: ${news.length}<br>URLs únicas: ${uniqueUrls.size}<br>${hasDuplicates ? '⚠️ DUPLICADOS' : '✅ OK'}<br>En pantalla: ${existingNews}`;
                 
                 this.elements.resultsContainer.innerHTML = '';
 
