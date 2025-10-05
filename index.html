@@ -2473,8 +2473,26 @@
                             this.resetDropdownOptions();
                         } else {
                             const sortedNews = this.sortNewsByDate(filteredNews);
+                            
+                            // Eliminar duplicados basándose en URL Y título (más agresivo)
+                            const uniqueNews = [];
+                            const seenUrls = new Set();
+                            const seenTitles = new Set();
+                            sortedNews.forEach(news => {
+                                const normalizedTitle = news.title.toLowerCase().trim();
+                                
+                                if (!seenUrls.has(news.link) && !seenTitles.has(normalizedTitle)) {
+                                    seenUrls.add(news.link);
+                                    seenTitles.add(normalizedTitle);
+                                    uniqueNews.push(news);
+                                } else {
+                                    console.log(`🗑️ Duplicado eliminado: "${news.title.substring(0, 50)}..."`);
+                                }
+                            });
+                            console.log(`🗑️ Total eliminados: ${sortedNews.length - uniqueNews.length} duplicados de ${sortedNews.length} noticias`);
+                            
                             const maxCount = parseInt(this.elements.countSelect.value);
-                            const limitedNews = sortedNews.slice(0, maxCount);
+                            const limitedNews = uniqueNews.slice(0, maxCount);
 
                             this.allNews = limitedNews;
                             this.updateNewsCounts();
