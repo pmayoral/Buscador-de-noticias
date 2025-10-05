@@ -2597,9 +2597,11 @@
 
             parseGoogleNewsResults(html) {
                 console.log('🔧🔧🔧 PARSEANDO NOTICIAS - VERSIÓN 3.0');
+                alert('DEBUG: Parseando HTML de Google. Versión 3.0 ejecutándose.');
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const news = [];
+                let subtitulosEncontrados = 0;
 
                 const possibleSelectors = ['.g', '.mnr-c', '.SoaBEf', '.xrnccd', 'div[data-hveid]', '.dbsr > div', '.Gx5Zad'];
 
@@ -2612,10 +2614,15 @@
                             if (newsItem) news.push(newsItem);
                         });
 
-                        if (news.length > 0) break;
+                        if (news.length > 0) {
+                            // Contar subtítulos
+                            subtitulosEncontrados = news.filter(n => n.subtitle && n.subtitle.trim()).length;
+                            break;
+                        }
                     }
                 }
 
+                alert(`DEBUG: Se encontraron ${news.length} noticias, de las cuales ${subtitulosEncontrados} tienen subtítulo.`);
                 return news;
             }
 
