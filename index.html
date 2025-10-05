@@ -1164,7 +1164,6 @@
             margin-bottom: 8px;
             padding-bottom: 6px;
             border-bottom: 2px solid #e2e8f0;
-            gap: 8px;
         }
 
         .newspapers-dropdown__title {
@@ -1197,29 +1196,6 @@
             background: #cbd5e0;
             cursor: not-allowed;
             box-shadow: none;
-        }
-
-        .newspapers-dropdown__info-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-        }
-
-        .newspapers-dropdown__info-btn:hover {
-            background: linear-gradient(135deg, #5a67d8, #6b46c1);
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .newspapers-dropdown__list {
@@ -1283,7 +1259,6 @@
         <div class="newspapers-dropdown__header">
             <div class="newspapers-dropdown__title">Periódicos (67)</div>
             <button class="newspapers-dropdown__export-btn" id="exportNewspapersBtn">Exportar</button>
-            <button class="newspapers-dropdown__info-btn" id="deviceInfoBtn" title="Información del dispositivo">ℹ️</button>
         </div>
         <ul class="newspapers-dropdown__list" id="newspapersList">
             <li class="newspapers-dropdown__item" data-domain="abc.es">
@@ -1369,6 +1344,10 @@
             <li class="newspapers-dropdown__item" data-domain="elespanol.com">
                 <span class="newspapers-dropdown__text">El Español</span>
                 <span class="newspapers-dropdown__domain">(elespanol.com)</span>
+            </li>
+            <li class="newspapers-dropdown__item" data-domain="elglobalfarma.com">
+                <span class="newspapers-dropdown__text">ELGLOBALFARMA.COM</span>
+                <span class="newspapers-dropdown__domain">(elglobalfarma.com)</span>
             </li>
             <li class="newspapers-dropdown__item" data-domain="huffingtonpost.es">
                 <span class="newspapers-dropdown__text">El HuffPost</span>
@@ -1627,195 +1606,6 @@
      </div>
 
     <script>
-        // ===== MINI CONSOLA VISUAL PARA DEBUG =====
-        const debugLogs = [];
-        const originalConsoleLog = console.log;
-        const originalConsoleWarn = console.warn;
-        const originalConsoleError = console.error;
-        
-        function createDebugConsole() {
-            const debugDiv = document.createElement('div');
-            debugDiv.id = 'debug-console';
-            debugDiv.style.cssText = `
-                position: fixed;
-                bottom: 10px;
-                left: 10px;
-                right: 10px;
-                max-height: 150px;
-                background: rgba(0, 0, 0, 0.9);
-                color: #00ff00;
-                padding: 10px;
-                border-radius: 8px;
-                font-family: monospace;
-                font-size: 10px;
-                overflow-y: auto;
-                z-index: 99998;
-                display: none;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-            `;
-            document.body.appendChild(debugDiv);
-            return debugDiv;
-        }
-        
-        function addDebugLog(type, message) {
-            const debugDiv = document.getElementById('debug-console') || createDebugConsole();
-            const timestamp = new Date().toLocaleTimeString();
-            const colorMap = { log: '#00ff00', warn: '#ffaa00', error: '#ff0000' };
-            const color = colorMap[type] || '#00ff00';
-            
-            debugLogs.push(`[${timestamp}] ${message}`);
-            if (debugLogs.length > 20) debugLogs.shift(); // Mantener solo últimos 20
-            
-            debugDiv.innerHTML = debugLogs.map(log => `<div style="color: ${color}">${log}</div>`).join('');
-            debugDiv.style.display = 'block';
-            debugDiv.scrollTop = debugDiv.scrollHeight;
-        }
-        
-        console.log = function(...args) {
-            originalConsoleLog.apply(console, args);
-            const message = args.join(' ');
-            // Mostrar logs con estos emojis importantes
-            if (message.includes('🌐') || message.includes('📡') || message.includes('📰') || 
-                message.includes('🗑️') || message.includes('❌') || message.includes('✅') || 
-                message.includes('⚠️') || message.includes('🔧') || message.includes('🔄')) {
-                addDebugLog('log', message);
-            }
-        };
-        
-        console.warn = function(...args) {
-            originalConsoleWarn.apply(console, args);
-            addDebugLog('warn', args.join(' '));
-        };
-        
-        console.error = function(...args) {
-            originalConsoleError.apply(console, args);
-            addDebugLog('error', args.join(' '));
-        };
-        // ===== FIN MINI CONSOLA =====
-        
-        // ===== DETECCIÓN DE DISPOSITIVO Y NAVEGADOR =====
-        function esMovil() {
-            const userAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const pantallaPequeña = window.innerWidth <= 768;
-            const tieneTouch = 'ontouchstart' in window;
-            return userAgent || (pantallaPequeña && tieneTouch);
-        }
-
-        function detectarSistemaOperativo() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            
-            // Android y iOS deben ir primero porque también pueden contener "linux" o "mac"
-            if (userAgent.includes('android')) return 'Android';
-            if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'iOS';
-            if (userAgent.includes('win')) return 'Windows';
-            if (userAgent.includes('mac')) return 'MacOS';
-            if (userAgent.includes('linux')) return 'Linux';
-            
-            return 'Desconocido';
-        }
-
-        function detectarNavegador() {
-            const userAgent = navigator.userAgent;
-            
-            // Navegadores específicos primero (antes de Chrome, ya que usan Chromium)
-            if (userAgent.includes('Jkfk')) return 'Soul Browser';
-            if (userAgent.includes('Brave') || userAgent.includes('brave')) return 'Brave';
-            if (userAgent.includes('SamsungBrowser')) return 'Samsung Internet';
-            if (userAgent.includes('UCBrowser') || userAgent.includes('UCWeb')) return 'UC Browser';
-            if (userAgent.includes('Vivaldi')) return 'Vivaldi';
-            if (userAgent.includes('Edg')) return 'Edge';
-            if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
-            
-            // Navegadores principales
-            if (userAgent.includes('Firefox')) return 'Firefox';
-            if (userAgent.includes('Chrome')) return 'Chrome';
-            if (userAgent.includes('Safari')) return 'Safari';
-            if (userAgent.includes('Trident')) return 'Internet Explorer';
-            
-            return 'Navegador basado en Chromium';
-        }
-
-        function obtenerInfoDispositivo() {
-            const sistema = detectarSistemaOperativo();
-            const navegador = detectarNavegador();
-            const tipoDispositivo = esMovil() ? 'Móvil' : 'Ordenador';
-            const resolucion = window.screen.width + ' x ' + window.screen.height;
-            const idioma = navigator.language;
-            
-            return {
-                sistema,
-                navegador,
-                tipoDispositivo,
-                resolucion,
-                idioma
-            };
-        }
-
-        // Función para mostrar información del dispositivo
-        function mostrarInfoDispositivo() {
-            const info = obtenerInfoDispositivo();
-            
-            // Crear un div flotante con la información
-            const infoDiv = document.createElement('div');
-            infoDiv.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 20px;
-                border-radius: 15px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                z-index: 99999;
-                max-width: 90%;
-                max-height: 80%;
-                overflow-y: auto;
-            `;
-            
-            infoDiv.innerHTML = `
-                <h3 style="margin: 0 0 15px 0; color: #667eea;">📱 Información del Dispositivo</h3>
-                <p><strong>🖥️ Tipo:</strong> ${info.tipoDispositivo}</p>
-                <p><strong>💻 Sistema:</strong> ${info.sistema}</p>
-                <p><strong>🌐 Navegador:</strong> ${info.navegador}</p>
-                <p><strong>📐 Resolución:</strong> ${info.resolucion}</p>
-                <p><strong>🗣️ Idioma:</strong> ${info.idioma}</p>
-                <p style="margin-top: 15px;"><strong>🔍 UserAgent:</strong></p>
-                <textarea readonly style="
-                    width: 100%;
-                    height: 100px;
-                    padding: 10px;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                    font-size: 12px;
-                    font-family: monospace;"
-                >${navigator.userAgent}</textarea>
-                <button id="closeInfoBtn" style="
-                    margin-top: 15px;
-                    padding: 10px 20px;
-                    background: #667eea;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    width: 100%;"
-                >Cerrar</button>
-            `;
-            
-            document.body.appendChild(infoDiv);
-            
-            // Cerrar al hacer clic en el botón
-            document.getElementById('closeInfoBtn').addEventListener('click', function() {
-                infoDiv.remove();
-            });
-            
-            // Auto-seleccionar el textarea al hacer clic
-            infoDiv.querySelector('textarea').addEventListener('click', function() {
-                this.select();
-            });
-        }
-        // ===== FIN DETECCIÓN =====
-
         class NewsSearcher {
             constructor() {
                 this.elements = {
@@ -2308,13 +2098,6 @@
                     e.stopPropagation();
                     this.exportNewNewspapers();
                 });
-
-                // Botón de información del dispositivo
-                const deviceInfoBtn = document.getElementById('deviceInfoBtn');
-                deviceInfoBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    mostrarInfoDispositivo();
-                });
             }
 
             exportNewNewspapers() {
@@ -2472,26 +2255,8 @@
                             this.resetDropdownOptions();
                         } else {
                             const sortedNews = this.sortNewsByDate(filteredNews);
-                            
-                            // Eliminar duplicados basándose en URL Y título (más agresivo)
-                            const uniqueNews = [];
-                            const seenUrls = new Set();
-                            const seenTitles = new Set();
-                            sortedNews.forEach(news => {
-                                const normalizedTitle = news.title.toLowerCase().trim();
-                                
-                                if (!seenUrls.has(news.link) && !seenTitles.has(normalizedTitle)) {
-                                    seenUrls.add(news.link);
-                                    seenTitles.add(normalizedTitle);
-                                    uniqueNews.push(news);
-                                } else {
-                                    console.log(`🗑️ Duplicado eliminado: "${news.title.substring(0, 50)}..."`);
-                                }
-                            });
-                            console.log(`🗑️ Total eliminados: ${sortedNews.length - uniqueNews.length} duplicados de ${sortedNews.length} noticias`);
-                            
                             const maxCount = parseInt(this.elements.countSelect.value);
-                            const limitedNews = uniqueNews.slice(0, maxCount);
+                            const limitedNews = sortedNews.slice(0, maxCount);
 
                             this.allNews = limitedNews;
                             this.updateNewsCounts();
@@ -2588,7 +2353,6 @@
             }
 
             parseGoogleNewsResults(html) {
-                console.log('🔧 VERSIÓN: 3.0 - Con fallback robusto para subtítulos en móvil');
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const news = [];
@@ -2668,49 +2432,17 @@
             }
 
             findSnippetElement(item) {
-                const snippetSelectors = [
-                    '.ilUpNd.H66NU.aSRlid', 
-                    '.GI74Re.nDgy9d', 
-                    '.GI74Re', 
-                    '.st', 
-                    '.s3v9rd', 
-                    '.VwiC3b', 
-                    '.Y3v8qd',
-                    // Selectores adicionales para móvil
-                    '.BNeawe.s3v9rd',
-                    '.BNeawe.AP7Wnd',
-                    'div[style*="color:#545454"]',
-                    'div[style*="color:#4d5156"]'
-                ];
-                
+                const snippetSelectors = ['.ilUpNd.H66NU.aSRlid', '.GI74Re.nDgy9d', '.GI74Re', '.st', '.s3v9rd', '.VwiC3b', '.Y3v8qd'];
                 for (const selector of snippetSelectors) {
                     const element = item.querySelector(selector);
                     if (element && element.textContent?.trim()) {
                         let snippetText = element.textContent.trim();
                         snippetText = snippetText.replace(/\s*\d+\s+(hours?|days?|minutes?)\s+ago$/gi, '');
                         if (snippetText.length > 10) {
-                            console.log(`✅ Subtítulo encontrado con selector "${selector}": "${snippetText.substring(0, 50)}..."`);
                             return element;
                         }
                     }
                 }
-                
-                // FALLBACK: Si ningún selector funcionó, buscar cualquier div/span con texto largo
-                console.log('🔄 Intentando fallback: buscando cualquier texto largo...');
-                const allDivs = item.querySelectorAll('div, span');
-                for (const div of allDivs) {
-                    const text = div.textContent?.trim() || '';
-                    // Debe ser texto largo (> 50 chars) pero no demasiado largo (< 500 chars)
-                    // No debe ser una fecha, no debe ser solo el título
-                    if (text.length > 50 && text.length < 500 && 
-                        !this.isDateText(text) && 
-                        !div.querySelector('h1, h2, h3, h4, h5, h6')) {
-                        console.log(`✅ Subtítulo encontrado con fallback: "${text.substring(0, 50)}..."`);
-                        return div;
-                    }
-                }
-                
-                console.warn(`⚠️ NO se encontró subtítulo ni con selectores ni con fallback`);
                 return null;
             }
 
@@ -2944,27 +2676,10 @@
 
             displayNews(news) {
                 console.log(`📰 displayNews llamado con ${news.length} noticias`);
-                console.trace('📍 displayNews llamado desde:'); // Ver desde dónde se llama
                 
                 // Estadística de subtítulos
                 const withSubtitle = news.filter(n => n.subtitle && n.subtitle.trim()).length;
                 console.log(`📊 ${withSubtitle} de ${news.length} noticias tienen subtítulo (${Math.round(withSubtitle/news.length*100)}%)`);
-                
-                // DEBUG: Verificar URLs duplicadas
-                const urls = news.map(n => n.link);
-                const uniqueUrls = new Set(urls);
-                const hasDuplicates = urls.length !== uniqueUrls.size;
-                console.log(`🔍 URLs únicas: ${uniqueUrls.size} de ${urls.length} ${hasDuplicates ? '⚠️ HAY DUPLICADOS EN EL ARRAY' : '✅ Sin duplicados en el array'}`);
-                
-                // Si hay duplicados, mostrar cuáles
-                if (hasDuplicates) {
-                    const urlCounts = {};
-                    urls.forEach(url => {
-                        urlCounts[url] = (urlCounts[url] || 0) + 1;
-                    });
-                    const duplicatedUrls = Object.entries(urlCounts).filter(([url, count]) => count > 1);
-                    console.warn('⚠️ URLs duplicadas:', duplicatedUrls.map(([url, count]) => `${url} (${count} veces)`));
-                }
                 
                 this.elements.resultsContainer.innerHTML = '';
 
@@ -3114,27 +2829,19 @@
 
                     for (const proxy of preferredProxies) {
                         try {
-                            console.log(`🌐 Intentando proxy: ${proxy.substring(0, 40)}...`);
                             const proxyUrl = proxy + encodeURIComponent(googleNewsUrl);
                             const response = await fetch(proxyUrl);
-
-                            console.log(`📡 Respuesta proxy: status ${response.status}`);
 
                             if (response.ok) {
                                 const htmlContent = await response.text();
                                 const news = this.parseGoogleNewsResults(htmlContent);
 
-                                console.log(`📰 Noticias encontradas con este proxy: ${news.length}`);
-
                                 if (news.length > 0) {
                                     allResults.push(...news);
                                     break;
                                 }
-                            } else {
-                                console.warn(`⚠️ Proxy falló con status ${response.status}`);
                             }
                         } catch (error) {
-                            console.error(`❌ Error con proxy: ${error.message}`);
                             continue;
                         }
                     }
@@ -3157,26 +2864,8 @@
                     // Ordenar por fecha
                     const sortedNews = this.sortNewsByDate(filteredNews);
 
-                    // Eliminar duplicados basándose en URL Y título (más agresivo)
-                    const uniqueNews = [];
-                    const seenUrls = new Set();
-                    const seenTitles = new Set();
-                    sortedNews.forEach(news => {
-                        const normalizedTitle = news.title.toLowerCase().trim();
-                        const key = `${news.link}||${normalizedTitle}`;
-                        
-                        if (!seenUrls.has(news.link) && !seenTitles.has(normalizedTitle)) {
-                            seenUrls.add(news.link);
-                            seenTitles.add(normalizedTitle);
-                            uniqueNews.push(news);
-                        } else {
-                            console.log(`🗑️ Duplicado eliminado: "${news.title.substring(0, 50)}..."`);
-                        }
-                    });
-                    console.log(`🗑️ Total eliminados: ${sortedNews.length - uniqueNews.length} duplicados de ${sortedNews.length} noticias`);
-
                     // Limitar a maxCount
-                    const limitedNews = uniqueNews.slice(0, maxCount);
+                    const limitedNews = sortedNews.slice(0, maxCount);
 
                     this.allNews = limitedNews;
 
