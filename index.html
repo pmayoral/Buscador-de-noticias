@@ -1679,7 +1679,10 @@
         console.log = function(...args) {
             originalConsoleLog.apply(console, args);
             const message = args.join(' ');
-            if (message.includes('🌐') || message.includes('📡') || message.includes('📰') || message.includes('🗑️') || message.includes('❌')) {
+            // Mostrar logs con estos emojis importantes
+            if (message.includes('🌐') || message.includes('📡') || message.includes('📰') || 
+                message.includes('🗑️') || message.includes('❌') || message.includes('✅') || 
+                message.includes('⚠️')) {
                 addDebugLog('log', message);
             }
         };
