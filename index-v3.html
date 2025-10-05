@@ -2710,21 +2710,55 @@
                     }
                 }
                 
-                // FALLBACK: Si ningún selector funcionó, buscar cualquier div/span con texto largo
+                // FALLBACK AGRESIVO: Buscar CUALQUIER texto que parezca un subtítulo
                 console.log('🔄🔄🔄 FALLBACK ACTIVADO - Buscando texto largo...');
-                const allDivs = item.querySelectorAll('div, span');
-                console.log(`📊 Encontrados ${allDivs.length} divs/spans para revisar`);
+                const allElements = item.querySelectorAll('div, span, p');
+                console.log(`📊 Encontrados ${allElements.length} elementos para revisar`);
                 
-                for (const div of allDivs) {
-                    const text = div.textContent?.trim() || '';
-                    // Debe ser texto largo (> 50 chars) pero no demasiado largo (< 500 chars)
-                    // No debe ser una fecha, no debe ser solo el título
-                    if (text.length > 50 && text.length < 500 && 
-                        !this.isDateText(text) && 
-                        !div.querySelector('h1, h2, h3, h4, h5, h6')) {
-                        console.log(`✅✅✅ SUBTITULO ENCONTRADO: "${text.substring(0, 50)}..."`);
-                        return div;
+                let mejorCandidato = null;
+                let mejorScore = 0;
+                
+                for (const element of allElements) {
+                    // Obtener solo el texto directo (sin hijos)
+                    const text = element.textContent?.trim() || '';
+                    
+                    // Ignorar elementos con hijos complejos (probablemente no son subtítulos)
+                    if (element.querySelector('h1, h2, h3, h4, h5, h6, a')) continue;
+                    
+                    // Debe tener un mínimo de texto
+                    if (text.length < 30) continue;
+                    
+                    // No debe ser una fecha
+                    if (this.isDateText(text)) continue;
+                    
+                    // Calcular "score" de qué tan probable es que sea un subtítulo
+                    let score = 0;
+                    
+                    // Texto entre 50 y 300 caracteres es ideal
+                    if (text.length >= 50 && text.length <= 300) score += 10;
+                    else if (text.length > 30 && text.length < 1000) score += 5;
+                    
+                    // Si tiene punto final, probablemente es una descripción
+                    if (text.endsWith('.') || text.endsWith('...')) score += 3;
+                    
+                    // Si tiene múltiples palabras, es mejor
+                    const palabras = text.split(/\s+/).length;
+                    if (palabras >= 10 && palabras <= 50) score += 5;
+                    
+                    // Si tiene comas, probablemente es una oración
+                    if (text.includes(',')) score += 2;
+                    
+                    // Actualizar mejor candidato
+                    if (score > mejorScore) {
+                        mejorScore = score;
+                        mejorCandidato = element;
                     }
+                }
+                
+                if (mejorCandidato) {
+                    const text = mejorCandidato.textContent?.trim();
+                    console.log(`✅✅✅ SUBTITULO ENCONTRADO (score: ${mejorScore}): "${text.substring(0, 50)}..."`);
+                    return mejorCandidato;
                 }
                 
                 console.log(`❌❌❌ NO SE ENCONTRO SUBTITULO`);
