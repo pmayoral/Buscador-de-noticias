@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
-PEPE
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1609,6 +1606,70 @@ PEPE
      </div>
 
     <script>
+        // ===== DETECCIÓN DE DISPOSITIVO Y NAVEGADOR =====
+        function esMovil() {
+            const userAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const pantallaPequeña = window.innerWidth <= 768;
+            const tieneTouch = 'ontouchstart' in window;
+            return userAgent || (pantallaPequeña && tieneTouch);
+        }
+
+        function detectarSistemaOperativo() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            
+            if (userAgent.includes('win')) return 'Windows';
+            if (userAgent.includes('mac')) return 'MacOS';
+            if (userAgent.includes('linux')) return 'Linux';
+            if (userAgent.includes('android')) return 'Android';
+            if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'iOS';
+            
+            return 'Desconocido';
+        }
+
+        function detectarNavegador() {
+            const userAgent = navigator.userAgent;
+            
+            if (userAgent.includes('Firefox')) return 'Firefox';
+            if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
+            if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
+            if (userAgent.includes('Edg')) return 'Edge';
+            if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
+            if (userAgent.includes('Trident')) return 'Internet Explorer';
+            
+            return 'Desconocido';
+        }
+
+        function obtenerInfoDispositivo() {
+            const sistema = detectarSistemaOperativo();
+            const navegador = detectarNavegador();
+            const tipoDispositivo = esMovil() ? 'Móvil' : 'Ordenador';
+            const resolucion = window.screen.width + ' x ' + window.screen.height;
+            const idioma = navigator.language;
+            
+            return {
+                sistema,
+                navegador,
+                tipoDispositivo,
+                resolucion,
+                idioma
+            };
+        }
+
+        // Mostrar información al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            const info = obtenerInfoDispositivo();
+            
+            const mensaje = `📱 INFORMACIÓN DEL DISPOSITIVO\n\n` +
+                          `🖥️ Tipo: ${info.tipoDispositivo}\n` +
+                          `💻 Sistema: ${info.sistema}\n` +
+                          `🌐 Navegador: ${info.navegador}\n` +
+                          `📐 Resolución: ${info.resolucion}\n` +
+                          `🗣️ Idioma: ${info.idioma}`;
+            
+            alert(mensaje);
+        });
+        // ===== FIN DETECCIÓN =====
+
         class NewsSearcher {
             constructor() {
                 this.elements = {
