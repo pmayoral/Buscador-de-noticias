@@ -2668,17 +2668,33 @@
             }
 
             findSnippetElement(item) {
-                const snippetSelectors = ['.ilUpNd.H66NU.aSRlid', '.GI74Re.nDgy9d', '.GI74Re', '.st', '.s3v9rd', '.VwiC3b', '.Y3v8qd'];
+                const snippetSelectors = [
+                    '.ilUpNd.H66NU.aSRlid', 
+                    '.GI74Re.nDgy9d', 
+                    '.GI74Re', 
+                    '.st', 
+                    '.s3v9rd', 
+                    '.VwiC3b', 
+                    '.Y3v8qd',
+                    // Selectores adicionales para móvil
+                    '.BNeawe.s3v9rd',
+                    '.BNeawe.AP7Wnd',
+                    'div[style*="color:#545454"]',
+                    'div[style*="color:#4d5156"]'
+                ];
+                
                 for (const selector of snippetSelectors) {
                     const element = item.querySelector(selector);
                     if (element && element.textContent?.trim()) {
                         let snippetText = element.textContent.trim();
                         snippetText = snippetText.replace(/\s*\d+\s+(hours?|days?|minutes?)\s+ago$/gi, '');
                         if (snippetText.length > 10) {
+                            console.log(`✅ Subtítulo encontrado con selector "${selector}": "${snippetText.substring(0, 50)}..."`);
                             return element;
                         }
                     }
                 }
+                console.warn(`⚠️ NO se encontró subtítulo. HTML del item:`, item.innerHTML.substring(0, 200));
                 return null;
             }
 
