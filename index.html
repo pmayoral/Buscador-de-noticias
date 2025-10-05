@@ -1164,6 +1164,7 @@
             margin-bottom: 8px;
             padding-bottom: 6px;
             border-bottom: 2px solid #e2e8f0;
+            gap: 8px;
         }
 
         .newspapers-dropdown__title {
@@ -1196,6 +1197,29 @@
             background: #cbd5e0;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        .newspapers-dropdown__info-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .newspapers-dropdown__info-btn:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .newspapers-dropdown__list {
@@ -1259,6 +1283,7 @@
         <div class="newspapers-dropdown__header">
             <div class="newspapers-dropdown__title">Periódicos (67)</div>
             <button class="newspapers-dropdown__export-btn" id="exportNewspapersBtn">Exportar</button>
+            <button class="newspapers-dropdown__info-btn" id="deviceInfoBtn" title="Información del dispositivo">ℹ️</button>
         </div>
         <ul class="newspapers-dropdown__list" id="newspapersList">
             <li class="newspapers-dropdown__item" data-domain="abc.es">
@@ -1664,8 +1689,8 @@
             };
         }
 
-        // Mostrar información al cargar la página
-        window.addEventListener('DOMContentLoaded', function() {
+        // Función para mostrar información del dispositivo
+        function mostrarInfoDispositivo() {
             const info = obtenerInfoDispositivo();
             
             // Crear un div flotante con la información
@@ -1692,7 +1717,7 @@
                 <p><strong>🌐 Navegador:</strong> ${info.navegador}</p>
                 <p><strong>📐 Resolución:</strong> ${info.resolucion}</p>
                 <p><strong>🗣️ Idioma:</strong> ${info.idioma}</p>
-                <p style="margin-top: 15px;"><strong>🔍 UserAgent (copia esto):</strong></p>
+                <p style="margin-top: 15px;"><strong>🔍 UserAgent:</strong></p>
                 <textarea readonly style="
                     width: 100%;
                     height: 100px;
@@ -1725,7 +1750,7 @@
             infoDiv.querySelector('textarea').addEventListener('click', function() {
                 this.select();
             });
-        });
+        }
         // ===== FIN DETECCIÓN =====
 
         class NewsSearcher {
@@ -2219,6 +2244,13 @@
                 exportBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.exportNewNewspapers();
+                });
+
+                // Botón de información del dispositivo
+                const deviceInfoBtn = document.getElementById('deviceInfoBtn');
+                deviceInfoBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    mostrarInfoDispositivo();
                 });
             }
 
