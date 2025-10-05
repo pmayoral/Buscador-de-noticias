@@ -1682,7 +1682,7 @@
             // Mostrar logs con estos emojis importantes
             if (message.includes('🌐') || message.includes('📡') || message.includes('📰') || 
                 message.includes('🗑️') || message.includes('❌') || message.includes('✅') || 
-                message.includes('⚠️') || message.includes('🔧')) {
+                message.includes('⚠️') || message.includes('🔧') || message.includes('🔄')) {
                 addDebugLog('log', message);
             }
         };
@@ -2592,7 +2592,7 @@
             }
 
             parseGoogleNewsResults(html) {
-                console.log('🔧 VERSIÓN: 2.0 - Con selectores de móvil para subtítulos');
+                console.log('🔧 VERSIÓN: 3.0 - Con fallback robusto para subtítulos en móvil');
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const news = [];
@@ -2698,7 +2698,23 @@
                         }
                     }
                 }
-                console.warn(`⚠️ NO se encontró subtítulo. HTML del item:`, item.innerHTML.substring(0, 200));
+                
+                // FALLBACK: Si ningún selector funcionó, buscar cualquier div/span con texto largo
+                console.log('🔄 Intentando fallback: buscando cualquier texto largo...');
+                const allDivs = item.querySelectorAll('div, span');
+                for (const div of allDivs) {
+                    const text = div.textContent?.trim() || '';
+                    // Debe ser texto largo (> 50 chars) pero no demasiado largo (< 500 chars)
+                    // No debe ser una fecha, no debe ser solo el título
+                    if (text.length > 50 && text.length < 500 && 
+                        !this.isDateText(text) && 
+                        !div.querySelector('h1, h2, h3, h4, h5, h6')) {
+                        console.log(`✅ Subtítulo encontrado con fallback: "${text.substring(0, 50)}..."`);
+                        return div;
+                    }
+                }
+                
+                console.warn(`⚠️ NO se encontró subtítulo ni con selectores ni con fallback`);
                 return null;
             }
 
