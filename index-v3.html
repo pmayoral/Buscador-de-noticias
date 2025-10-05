@@ -2699,6 +2699,10 @@
                     'div[style*="color:#4d5156"]'
                 ];
                 
+                // Primero obtener el título para comparar
+                const titleElement = item.querySelector('h3, h2, h1, a');
+                const titleText = titleElement?.textContent?.trim().toLowerCase() || '';
+                
                 for (const selector of snippetSelectors) {
                     // Buscar TODOS los elementos que coincidan con el selector (no solo el primero)
                     const elements = item.querySelectorAll(selector);
@@ -2710,15 +2714,26 @@
                             
                             // Aceptar texto desde 10 caracteres
                             if (snippetText.length >= 10) {
-                                // Verificar que no sea solo el título repitiendo
-                                const titleElement = item.querySelector('h3, h2, h1');
-                                const titleText = titleElement?.textContent?.trim() || '';
+                                const snippetLower = snippetText.toLowerCase();
                                 
-                                // Si el snippet es diferente al título, es válido
-                                if (!titleText || !snippetText.includes(titleText.substring(0, 30))) {
-                                    console.log(`✅ Subtítulo encontrado con selector "${selector}": "${snippetText.substring(0, 50)}..."`);
-                                    return element;
-                                }
+                                // VALIDACIONES ESTRICTAS: El snippet NO debe ser el título
+                                
+                                // 1. No debe ser idéntico al título
+                                if (snippetLower === titleText) continue;
+                                
+                                // 2. No debe contener el título completo (el título no debe estar dentro del snippet)
+                                if (titleText.length > 20 && snippetLower.includes(titleText)) continue;
+                                
+                                // 3. El snippet no debe estar contenido dentro del título
+                                if (snippetLower.length > 20 && titleText.includes(snippetLower)) continue;
+                                
+                                // 4. Si el snippet y el título tienen >80% de similitud, probablemente es el mismo
+                                const similarity = this.calculateSimilarity(snippetLower, titleText);
+                                if (similarity > 0.8) continue;
+                                
+                                // Si pasó todas las validaciones, es un subtítulo válido
+                                console.log(`✅ Subtítulo encontrado con selector "${selector}": "${snippetText.substring(0, 50)}..."`);
+                                return element;
                             }
                         }
                     }
@@ -2824,6 +2839,28 @@
                     'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
                 ];
                 return dateKeywords.some(keyword => text.toLowerCase().includes(keyword));
+            }
+
+            calculateSimilarity(str1, str2) {
+                if (!str1 || !str2) return 0;
+                if (str1 === str2) return 1;
+                
+                // Calcular similitud basada en palabras comunes
+                const words1 = str1.split(/\s+/).filter(w => w.length > 3);
+                const words2 = str2.split(/\s+/).filter(w => w.length > 3);
+                
+                if (words1.length === 0 || words2.length === 0) return 0;
+                
+                const set1 = new Set(words1);
+                const set2 = new Set(words2);
+                
+                let commonWords = 0;
+                for (const word of set1) {
+                    if (set2.has(word)) commonWords++;
+                }
+                
+                const similarity = (2 * commonWords) / (set1.size + set2.size);
+                return similarity;
             }
 
             parseDate(dateStr) {
