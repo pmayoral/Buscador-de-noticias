@@ -2684,6 +2684,7 @@
 
             findSnippetElement(item) {
                 const snippetSelectors = [
+                    '.aSRlid.H66NU.ilUpNd',
                     '.ilUpNd.H66NU.aSRlid', 
                     '.GI74Re.nDgy9d', 
                     '.GI74Re', 
@@ -2699,13 +2700,26 @@
                 ];
                 
                 for (const selector of snippetSelectors) {
-                    const element = item.querySelector(selector);
-                    if (element && element.textContent?.trim()) {
-                        let snippetText = element.textContent.trim();
-                        snippetText = snippetText.replace(/\s*\d+\s+(hours?|days?|minutes?)\s+ago$/gi, '');
-                        if (snippetText.length > 10) {
-                            console.log(`✅ Subtítulo encontrado con selector "${selector}": "${snippetText.substring(0, 50)}..."`);
-                            return element;
+                    // Buscar TODOS los elementos que coincidan con el selector (no solo el primero)
+                    const elements = item.querySelectorAll(selector);
+                    
+                    for (const element of elements) {
+                        if (element && element.textContent?.trim()) {
+                            let snippetText = element.textContent.trim();
+                            snippetText = snippetText.replace(/\s*\d+\s+(hours?|days?|minutes?)\s+ago$/gi, '');
+                            
+                            // Aceptar texto desde 10 caracteres
+                            if (snippetText.length >= 10) {
+                                // Verificar que no sea solo el título repitiendo
+                                const titleElement = item.querySelector('h3, h2, h1');
+                                const titleText = titleElement?.textContent?.trim() || '';
+                                
+                                // Si el snippet es diferente al título, es válido
+                                if (!titleText || !snippetText.includes(titleText.substring(0, 30))) {
+                                    console.log(`✅ Subtítulo encontrado con selector "${selector}": "${snippetText.substring(0, 50)}..."`);
+                                    return element;
+                                }
+                            }
                         }
                     }
                 }
