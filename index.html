@@ -3003,8 +3003,19 @@
                     // Ordenar por fecha
                     const sortedNews = this.sortNewsByDate(filteredNews);
 
+                    // Eliminar duplicados basándose en URL
+                    const uniqueNews = [];
+                    const seenUrls = new Set();
+                    sortedNews.forEach(news => {
+                        if (!seenUrls.has(news.link)) {
+                            seenUrls.add(news.link);
+                            uniqueNews.push(news);
+                        }
+                    });
+                    console.log(`🗑️ Eliminados ${sortedNews.length - uniqueNews.length} duplicados`);
+
                     // Limitar a maxCount
-                    const limitedNews = sortedNews.slice(0, maxCount);
+                    const limitedNews = uniqueNews.slice(0, maxCount);
 
                     this.allNews = limitedNews;
 
