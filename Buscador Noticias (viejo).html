@@ -1,0 +1,3931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador Inteligente de Noticias - Ultra Rápido</title>
+    <!-- Preconnect para servicios que realmente usamos -->
+    <link rel="preconnect" href="https://corsproxy.io">
+    <link rel="preconnect" href="https://search.brave.com">
+    <link rel="preconnect" href="https://www.bing.com">
+
+    <!-- DNS prefetch para resolución más rápida -->
+    <link rel="dns-prefetch" href="https://corsproxy.io">
+    <link rel="dns-prefetch" href="https://search.brave.com">
+    <link rel="dns-prefetch" href="https://www.bing.com">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --error-gradient: linear-gradient(135deg, #ffe6e6 0%, #ffcccb 100%);
+            --success-gradient: linear-gradient(135deg, #e6ffe6 0%, #ccffcc 100%);
+
+            --border-radius-sm: 8px;
+            --border-radius-md: 15px;
+            --border-radius-lg: 25px;
+
+            --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+            --transition-fast: all 0.2s ease;
+
+            --spacing-md: 20px;
+            --spacing-lg: 40px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.98);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--secondary-gradient);
+            padding: var(--spacing-md);
+            color: white;
+            text-align: center;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .auto-refresh-timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auto-refresh-timer.refreshing {
+            background: var(--primary-gradient);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .search-section {
+            padding: var(--spacing-lg) var(--spacing-md);
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 0 20px;
+        }
+
+        .search-input {
+            flex: 0 1 300px;
+            min-width: 200px;
+            max-width: 300px;
+            padding: 12px 20px;
+            border: 2px solid #e1e8ff;
+            border-radius: var(--border-radius-lg);
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+            transition: var(--transition-fast);
+            outline: none;
+            order: 1;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .primary-btn {
+            background: var(--primary-gradient);
+            color: white;
+            order: 2;
+        }
+
+        .dropdown {
+            padding: 12px 15px;
+            border: 2px solid #e1e8ff;
+            border-radius: var(--border-radius-lg);
+            background: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            height: 44px;
+            box-sizing: border-box;
+            transition: var(--transition-fast);
+            outline: none;
+        }
+
+        .dropdown:hover, .dropdown:focus {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+        }
+
+        .results-dropdown {
+            width: 140px;
+            order: 3;
+        }
+
+        .media-dropdown {
+            width: 180px;
+            order: 4;
+        }
+
+        .sources-dropdown {
+            width: 200px;
+            order: 5;
+            border-color: #667eea;
+        }
+
+        .sources-toggle-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            order: 5;
+            flex: 0 0 auto;
+        }
+
+        .open-mode {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 8px;
+            order: 6;
+            flex: 0 0 auto;
+        }
+
+        .toggle-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+            background: #fff;
+            border: 2px solid #667eea;
+            white-space: nowrap;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #cfd4ff;
+            transition: .2s;
+            border-radius: 24px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        }
+
+        input:checked + .slider {
+            background: var(--primary-gradient);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-section {
+            padding: 40px 10px;
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            padding: 0;
+            contain: layout style;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            will-change: transform;
+        }
+
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary-gradient);
+        }
+
+        .news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .news-title a {
+            color: #000;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .news-title a:hover {
+            color: #333;
+        }
+
+        .news-source {
+            background: #f5f5f5;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-date {
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .news-meta-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .news-meta-top .news-source {
+            font-weight: 600;
+            color: #1565c0;
+        }
+
+        .news-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e3f2fd 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 0.7rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius-sm);
+            display: block !important;
+            visibility: visible !important;
+            cursor: pointer;
+        }
+
+        .news-image img[loading="lazy"] {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .news-image img.loaded {
+            opacity: 1;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.2);
+            z-index: 9999;
+            display: none;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+
+        /* Modal emergente - basado en Noticiero prueba.html */
+        .link-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            z-index: 2147483647;
+        }
+
+        .link-modal-container {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 90%;
+            max-width: 1100px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .link-modal-header {
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #111827;
+            color: #fff;
+        }
+
+        .link-modal-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            max-height: 3em;
+            overflow: hidden;
+            flex: 1;
+            padding-right: 10px;
+        }
+
+        .link-modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .link-modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .link-modal-body {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .link-modal-footer {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e1e5e9;
+            text-align: center;
+        }
+
+        .link-modal-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link-modal-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Estilos para el contenido extraído - basado en Noticiero prueba.html */
+        .article {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .article-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .article-meta {
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: #f0fdf4;
+            border-left: 6px solid #22c55e;
+            border-radius: 4px 8px 8px 4px;
+            color: #065f46;
+        }
+
+        .article-meta div {
+            margin-bottom: 4px;
+        }
+
+        .article-meta div:last-child {
+            margin-bottom: 0;
+        }
+
+        .article-content {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .article-content p {
+            margin: 0 0 1rem;
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 0 0 1rem 1.25rem;
+        }
+
+        .article-content li {
+            margin: 0.25rem 0;
+        }
+
+        .article-content blockquote {
+            margin: 0 0 1rem;
+            padding-left: 12px;
+            border-left: 4px solid #e5e7eb;
+            color: #374151;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .error-message {
+            background: var(--error-gradient);
+            color: #d32f2f;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin: 20px 40px;
+            border-left: 5px solid #d32f2f;
+            display: none;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(250, 112, 154, 0.4);
+            transition: var(--transition-fast);
+            display: none;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(250, 112, 154, 0.6);
+        }
+
+        .ed-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #ddd;
+            border-top-color: #2a6df4;
+            border-radius: 50%;
+            animation: edSpin 1s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes edSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 0;
+                padding: 0 5px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .search-section,
+            .results-section {
+                padding: 20px 15px;
+            }
+
+            .search-container {
+                max-width: 100%;
+                padding: 0 15px;
+                gap: 12px;
+                justify-content: flex-start;
+            }
+
+            .search-input {
+                flex: 0 0 200px;
+                max-width: 200px;
+                min-width: 160px;
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+
+            .dropdown,
+            .toggle-chip {
+                min-width: 130px;
+                font-size: 13px;
+                padding: 10px 12px;
+                height: 40px;
+            }
+
+            .sources-dropdown,
+            .media-dropdown {
+                width: 100%;
+                max-width: 300px;
+                margin-bottom: 8px;
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+                gap: 8px;
+                padding: 0 8px;
+            }
+
+            .news-card {
+                padding: 10px;
+            }
+
+            .news-title {
+                font-size: 0.85rem;
+            }
+
+            .news-image {
+                height: 120px;
+            }
+        }
+
+        /* Estilos para bloques "saber más" con imagen a la derecha */
+        .know-more.know-more--with-image { margin: 0; overflow: hidden; }
+        .know-more.know-more--with-image::before { content: ""; display: block; height: 3em; }
+        .know-more.know-more--with-image::after { content: ""; display: block; height: 3em; clear: both; }
+        .know-more.know-more--with-image .know-more__img { float: right; max-width: 220px; margin: 0 0 8px 12px; }
+        .know-more.know-more--with-image .know-more__img img { max-width: 220px; height: auto; display: block; }
+        /* Texto a la izquierda (ocupa el espacio disponible) */
+        .know-more.know-more--with-image .know-more__title {
+            flex: 1 1 auto;
+            text-align: left;
+        }
+
+        /* Imagen a la derecha con ancho fijo */
+        .know-more.know-more--with-image .know-more__img {
+            margin-left: auto;
+            flex: 0 0 auto;
+            align-self: flex-start;
+        }
+
+        @media (max-width: 640px) {
+            .know-more.know-more--with-image .know-more__img { float: none; margin: 8px 0 0 0; }
+            .know-more.know-more--with-image .know-more__img img { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="autoRefreshTimer" class="auto-refresh-timer">
+        <span>⏱️</span>
+        <span id="timerText">Próxima actualización en 5:00</span>
+    </div>
+    <div class="progress-bar" id="progressBar">
+        <div class="progress-bar-fill" id="progressBarFill"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>📰 Buscador de Noticias Ultra Rápido</h1>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input"
+                       placeholder="¿Sobre qué quieres saber las últimas noticias?"
+                       onkeydown="window.handleEnterKey ? window.handleEnterKey(event) : null">
+
+                <button class="btn primary-btn" onclick="window.searchNews ? window.searchNews() : alert('searchNews no está definida')">
+                    🔍 Buscar
+                </button>
+
+                <select id="resultsLimit" class="dropdown results-dropdown" onchange="handleLimitChange()">
+                    <option value="25" selected>25 noticias</option>
+                    <option value="50">50 noticias</option>
+                    <option value="100">100 noticias</option>
+                    <option value="all">Todas las disponibles</option>
+                </select>
+
+                <select id="mediaDropdown" class="dropdown media-dropdown" onchange="filterByMedia()">
+                    <option value="">Todos los medios</option>
+                </select>
+
+                <div class="sources-toggle-group">
+                    <select id="sourcesDropdown" class="dropdown sources-dropdown" onchange="handleSourceChange()">
+                        <option value="all">Todas las fuentes</option>
+                        <option value="brave">Brave Search</option>
+                        <option value="bing">Bing News</option>
+                    </select>
+                    <div class="open-mode" title="Abrir en ventana nueva o en modal">
+                        <label class="switch">
+                            <input type="checkbox" id="openInSource" aria-label="Ver noticia en ventana" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-chip" id="openModeLabel">Ver noticia en ventana</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="loading" id="loadingSection">
+            <div class="loading-spinner"></div>
+            <h3>🚀 Buscando noticias...</h3>
+            <p id="loadingText">Procesando las fuentes seleccionadas para obtener los mejores resultados</p>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar noticias extraídas -->
+    <div id="linkModal" class="link-modal-overlay">
+        <div id="linkModalContainer" class="link-modal-container">
+            <div class="link-modal-header">
+                <span id="linkModalTitle" class="link-modal-title">Cargando...</span>
+                <button id="linkModalClose" class="link-modal-close">Cerrar</button>
+            </div>
+            <div id="linkModalBody" class="link-modal-body">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Extrayendo contenido de la noticia...</p>
+                </div>
+            </div>
+            <div class="link-modal-footer">
+                <a href="#" id="linkModalSourceLink" target="_blank" rel="noopener noreferrer">Ver noticia original</a>
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-action" id="scrollToTop" onclick="scrollToTop()" title="Volver arriba">↑</button>
+
+    <script>
+        // Constants
+        const APP_CONFIG = {
+            // Configuración general
+            PREFETCH_DELAY: 100,
+            IMAGE_LOAD_TIMEOUT: 3000,
+            SEARCH_TIMEOUT: 15000,
+            LAZY_LOAD_THRESHOLD: 10,
+
+            // URLs de servicios
+            BRAVE_NEWS_URL: 'https://search.brave.com/news?q={query}&source=web',
+            BING_NEWS_URL: 'https://www.bing.com/news/search?q={query}&qft=interval%3d"8"&form=PTFTNR',
+            PROXY_URL: 'https://corsproxy.io/?{url}',
+            READER_URL: 'https://r.jina.ai/{url}',
+
+            // Headers estándar
+            DEFAULT_HEADERS: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3'
+            }
+        };
+
+        const LOADING_MESSAGES = {
+            brave: 'Procesando Brave Search para obtener las mejores noticias',
+            bing: 'Procesando Bing News para obtener los mejores resultados',
+            all: 'Procesando las fuentes seleccionadas para obtener los mejores resultados'
+        };
+
+        // State management
+        const appState = {
+            currentResults: [],
+            filteredResults: [],
+            searchQuery: '',
+            isLoading: false,
+            imageObserver: null,
+            prefetchQueue: new Set(),
+            autoRefreshInterval: null,
+            refreshCountdown: 300 // 5 minutos en segundos
+        };
+
+        // Cache
+        const cache = {
+            articles: new Map(),
+            images: new Map(),
+            searchResults: new Map()
+        };
+
+        const cacheManager = {
+            get(url) {
+                const entry = cache.articles.get(url);
+                if (!entry) return null;
+                if (Date.now() - entry.ts > 5 * 60 * 1000) {
+                    cache.articles.delete(url);
+                    return null;
+                }
+                return entry.article;
+            },
+            set(url, article) {
+                cache.articles.set(url, { article, ts: Date.now() });
+            }
+        };
+
+        // DOM elements cache
+        const elements = {};
+
+        function initElements() {
+            const ids = ['searchInput', 'resultsLimit', 'mediaDropdown', 'sourcesDropdown',
+                        'openInSource', 'openModeLabel', 'errorMessage', 'loadingSection',
+                        'loadingText', 'resultsSection', 'resultsGrid', 'scrollToTop',
+                        'progressBar', 'progressBarFill'];
+
+            ids.forEach(id => {
+                elements[id] = document.getElementById(id);
+            });
+        }
+
+        // Progress bar
+        function showProgress(percent) {
+            elements.progressBar.style.display = 'block';
+            elements.progressBarFill.style.width = percent + '%';
+        }
+
+        function hideProgress() {
+            setTimeout(() => {
+                elements.progressBar.style.display = 'none';
+                elements.progressBarFill.style.width = '0';
+            }, 300);
+        }
+
+        // Lazy loading setup
+        function setupLazyLoading() {
+            if ('IntersectionObserver' in window) {
+                appState.imageObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            if (img.dataset.src) {
+                                loadImage(img);
+                                appState.imageObserver.unobserve(img);
+                            }
+                        }
+                    });
+                }, {
+                    rootMargin: '50px'
+                });
+            }
+        }
+
+        function loadImage(img) {
+            const src = img.dataset.src;
+            if (!src) return;
+
+            // Check cache first
+            if (cache.images.has(src)) {
+                img.src = cache.images.get(src);
+                img.classList.add('loaded');
+                return;
+            }
+
+            // Create temporary image to load
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                img.src = src;
+                img.classList.add('loaded');
+                cache.images.set(src, src);
+            };
+            tempImg.onerror = () => {
+                const container = img.parentElement;
+                if (container) {
+                    container.innerHTML = '📰 Sin imagen';
+                }
+            };
+            tempImg.src = src;
+        }
+
+        // Optimized fetch
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal,
+                    cache: 'force-cache'
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+
+        async function fetchWithProxy(url, options = {}, timeoutMs = 5000) {
+            // Check cache first
+            const cacheKey = `proxy_${url}`;
+            if (cache.searchResults.has(cacheKey)) {
+                return cache.searchResults.get(cacheKey);
+            }
+
+            const proxyUrl = APP_CONFIG.PROXY_URL.replace('{url}', encodeURIComponent(url));
+            try {
+                const response = await fetchWithTimeout(proxyUrl, options, timeoutMs);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const text = await response.text();
+
+                // Cache result
+                cache.searchResults.set(cacheKey, text);
+                return text;
+            } catch (error) {
+                const directResponse = await fetchWithTimeout(url, options, 3000);
+                if (directResponse.ok) {
+                    const text = await directResponse.text();
+                    cache.searchResults.set(cacheKey, text);
+                    return text;
+                }
+                throw new Error('No se pudo obtener contenido');
+            }
+        }
+
+        // Time parsing
+        function parseTimeToISO(timeText) {
+            if (!timeText || timeText === 'Reciente') return new Date().toISOString();
+
+            const now = new Date();
+            const lowerText = timeText.toLowerCase();
+
+            // Patrones que incluyen la palabra "hace"
+            const patterns = [
+                { regex: /hace\s+(\d+)\s*(?:semanas?|weeks?)/, multiplier: 604800000 }, // 7 * 24 * 60 * 60 * 1000
+                { regex: /hace\s+(\d+)\s*(?:h|horas?)/, multiplier: 3600000 },
+                { regex: /hace\s+(\d+)\s*(?:min|minutos?)/, multiplier: 60000 },
+                { regex: /hace\s+(\d+)\s*(?:d[íi]a|d[íi]as)/, multiplier: 86400000 },
+                { regex: /(\d+)\s*(?:semanas?|weeks?)/, multiplier: 604800000 },
+                { regex: /(\d+)\s*(?:h|horas?)/, multiplier: 3600000 },
+                { regex: /(\d+)\s*(?:min|minutos?)/, multiplier: 60000 },
+                { regex: /(\d+)\s*(?:d[íi]a|d[íi]as)/, multiplier: 86400000 }
+            ];
+
+            for (const pattern of patterns) {
+                const match = lowerText.match(pattern.regex);
+                if (match) {
+                    const value = parseInt(match[1]);
+                    return new Date(now.getTime() - value * pattern.multiplier).toISOString();
+                }
+            }
+
+            if (lowerText.includes('ayer')) return new Date(now.getTime() - 86400000).toISOString();
+            if (lowerText.includes('hoy')) return new Date(now.getTime() - 3600000).toISOString();
+
+            return new Date(now.getTime() - 1800000).toISOString();
+        }
+
+        // Formatea un timestamp ISO a tiempo relativo corto con prefijo "hace" (min, h, d)
+        function formatRelativeTime(timestampISO, fallbackText = '') {
+            try {
+                const ts = new Date(timestampISO).getTime();
+                if (!isFinite(ts)) throw new Error('Invalid timestamp');
+
+                const diffMs = Date.now() - ts;
+
+                // Si la diferencia es negativa (fecha futura), es un error de parsing
+                if (diffMs < 0) {
+                    const lower = (fallbackText || '').toLowerCase();
+                    if (lower && lower !== 'reciente') return fallbackText;
+                    return 'hace 1 min';
+                }
+
+                const diffMin = Math.max(1, Math.round(diffMs / 60000));
+                if (diffMin < 60) return `hace ${diffMin} min`;
+                const diffHr = Math.floor(diffMin / 60);
+                if (diffHr < 48) return `hace ${diffHr} h`;
+                const diffDay = Math.floor(diffHr / 24);
+                if (diffDay < 7) return `hace ${diffDay} d`;
+                const diffWeek = Math.floor(diffDay / 7);
+                return `hace ${diffWeek} sem`;
+            } catch (e) {
+                const lower = (fallbackText || '').toLowerCase();
+                if (lower && lower !== 'reciente') return fallbackText;
+                return 'hace 1 min';
+            }
+        }
+
+        // Parallel search with progress
+        async function searchNews() {
+            const query = elements.searchInput.value.trim();
+            if (!query) {
+                showMessage('Por favor, introduce un término de búsqueda', 'error');
+                return;
+            }
+
+            // Reiniciar el timer cuando se hace una búsqueda manual
+            startAutoRefresh();
+
+            // Check cache first (incluye límite); ignorar caché vacío
+            const cacheKey = `search_${query}_${elements.sourcesDropdown.value}_${elements.resultsLimit?.value || 'all'}`;
+            if (cache.searchResults.has(cacheKey)) {
+                const cachedResults = cache.searchResults.get(cacheKey);
+                if (Array.isArray(cachedResults) && cachedResults.length > 0) {
+                    processSearchResults(cachedResults);
+                    return;
+                }
+            }
+
+            appState.searchQuery = query;
+            appState.currentResults = [];
+            appState.filteredResults = [];
+            appState.isLoading = true;
+
+            toggleUI('loading', true);
+            hideMessage();
+            showProgress(10);
+
+            try {
+                const selectedSource = elements.sourcesDropdown.value;
+                const allResults = await fetchNewsFromSourceParallel(selectedSource, query);
+
+                showProgress(80);
+
+                const resultsToUse = selectedSource === 'all' ? removeDuplicates(allResults) : allResults;
+                const sortedResults = resultsToUse.sort((a, b) =>
+                    new Date(b.timestamp) - new Date(a.timestamp)
+                );
+
+                // Enriquecer con imágenes OG para resultados sin imagen (rápido y limitado)
+                await enrichResultsWithOgImages(sortedResults, 20);
+
+                if (sortedResults.length > 0) {
+                    cache.searchResults.set(cacheKey, sortedResults);
+                }
+                processSearchResults(sortedResults);
+
+            } catch (error) {
+                toggleUI('loading', false);
+                showMessage('Error al buscar noticias. Inténtalo de nuevo.', 'error');
+                hideProgress();
+            } finally {
+                appState.isLoading = false;
+            }
+        }
+
+        function processSearchResults(results) {
+            appState.currentResults = results;
+            appState.filteredResults = [...results];
+
+            showProgress(90);
+            toggleUI('loading', false);
+
+            if (results.length === 0) {
+                showNoResults();
+                hideProgress();
+                return;
+            }
+
+            displayResultsProgressive(appState.filteredResults);
+            updateMediaDropdown(appState.currentResults);
+            showMessage(`✅ ${appState.currentResults.length} noticias obtenidas`, 'success');
+
+            elements.resultsSection.style.display = 'block';
+            showProgress(100);
+            hideProgress();
+        }
+
+        async function fetchNewsFromSourceParallel(source, query) {
+            const promises = [];
+
+            if (source === 'all' || source === 'brave') {
+                promises.push(scrapeBraveNews(query));
+            }
+
+            if (source === 'all' || source === 'bing') {
+                promises.push(scrapeBingNews(query));
+            }
+
+            const results = await Promise.all(promises);
+            return results.flat();
+        }
+
+        async function scrapeBraveNews(query) {
+            try {
+                const url = APP_CONFIG.BRAVE_NEWS_URL.replace('{query}', encodeURIComponent(query));
+                const html = await fetchWithProxy(url);
+                showProgress(30);
+                return parseBraveNewsHTML(html);
+            } catch (error) {
+                return [];
+            }
+        }
+
+        async function scrapeBingNews(query) {
+            try {
+                const baseUrl = APP_CONFIG.BING_NEWS_URL.replace('{query}', encodeURIComponent(query));
+                const limitValue = elements.resultsLimit?.value || '25';
+                const desiredMax = limitValue === 'all' ? 200 : parseInt(limitValue, 10);
+
+
+                const allArticles = [];
+                const seenUrls = new Set();
+
+                // Calcular número de páginas necesarias (Bing muestra ~8-10 noticias por página)
+                const articlesPerPage = 8; // Usar 8 como promedio conservador
+                const pagesNeeded = Math.ceil(desiredMax / articlesPerPage);
+                const maxPages = Math.min(pagesNeeded + 2, 15); // Solicitar 2 páginas extra como buffer
+
+
+                // Fetch multiple pages in parallel (Bing usa índice 1-based: 1,11,21...)
+                const pagePromises = [];
+                for (let page = 0; page < maxPages; page++) {
+                    const first = (page * 10) + 1; // Bing usa incrementos de 10 (1,11,21,31...)
+                    pagePromises.push(
+                        fetchWithProxy(`${baseUrl}&first=${first}`, {
+                            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                        }, 4000).then(html => parseBingNewsHTML(html))
+                    );
+                }
+
+                showProgress(50);
+                const pageResults = await Promise.all(pagePromises);
+
+                // Procesar resultados hasta alcanzar el límite deseado
+                let pageIndex = 0;
+                for (const pageArticles of pageResults) {
+                    for (const article of pageArticles || []) {
+                        if (allArticles.length >= desiredMax) {
+                            break;
+                        }
+                        if (article && article.url && !seenUrls.has(article.url)) {
+                            seenUrls.add(article.url);
+                            allArticles.push(article);
+                        }
+                    }
+                    pageIndex++;
+                    if (allArticles.length >= desiredMax) break;
+                }
+
+
+                showProgress(70);
+                return allArticles;
+            } catch (error) {
+                return [];
+            }
+        }
+
+        // Función síncrona para obtener favicon de fallback
+        function getFallbackImageSync(url) {
+            try {
+                if (url && url.startsWith('http')) {
+                    const domain = new URL(url).hostname;
+                    return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+                }
+                return null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        // Funciones utilitarias para parsing
+        function extractNewsData(container, selectors, index) {
+            const linkElement = container.querySelector(selectors.link) || container.querySelector('a');
+            if (!linkElement) return null;
+
+            const url = linkElement.getAttribute('href');
+            if (!url || !url.startsWith('http')) return null;
+
+            const titleElement = container.querySelector(selectors.title) ||
+                                linkElement.querySelector('span, div') || linkElement;
+            const title = titleElement?.textContent?.trim();
+            if (!title) return null;
+
+            const descElement = container.querySelector(selectors.description);
+            const snippet = descElement?.textContent?.trim() || title;
+
+            // Extraer fuente específicamente del elemento .netloc
+            const netloc = container.querySelector('.netloc, .org-wrapper .netloc');
+            const sourceElement = container.querySelector(selectors.source);
+            let source = netloc?.textContent?.trim() || sourceElement?.textContent?.trim() || new URL(url).hostname.replace('www.', '');
+
+            // Separar fuente y hora si están juntas (formato: "Fuente - hace X tiempo")
+            if (source.includes(' - hace ') || source.includes(' · hace ') || source.includes(' • hace ')) {
+                const parts = source.split(/ - hace | · hace | • hace /);
+                source = parts[0].trim();
+            }
+
+            // Extraer hora específicamente del elemento .attr que no sea separador
+            let dateText = 'Reciente';
+
+            // Buscar todos los elementos .attr y encontrar el que contiene la hora
+            const allTimeElements = container.querySelectorAll('.attr');
+            for (const elem of allTimeElements) {
+                const text = elem.textContent?.trim();
+                if (text && text.includes('hace ') && !elem.classList.contains('separator')) {
+                    dateText = text;
+                    break;
+                }
+            }
+
+            // Fallback a los selectores originales si no se encontró
+            if (dateText === 'Reciente') {
+                const timeElement = container.querySelector(selectors.time);
+                dateText = timeElement?.textContent?.trim() || 'Reciente';
+            }
+
+
+            return {
+                title,
+                url,
+                snippet,
+                source,
+                date: dateText,
+                timestamp: parseTimeToISO(dateText),
+                category: 'Actualidad',
+                relevanceScore: 100 - index
+            };
+        }
+
+        function extractBraveImage(container) {
+            const newsImages = container.querySelectorAll('img[src*="imgs.search.brave.com"]');
+
+            for (const img of newsImages) {
+                const src = img.getAttribute('src') || '';
+                const width = parseInt(img.getAttribute('width')) || 0;
+                const height = parseInt(img.getAttribute('height')) || 0;
+
+                if (width >= 50 && height >= 50 && !src.toLowerCase().includes('logo')) {
+                    return src;
+                }
+            }
+
+            const fallbackImg = container.querySelector('.image-wrapper.type-news img, .image-wrapper.svelte-ewpdwi img');
+            return fallbackImg?.getAttribute('src') || null;
+        }
+
+        // HTML Parser para Brave Search
+        function parseBraveNewsHTML(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Limpiar preloads de Brave para evitar advertencias
+            const preloads = doc.querySelectorAll('link[rel="preload"]');
+            preloads.forEach(link => link.remove());
+
+            const articles = [];
+
+            const selectors = {
+                containers: [
+                    '.snippet[data-type="news"], .snippet.svelte-1o29vmf[data-type="news"]',
+                    '.snippet, .snippet.svelte-1o29vmf, [class*="snippet"]',
+                    '[class*="result"], .result, .search-result, article',
+                    'div:has(a), li:has(a)'
+                ],
+                link: '.result-header.l1, a.result-header, .result-header, a[href]',
+                title: '.snippet-title, .line-clamp-2.heading-serpresult, h3, h2, .title',
+                description: '.desc.line-clamp-2, p.desc, .desc, p, .description',
+                source: '.netloc, .org-wrapper .netloc, .source, cite, .domain',
+                time: 'cite .attr:not(.separator), .attr:not(.separator), cite .attr, .date, .time, time, .published'
+            };
+
+            let newsContainers = null;
+            for (const selector of selectors.containers) {
+                newsContainers = doc.querySelectorAll(selector);
+                if (newsContainers.length > 0) break;
+            }
+
+            newsContainers.forEach((container, index) => {
+                try {
+                    const newsData = extractNewsData(container, selectors, index);
+                    if (newsData) {
+                        newsData.image = extractBraveImage(container) || getFallbackImageSync(newsData.url);
+                        articles.push(newsData);
+                    }
+                } catch (error) {
+                    // Silent error handling
+                }
+            });
+
+            return articles;
+        }
+
+        // HTML Parsers (legacy Google - mantenido por compatibilidad)
+        function parseGoogleNewsHTML(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const articles = [];
+
+
+            // Detectar si es la SERP de Google News (tbm=nws) - mejorado para AllOrigins
+            const isGoogleWebNews = !!(
+                doc.title.includes('Google Search') ||
+                doc.title.includes('Buscar con Google') ||
+                doc.querySelector('main') ||
+                doc.querySelector('div.dbsr, div.SoAPf, a.WlydOe') ||
+                doc.querySelector('#search') ||
+                html.includes('tbm=nws') ||
+                html.includes('Google News')
+            );
+
+            if (isGoogleWebNews) {
+                // Google Web News (tbm=nws)
+                // Incluir variantes de tarjetas y excluir publicidad (Gx5Zad)
+                const seen = new Set();
+                // Usar los selectores que funcionan con la estructura actual
+                const containers = doc.querySelectorAll('.MjjYud, .SoaBEf, div.dbsr, div.SoAPf, main .xpd:not(.Gx5Zad), main .kCrYT, main .BamJPe, main .XR4uSe');
+
+                for (const [index, item] of containers.entries()) {
+                    try {
+                        // Saltar tarjetas marcadas como publicidad
+                        if (item.classList.contains('Gx5Zad')) continue;
+
+                        const link = item.querySelector('a.WlydOe, a[jsname="YKoRaf"], div.dbsr a, a[href^="http"], a[href^="/url"], h3 a, a[data-ved]');
+                        if (!link) continue;
+                        const titleNode = item.querySelector('div[role="heading"], h3, .JheGif, .mCBkyc, .LC20lb, .DKV0Md');
+                        const rawTitle = (titleNode?.textContent || link.textContent || '').trim();
+                        if (!rawTitle) continue;
+
+                        let url = link.getAttribute('href') || '';
+                        if (!url) continue;
+                        url = resolveUrl(url);
+                        if (seen.has(url)) continue;
+                        seen.add(url);
+
+                        // Fuente y tiempo
+                        const sourceNode = item.querySelector('.CEMjEf, .NUnG9d, .xQ82C, .xQ82C.e8fRJf, .fwzPFf, .SVJrMe');
+                        const source = (sourceNode?.textContent || '').trim() || extractDomainFromUrl(url) || 'Google News';
+
+                        const timeNode = item.querySelector('.OSrXXb, .WG9SHc span, time, .HU1Q3b span');
+                        const dateText = (timeNode?.textContent || timeNode?.getAttribute('datetime') || 'Reciente').toString().trim();
+                        const timestamp = timeNode?.getAttribute?.('datetime')
+                            ? new Date(timeNode.getAttribute('datetime')).toISOString()
+                            : parseTimeToISO(dateText);
+
+                        const image = url ? getFallbackImageSync(url) : null;
+
+                        articles.push({
+                            title: rawTitle,
+                            url,
+                            googleUrl: link.href,
+                            snippet: rawTitle,
+                            source,
+                            date: dateText,
+                            timestamp,
+                            category: 'Actualidad',
+                            relevanceScore: 100 - index,
+                            image
+                        });
+                    } catch (_) {}
+                }
+
+                // Fallback adicional: recorrer todos los enlaces de resultado
+                const links = doc.querySelectorAll('a.WlydOe[href]');
+                for (const [i, link] of links.entries()) {
+                    try {
+                        let url = link.getAttribute('href') || '';
+                        if (!url) continue;
+                        url = resolveUrl(url);
+                        if (!url || seen.has(url)) continue;
+                        seen.add(url);
+
+                        const container = link.closest('div.SoAPf, div.dbsr, .xpd') || link.parentElement;
+                        const titleNode = container?.querySelector('div[role="heading"], h3, .JheGif, .mCBkyc') || link;
+                        const rawTitle = (titleNode?.textContent || link.textContent || '').trim();
+                        if (!rawTitle) return;
+
+                        const sourceNode = container?.querySelector('.CEMjEf, .NUnG9d, .MgUUmf.NUnG9d, .xQ82C, .fwzPFf, .SVJrMe');
+                        const source = (sourceNode?.textContent || '').trim() || extractDomainFromUrl(url) || 'Google News';
+
+                        const timeNode = container?.querySelector('.OSrXXb time, .OSrXXb span, time');
+                        const dateText = (timeNode?.textContent || timeNode?.getAttribute?.('datetime') || 'Reciente').toString().trim();
+                        const timestamp = timeNode?.getAttribute?.('datetime')
+                            ? new Date(timeNode.getAttribute('datetime')).toISOString()
+                            : parseTimeToISO(dateText);
+
+                        const image = (container ? extractGoogleSerpNewsImage(container) : null) || (url ? getFallbackImageSync(url) : null);
+
+                        articles.push({
+                            title: rawTitle,
+                            url,
+                            googleUrl: link.href,
+                            snippet: rawTitle,
+                            source,
+                            date: dateText,
+                            timestamp,
+                            category: 'Actualidad',
+                            relevanceScore: 50 - Math.min(i, 49),
+                            image
+                        });
+                    } catch (_) {}
+                }
+
+                // Fallback genérico: anchors dentro de main con patrones comunes
+                if (articles.length === 0) {
+                    const genericAnchors = doc.querySelectorAll('main a[jsname="YKoRaf"], main a.WlydOe, main a[href^="/url?"], main .kCrYT a[href], main .XR4uSe a[href]');
+                    for (const [j, a] of genericAnchors.entries()) {
+                        try {
+                            let href = a.getAttribute('href') || '';
+                            if (!href) continue;
+                            const finalUrl = resolveUrl(href);
+                            if (!finalUrl || seen.has(finalUrl)) continue;
+                            // Evitar enlaces a Google
+                            if (/google\.(com|es)\//i.test(finalUrl)) continue;
+                            seen.add(finalUrl);
+
+                            const block = a.closest('div.SoAPf, div.dbsr, .xpd, .kCrYT, .XR4uSe') || a.parentElement;
+                            const titleNode = block?.querySelector('div[role="heading"], h3, .JheGif, .mCBkyc') || a;
+                            const rawTitle = (titleNode?.textContent || a.textContent || '').trim();
+                            if (!rawTitle) return;
+
+                            const sourceNode = block?.querySelector('.CEMjEf, .NUnG9d, .MgUUmf.NUnG9d, .xQ82C, .fwzPFf, .SVJrMe');
+                            const source = (sourceNode?.textContent || '').trim() || extractDomainFromUrl(finalUrl) || 'Google News';
+
+                            const timeNode = block?.querySelector('.OSrXXb time, .OSrXXb span, time');
+                            const dateText = (timeNode?.textContent || timeNode?.getAttribute?.('datetime') || 'Reciente').toString().trim();
+                            const timestamp = timeNode?.getAttribute?.('datetime')
+                                ? new Date(timeNode.getAttribute('datetime')).toISOString()
+                                : parseTimeToISO(dateText);
+
+                            const image = (block ? extractGoogleSerpNewsImage(block) : null) || (finalUrl ? getFallbackImageSync(finalUrl) : null);
+
+                            articles.push({
+                                title: rawTitle,
+                                url: finalUrl,
+                                googleUrl: a.href,
+                                snippet: rawTitle,
+                                source,
+                                date: dateText,
+                                timestamp,
+                                category: 'Actualidad',
+                                relevanceScore: 30 - Math.min(j, 29),
+                                image
+                            });
+                        } catch (_) {}
+                    }
+                }
+                // Si no encuentra noticias con los selectores específicos, usar búsqueda genérica
+                if (articles.length === 0) {
+                    // Buscar cualquier enlace que parezca noticia
+                    const allLinks = doc.querySelectorAll('a[href]');
+
+                    let genericCount = 0;
+                    for (const link of allLinks) {
+                        const href = link.getAttribute('href') || '';
+                        const text = link.textContent?.trim() || '';
+
+                        // Filtrar enlaces que parezcan noticias (evitar navegación, imágenes, etc.)
+                        if (text.length > 10 &&
+                            !href.includes('google.com') &&
+                            !href.includes('accounts.') &&
+                            !href.includes('support.') &&
+                            !href.includes('policies.') &&
+                            !href.includes('images') &&
+                            (href.startsWith('http') || href.startsWith('/url'))) {
+
+                            const url = href.startsWith('/url') ?
+                                new URLSearchParams(href.split('?')[1])?.get('q') || href :
+                                href;
+
+                            if (url && url.startsWith('http')) {
+                                // Usar directamente favicon para rapidez
+                                const image = getFallbackImageSync(url);
+
+                                articles.push({
+                                    title: text,
+                                    url: url,
+                                    googleUrl: href,
+                                    snippet: text,
+                                    source: new URL(url).hostname.replace('www.', ''),
+                                    date: 'Reciente',
+                                    timestamp: new Date().toISOString(),
+                                    category: 'Actualidad',
+                                    relevanceScore: 50 - genericCount,
+                                    image: image
+                                });
+
+                                genericCount++;
+                                if (genericCount >= 10) break; // Limitar a 10 resultados genéricos
+                            }
+                        }
+                    }
+                }
+
+                return articles;
+            }
+
+            
+
+            return articles;
+        }
+
+        
+
+        function parseBingNewsHTML(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const articles = [];
+
+            const newsItems = doc.querySelectorAll('.news-card.newsitem.cardcommon, #news .news-card');
+
+            newsItems.forEach((item, index) => {
+                try {
+                    const title = item.getAttribute('data-title')?.trim() || '';
+                    let url = item.getAttribute('data-url') || item.getAttribute('url') || '';
+                    if (url && !url.startsWith('http')) {
+                        url = 'https://www.bing.com' + url;
+                    }
+
+                    const source = item.getAttribute('data-author')?.trim() || 'Bing News';
+                    let timeSpan = item.querySelector('span[aria-label*="hace" i], span[aria-label*="minuto" i], span[aria-label*="hora" i], span[aria-label*="día" i]');
+                    let timeText = (timeSpan?.getAttribute('aria-label') || timeSpan?.textContent)?.trim() || '';
+                    if (!timeText) {
+                        const spans = item.querySelectorAll('span');
+                        for (const s of spans) {
+                            const txt = (s.textContent || '').trim();
+                            const lower = txt.toLowerCase();
+                            if (/^\d+\s*h\b/.test(lower) || /\bmin/.test(lower) || /\bd[íi]as?\b/.test(lower) || /\bhora?s?\b/.test(lower)) {
+                                timeText = txt;
+                                break;
+                            }
+                        }
+                    }
+                    if (!timeText) timeText = 'Reciente';
+
+                    const image = extractBingImage(item);
+
+                    if (title || url) {
+                        articles.push({
+                            title: title || 'Sin título',
+                            url: url || '#',
+                            snippet: title,
+                            source,
+                            date: timeText,
+                            timestamp: parseTimeToISO(timeText),
+                            category: 'Actualidad',
+                            relevanceScore: 95 - index,
+                            image
+                        });
+                    }
+                } catch (error) {}
+            });
+
+            return articles;
+        }
+
+        function extractImage(element) {
+            try {
+                const srcAttributes = [
+                    'src', 'data-src', 'data-original', 'data-lazy', 'data-srcset',
+                    'data-image', 'data-url', 'data-bg', 'data-background'
+                ];
+
+                const findImageUrl = (img) => {
+                    for (const attr of srcAttributes) {
+                        const src = img.getAttribute(attr);
+                        if (src && (src.startsWith('http') || src.startsWith('//'))) {
+                            return src;
+                        }
+                    }
+
+                    const srcset = img.getAttribute('srcset');
+                    if (srcset) {
+                        const firstSrc = srcset.split(',')[0].trim().split(' ')[0];
+                        if (firstSrc && (firstSrc.startsWith('http') || firstSrc.startsWith('//'))) {
+                            return firstSrc;
+                        }
+                    }
+                    return null;
+                };
+
+                const figures = element.querySelectorAll('figure');
+                for (const figure of figures) {
+                    const imgs = figure.querySelectorAll('img');
+                    for (const img of imgs) {
+                        const url = findImageUrl(img);
+                        if (url) return url;
+                    }
+                }
+
+                const allImgs = element.querySelectorAll('img');
+                for (const img of allImgs) {
+                    const url = findImageUrl(img);
+                    if (url) return url;
+                }
+
+                return null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function extractBingImage(item) {
+            let imageUrl = null;
+
+            const rmsImg = item.querySelector('img.rms_img');
+            if (rmsImg) {
+                imageUrl = rmsImg.getAttribute('data-src-hq') || rmsImg.getAttribute('data-src');
+            }
+
+            if (!imageUrl) {
+                const anyImg = item.querySelector('img[data-src-hq]') || item.querySelector('img[data-src]');
+                if (anyImg) {
+                    imageUrl = anyImg.getAttribute('data-src-hq') || anyImg.getAttribute('data-src');
+                }
+            }
+
+            if (!imageUrl) {
+                const fallbackImg = item.querySelector('img');
+                if (fallbackImg) {
+                    imageUrl = fallbackImg.getAttribute('src') || fallbackImg.getAttribute('data-imgsrc');
+                }
+            }
+
+            if (imageUrl) {
+                if (imageUrl.startsWith('//')) {
+                    imageUrl = 'https:' + imageUrl;
+                } else if (imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
+                    imageUrl = 'https://www.bing.com' + imageUrl;
+                }
+            }
+
+            return imageUrl;
+        }
+
+        // Extraer og:image desde el HTML de la noticia
+        function extractOgImageFromHtml(html) {
+            try {
+                // og:image
+                const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]*content=["']([^"'>]+)["']/i);
+                if (ogMatch && ogMatch[1] && ogMatch[1].startsWith('http')) return ogMatch[1];
+                // twitter:image
+                const twMatch = html.match(/<meta[^>]+name=["']twitter:image(:src)?["'][^>]*content=["']([^"'>]+)["']/i);
+                if (twMatch && twMatch[2] && twMatch[2].startsWith('http')) return twMatch[2];
+                // og:image:secure_url
+                const ogSecure = html.match(/<meta[^>]+property=["']og:image:secure_url["'][^>]*content=["']([^"'>]+)["']/i);
+                if (ogSecure && ogSecure[1] && ogSecure[1].startsWith('http')) return ogSecure[1];
+            } catch (_) {}
+            return null;
+        }
+
+        // Enriquecer lista de resultados con og:image (limitando número y tiempo)
+        async function enrichResultsWithOgImages(results, maxToFetch = 20) {
+            try {
+                const candidates = results.filter(r => !r.image && r.url && r.url.startsWith('http')).slice(0, maxToFetch);
+                if (candidates.length === 0) return;
+
+                const fetches = candidates.map(async (item) => {
+                    try {
+                        const proxied = APP_CONFIG.PROXY_URL.replace('{url}', encodeURIComponent(item.url));
+                        const html = await fetchWithTimeout(proxied, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }, 2000).then(r => r.ok ? r.text() : '');
+                        const img = html ? extractOgImageFromHtml(html) : null;
+                        if (img) item.image = img.startsWith('//') ? 'https:' + img : img;
+                    } catch (_) {}
+                });
+
+                await Promise.allSettled(fetches);
+            } catch (_) {}
+        }
+
+        // Función para obtener imagen de fallback o intentar extraer de la página
+        async function getFallbackImage(url, source) {
+            try {
+                if (url && url.startsWith('http')) {
+                    const domain = new URL(url).hostname;
+
+                    // Intentar extraer imagen de la página real usando API
+                    try {
+                        const imageUrl = await extractImageFromPage(url);
+                        if (imageUrl) return imageUrl;
+                    } catch (_) {
+                        // Si falla, usar favicon como fallback
+                    }
+
+                    return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+                }
+                return null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        // Función simplificada para extraer imagen de página real
+        async function extractImageFromRealPage(url) {
+            try {
+                // Usar un servicio que extrae metadatos de páginas web
+                const metaUrl = `https://api.linkpreview.net/?key=demo&q=${encodeURIComponent(url)}`;
+
+                const response = await fetchWithTimeout(metaUrl, {}, 5000);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.image && data.image.startsWith('http')) {
+                        return data.image;
+                    }
+                }
+            } catch (e) {
+            }
+
+            // Método alternativo: usar la función existente
+            return await extractImageFromPage(url);
+        }
+
+        // Función para extraer imagen de una página web
+        async function extractImageFromPage(url) {
+            try {
+                const proxyUrl = `https://r.jina.ai/${url}`;
+                const response = await fetchWithTimeout(proxyUrl, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)'
+                    }
+                }, 3000);
+
+                if (response.ok) {
+                    const text = await response.text();
+
+                    // Buscar meta tags de Open Graph o Twitter Card
+                    const ogImageMatch = text.match(/<meta[^>]*property=["\']og:image["\'][^>]*content=["\']([^"\']+)["\'][^>]*>/i);
+                    if (ogImageMatch && ogImageMatch[1]) {
+                        let imageUrl = ogImageMatch[1];
+                        if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
+                        else if (imageUrl.startsWith('/')) imageUrl = new URL(url).origin + imageUrl;
+                        return imageUrl;
+                    }
+
+                    // Buscar Twitter Card image
+                    const twitterImageMatch = text.match(/<meta[^>]*name=["\']twitter:image["\'][^>]*content=["\']([^"\']+)["\'][^>]*>/i);
+                    if (twitterImageMatch && twitterImageMatch[1]) {
+                        let imageUrl = twitterImageMatch[1];
+                        if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
+                        else if (imageUrl.startsWith('/')) imageUrl = new URL(url).origin + imageUrl;
+                        return imageUrl;
+                    }
+
+                    // Buscar primera imagen grande en el contenido
+                    const imgMatches = text.match(/<img[^>]*src=["\']([^"\']+)["\'][^>]*>/gi);
+                    if (imgMatches) {
+                        for (const imgMatch of imgMatches) {
+                            const srcMatch = imgMatch.match(/src=["\']([^"\']+)["\']/i);
+                            if (srcMatch && srcMatch[1]) {
+                                let imageUrl = srcMatch[1];
+                                if (imageUrl.includes('logo') || imageUrl.includes('icon') || imageUrl.includes('avatar')) continue;
+                                if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
+                                else if (imageUrl.startsWith('/')) imageUrl = new URL(url).origin + imageUrl;
+                                if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i)) {
+                                    return imageUrl;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (_) {
+                // Silenciar errores y usar fallback
+            }
+            return null;
+        }
+
+        // Extraer imagen en Google SERP (tbm=nws)
+        function extractGoogleSerpNewsImage(container) {
+            try {
+                // Solo log para debug cuando necesario
+                const debug = false;
+                const takeFromSrcset = (srcset) => {
+                    if (!srcset) return null;
+                    const first = srcset.split(',')[0].trim().split(' ')[0];
+                    if (!first) return null;
+                    if (first.startsWith('//')) return 'https:' + first;
+                    return first;
+                };
+
+                // 1) picture > source[srcset]
+                const sourceEl = container.querySelector('picture source[srcset]');
+                if (sourceEl) {
+                    const url = takeFromSrcset(sourceEl.getAttribute('srcset'));
+                    if (url && !url.startsWith('data:image/gif')) return url;
+                }
+
+                // SOLO buscar imágenes en .gpjNTe (contenedor de imágenes de noticias)
+                let imgCandidates = [...container.querySelectorAll('.gpjNTe img')];
+
+                // Si no hay imágenes en .gpjNTe, buscar en otros contenedores específicos (NO .SoAPf)
+                if (imgCandidates.length === 0) {
+                    imgCandidates = [
+                        ...container.querySelectorAll('.YEMaTe img, .lSfe4c img, .uhHOwf.BYbUcd img'),
+                        ...container.querySelectorAll('img[id*="dimg_"]:not(.SoAPf *)')
+                    ];
+                }
+
+                // NUNCA buscar en .SoAPf (confirmación)
+                const soapfImages = container.querySelectorAll('.SoAPf img');
+                if (debug && soapfImages.length > 0) {
+                }
+
+                for (const img of imgCandidates) {
+                    const imgContainer = img.closest('.gpjNTe, .SoAPf, .YEMaTe, .lSfe4c') || img.parentElement;
+                    const containerClass = imgContainer?.className || 'unknown';
+
+                    // 2) img[srcset]
+                    const srcsetUrl = takeFromSrcset(img.getAttribute('srcset'));
+                    if (srcsetUrl && !srcsetUrl.startsWith('data:image/gif')) {
+                        // Evitar imágenes pequeñas que suelen ser logos
+                        if (!srcsetUrl.includes('16x16') && !srcsetUrl.includes('32x32') && !srcsetUrl.includes('favicon')) {
+                            return srcsetUrl;
+                        }
+                    }
+
+                    // 3) atributos de lazy (ampliado para Google)
+                    let src = img.getAttribute('data-src')
+                        || img.getAttribute('data-iurl')
+                        || img.getAttribute('data-lzy-src')
+                        || img.getAttribute('data-lzysrc')
+                        || img.getAttribute('data-thumbnail-url')
+                        || img.getAttribute('data-original')
+                        || img.getAttribute('data-url')
+                        || img.getAttribute('data-thumb');
+
+                    // Manejar específicamente data-deferred="1" y placeholders base64
+                    if (!src && (img.getAttribute('data-deferred') === '1' || img.src?.startsWith('data:image/gif'))) {
+                        // Esta imagen será procesada más abajo en la sección de dimg_
+                    }
+
+                    // Si no hay datos lazy, intentar extraer de atributos id o style (mejorado para Google)
+                    if (!src) {
+                        const imgId = img.getAttribute('id');
+                        // Buscar URL real para cualquier imagen placeholder (con o sin ID)
+                        if (imgId || img.src?.startsWith('data:image/gif')) {
+
+                            // Buscar en TODOS los scripts de la página URLs relacionadas
+                            const scripts = document.querySelectorAll('script');
+                            for (const script of scripts) {
+                                const content = script.textContent || '';
+
+                                // Si tiene ID, buscar por ID, sino buscar URLs de imágenes cerca del contexto
+                                let searchSuccessful = false;
+
+                                if (imgId && content.includes(imgId)) {
+                                    searchSuccessful = true;
+                                } else if (!imgId && content.length > 1000) {
+                                    // Para imágenes sin ID, buscar en scripts grandes que contienen datos de imágenes
+                                    searchSuccessful = true;
+                                }
+
+                                if (searchSuccessful) {
+                                    // Patrones más amplios para encontrar URLs de imágenes
+                                    const urlPatterns = [
+                                        /https?:\/\/[^\s"'<>]*\.(?:jpg|jpeg|png|webp)(?:\?[^\s"'<>]*)?/gi,
+                                        /\\u003d(https?:\/\/[^"'&\s]*\.(?:jpg|jpeg|png|webp)[^"'&\s]*)/gi,
+                                        /"(https?:\/\/[^"\s]*\.(?:jpg|jpeg|png|webp)[^"\s]*)"/gi,
+                                        /https?:\/\/encrypted-tbn\d\.gstatic\.com\/images\?[^\s"'<>]*/gi
+                                    ];
+
+                                    for (const pattern of urlPatterns) {
+                                        const matches = content.match(pattern);
+                                        if (matches && matches.length > 0) {
+                                            // Tomar la primera URL que no sea muy pequeña
+                                            for (const match of matches) {
+                                                let cleanUrl = match.replace(/["'\\]/g, '').replace(/\\u003d/g, '=');
+                                                if (cleanUrl.length > 50 && !cleanUrl.includes('1x1') && !cleanUrl.includes('16x16')) {
+                                                    src = cleanUrl;
+                                                    break;
+                                                }
+                                            }
+                                            if (src) break;
+                                        }
+                                    }
+                                    if (src) break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Usar src normal solo si no es placeholder
+                    if (!src) {
+                        const normalSrc = img.getAttribute('src');
+                        if (normalSrc && !normalSrc.startsWith('data:image/gif')) {
+                            src = normalSrc;
+                        }
+                    }
+
+                    if (!src) continue;
+
+                    // Evitar placeholders/gifs
+                    if (src.startsWith('data:image/gif')) continue;
+
+                    // Normalizar URLs relativas
+                    if (src.startsWith('//')) src = 'https:' + src;
+
+                    // Evitar imágenes pequeñas que suelen ser logos
+                    if (!src.includes('16x16') && !src.includes('32x32') && !src.includes('favicon')) {
+                        return src;
+                    }
+                }
+
+                // Fallback: buscar URLs de imágenes en el HTML del contenedor
+                const containerHTML = container.innerHTML || '';
+                const imageUrlMatches = containerHTML.match(/https?:\/\/[^\s"'<>]*\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s"'<>]*)?/gi);
+                if (imageUrlMatches && imageUrlMatches.length > 0) {
+
+                    // Filtrar URLs que parezcan miniaturas o de buena calidad
+                    const qualityImage = imageUrlMatches.find(url =>
+                        !url.includes('1x1') &&
+                        !url.includes('16x16') &&
+                        !url.includes('favicon') &&
+                        (url.includes('s=') || url.includes('w=') || url.includes('h=') || url.length > 50)
+                    );
+                    if (qualityImage) {
+                        return qualityImage;
+                    }
+
+                    // Si no hay imagen de calidad, usar la primera disponible
+                    return imageUrlMatches[0];
+                }
+
+                // Fallback: intentar extraer desde parámetros del enlace (imgurl=)
+                const link = container.querySelector('a[href]');
+                if (link) {
+                    try {
+                        const href = link.getAttribute('href') || '';
+                        const urlObj = new URL(href, 'https://www.google.com');
+                        const imgParam = urlObj.searchParams.get('imgurl') || urlObj.searchParams.get('imgsrc') || urlObj.searchParams.get('img');
+                        if (imgParam && /^https?:/i.test(imgParam)) {
+                            return imgParam;
+                        }
+                    } catch (_) {}
+                }
+
+                // Último recurso: usar favicon del dominio
+                const a = container.querySelector('a[href^="http"]');
+                const href = a?.getAttribute('href') || '';
+                if (href.startsWith('http')) {
+                    try {
+                        const u = new URL(resolveUrl(href));
+                        return `https://www.google.com/s2/favicons?domain=${u.hostname}&sz=128`;
+                    } catch (_) {}
+                }
+            } catch (_) {}
+            return null;
+        }
+
+        // Display all results with lazy loading
+        function displayResultsProgressive(results) {
+            if (results.length === 0) {
+                showNoResults();
+                return;
+            }
+
+            const limitValue = elements.resultsLimit?.value || '25';
+            const userSelectedLimit = limitValue === 'all' ? results.length : parseInt(limitValue);
+            const resultsToShow = results.slice(0, userSelectedLimit);
+
+            renderResults(resultsToShow, true);
+
+            elements.resultsSection.style.display = 'block';
+            elements.scrollToTop.style.display = 'block';
+
+            // Setup lazy loading for images
+            requestAnimationFrame(() => {
+                const images = document.querySelectorAll('.news-image img[data-src]');
+                images.forEach(img => {
+                    if (appState.imageObserver) {
+                        appState.imageObserver.observe(img);
+                    }
+                });
+            });
+        }
+
+
+        function renderResults(results, clear = true) {
+            if (clear) {
+                elements.resultsGrid.innerHTML = '';
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            results.forEach((result, index) => {
+                const div = document.createElement('div');
+                div.innerHTML = createNewsCard(result, index);
+                fragment.appendChild(div.firstElementChild);
+            });
+
+            elements.resultsGrid.appendChild(fragment);
+        }
+
+        function createNewsCard(result, index) {
+            const imageSrc = result.image || '';
+            const lazyLoad = index >= APP_CONFIG.LAZY_LOAD_THRESHOLD; // Lazy load after threshold
+            const formattedDate = formatRelativeTime(result.timestamp, result.date);
+
+            return `
+                <article class="news-card" style="animation: fadeInUp 0.3s ease ${Math.min(index * 0.03, 1)}s both">
+                    <div class="news-image" id="img-container-${index}">
+                        ${result.image ?
+                            `<img ${lazyLoad ? `data-src="${imageSrc}" loading="lazy"` : `src="${imageSrc}"`}
+                                alt="${result.title}"
+                                data-url="${encodeURI(result.url)}"
+                                data-title="${encodeURIComponent(result.title)}"
+                                onclick="return onNewsLinkClick(event)"
+                                onerror="this.parentElement.innerHTML='📰 Error imagen';">` :
+                            '📰 Sin imagen disponible'}
+                    </div>
+                    <div class="news-meta-top">
+                        <span class="news-source">${result.source}</span>
+                        <span class="news-date">${formattedDate}</span>
+                    </div>
+                    <div class="news-content">
+                        <h2 class="news-title">
+                            <a href="#" data-url="${encodeURI(result.url)}"
+                               data-title="${encodeURIComponent(result.title)}"
+                               onclick="return onNewsLinkClick(event)">
+                                ${result.title}
+                            </a>
+                        </h2>
+                    </div>
+                </article>
+            `;
+        }
+
+        function showNoResults() {
+            elements.resultsGrid.innerHTML = `
+                <div style="text-align:center;padding:60px;color:#666;">
+                    <h3>No se encontraron resultados</h3>
+                    <p>Intenta con otros términos de búsqueda</p>
+                </div>`;
+            elements.resultsSection.style.display = 'block';
+        }
+
+        function updateMediaDropdown(results) {
+            const mediaCount = {};
+            results.forEach(result => {
+                if (result.source?.trim()) {
+                    const source = result.source.trim();
+                    mediaCount[source] = (mediaCount[source] || 0) + 1;
+                }
+            });
+
+            const mediaArray = Object.entries(mediaCount)
+                .map(([media, count]) => ({ media, count }))
+                .sort((a, b) => a.media.localeCompare(b.media, 'es-ES'));
+
+            elements.mediaDropdown.innerHTML = '<option value="">Todos los medios</option>' +
+                mediaArray.map(({ media, count }) =>
+                    `<option value="${media}">${media} (${count})</option>`
+                ).join('');
+
+            elements.mediaDropdown.style.display = mediaArray.length > 0 ? 'inline-block' : 'none';
+        }
+
+        // UI functions
+        function toggleUI(type, show) {
+            if (type === 'loading') {
+                elements.loadingSection.style.display = show ? 'block' : 'none';
+                if (show) {
+                    elements.resultsSection.style.display = 'none';
+                    elements.scrollToTop.style.display = 'none';
+
+                    const selectedSource = elements.sourcesDropdown.value;
+                    elements.loadingText.textContent = LOADING_MESSAGES[selectedSource] || LOADING_MESSAGES['all'];
+                }
+            }
+        }
+
+        function showMessage(message, type = 'error') {
+            elements.errorMessage.textContent = message;
+            elements.errorMessage.style.display = 'block';
+
+            const isSuccess = type === 'success';
+            elements.errorMessage.style.background = isSuccess ?
+                'var(--success-gradient)' : 'var(--error-gradient)';
+            elements.errorMessage.style.color = isSuccess ? '#2e7d2e' : '#d32f2f';
+            elements.errorMessage.style.borderLeftColor = isSuccess ? '#2e7d2e' : '#d32f2f';
+
+            setTimeout(() => elements.errorMessage.style.display = 'none', 5000);
+        }
+
+        function hideMessage() {
+            elements.errorMessage.style.display = 'none';
+        }
+
+        // Event handlers
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                hideMessage();
+                searchNews();
+            }
+        }
+
+        function handleSourceChange() {
+            const query = elements.searchInput.value.trim();
+            if (query) {
+                hideMessage();
+                searchNews();
+            }
+        }
+
+        function handleLimitChange() {
+            const query = elements.searchInput.value.trim();
+            if (query) searchNews();
+        }
+
+        function filterByMedia() {
+            const selectedMedia = elements.mediaDropdown.value;
+
+            appState.filteredResults = selectedMedia ?
+                appState.currentResults.filter(result => result.source === selectedMedia) :
+                [...appState.currentResults];
+
+            displayResultsProgressive(appState.filteredResults);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Utility functions
+        function removeDuplicates(results) {
+            const seen = new Set();
+            return results.filter(result => {
+                const key = result.title.toLowerCase().trim();
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function resolveUrl(url) {
+            try {
+                const decoded = decodeURIComponent(url);
+                const match = decoded.match(/[?&](?:url|uddg|u)=([^&\s]+)/i);
+                if (match && match[1]) {
+                    try { return decodeURIComponent(match[1]); }
+                    catch(_) { return match[1]; }
+                }
+            } catch(_) {}
+            return url;
+        }
+
+        
+
+        // Modal functions
+        async function onNewsLinkClick(event) {
+            event.preventDefault();
+            const target = event.currentTarget || event.target;
+            const rawUrl = target.getAttribute('data-url');
+            const encTitle = target.getAttribute('data-title') || '';
+
+            const isOpenInSource = !elements.openInSource?.checked;
+
+            if (isOpenInSource) {
+                const quickUrl = resolveUrl(rawUrl);
+                window.open(quickUrl, '_blank', 'noopener');
+                return false;
+            }
+
+            // Usar el nuevo modal emergente con iframe
+            let title = '';
+            try {
+                title = decodeURIComponent(encTitle || '');
+            } catch(_) {
+                title = 'Noticia';
+            }
+
+            // Prefetch next articles in background
+            prefetchAdjacentArticles(target);
+
+            // Abrir en modal emergente
+            const resolvedUrl = resolveUrl(rawUrl);
+            ensureLinkModal(resolvedUrl, title);
+            return false;
+        }
+
+        function prefetchAdjacentArticles(target) {
+            const card = target.closest('.news-card');
+            if (!card) return;
+
+            const cards = Array.from(document.querySelectorAll('.news-card'));
+            const currentIndex = cards.indexOf(card);
+
+            // Prefetch next 2 articles
+            for (let i = 1; i <= 2; i++) {
+                if (currentIndex + i < cards.length) {
+                    const nextCard = cards[currentIndex + i];
+                    const link = nextCard.querySelector('a[data-url]');
+                    if (link) {
+                        const url = resolveUrl(link.getAttribute('data-url'));
+                        if (!appState.prefetchQueue.has(url)) {
+                            appState.prefetchQueue.add(url);
+                            setTimeout(() => {
+                                const link = document.createElement('link');
+                                link.rel = 'prefetch';
+                                link.href = APP_CONFIG.READER_URL.replace('{url}', url);
+                                document.head.appendChild(link);
+                            }, APP_CONFIG.PREFETCH_DELAY * i);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        async function openArticleModal(rawUrl, encodedTitle) {
+            try {
+                let url = rawUrl;
+                try { url = decodeURI(rawUrl); } catch(_) {}
+
+                let title = '';
+                try { title = decodeURIComponent(encodedTitle || ''); } catch(_) {}
+
+                elements.newsModalTitle.textContent = '🔗 Extractor de URLs - Google (Noticias)';
+                elements.newsModalSourceLink.href = '#';
+
+                elements.newsModalBody.innerHTML = '<div class="ed-article-meta"><span class="ed-spinner"></span> Analizando página de Google News...</div>';
+                showNewsModal();
+
+                // Obtener la consulta de búsqueda actual
+                const searchQuery = appState.searchQuery || elements.searchInput.value.trim();
+
+                // Construir la URL de búsqueda de Google (Noticias)
+                const googleSearchUrl = SOURCES.GOOGLE_NEWS_URL.replace('{query}', encodeURIComponent(searchQuery));
+
+                // Extraer todas las URLs de la página de búsqueda
+                const extractedUrls = await extractAllUrlsFromSearch(googleSearchUrl, searchQuery);
+
+                // Ordenar URLs por tipo
+                const sortedUrls = sortUrlsByType(extractedUrls);
+
+                // Mostrar listado de URLs con la noticia clickeada
+                displayUrlsList(sortedUrls, searchQuery, googleSearchUrl, url, title);
+
+            } catch (e) {
+                elements.newsModalBody.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#c00;">
+                        Error al analizar Google News<br><br>
+                        <a href="${rawUrl}" target="_blank" style="color:#667eea;">
+                            Abrir noticia directamente
+                        </a>
+                    </div>`;
+            }
+        }
+
+        // Ordenar URLs por fuente/medio
+        function sortUrlsByType(urls) {
+            // Ordenar alfabéticamente por fuente/medio
+            return urls.sort((a, b) => {
+                const sourceA = a.source.toLowerCase();
+                const sourceB = b.source.toLowerCase();
+
+                // Primero ordenar por fuente
+                if (sourceA < sourceB) return -1;
+                if (sourceA > sourceB) return 1;
+
+                // Si son la misma fuente, ordenar por tipo
+                const typeOrder = ['Resuelto', 'Directo', 'Google News', 'Caché'];
+                const indexA = typeOrder.indexOf(a.type);
+                const indexB = typeOrder.indexOf(b.type);
+
+                if (indexA === -1) return 1;
+                if (indexB === -1) return -1;
+
+                return indexA - indexB;
+            });
+        }
+
+        // Extraer todas las URLs de la página de búsqueda de Google News
+        async function extractAllUrlsFromSearch(googleSearchUrl, searchQuery) {
+            const urls = [];
+            const seenUrls = new Set();
+
+            try {
+                // Hacer fetch de la página de búsqueda
+                const proxyUrl = APP_CONFIG.PROXY_URL.replace('{url}', encodeURIComponent(googleSearchUrl));
+                const response = await fetchWithTimeout(proxyUrl, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                }, 5000);
+
+                if (response.ok) {
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Detectar layout de Google (tbm=nws) y extraer enlaces
+                    const isGoogleWebNews = !!(doc.querySelector('main') || doc.querySelector('div.dbsr, div.SoAPf, a.WlydOe'));
+                    if (isGoogleWebNews) {
+                        const seen = new Set();
+                        const containers = doc.querySelectorAll('div.dbsr, div.SoAPf, main .xpd:not(.Gx5Zad), main .kCrYT, main .BamJPe, main .XR4uSe');
+                        containers.forEach(linkBox => {
+                            if (linkBox.classList.contains('Gx5Zad')) return;
+                            const a = linkBox.querySelector('a.WlydOe, div.dbsr a, a[href^="http"]');
+                            if (!a) return;
+                            let href = a.getAttribute('href') || '';
+                            if (!href) return;
+                            const finalUrl = resolveUrl(href);
+                            if (!finalUrl || seen.has(finalUrl)) return;
+                            seen.add(finalUrl);
+                            if (!finalUrl || seenUrls.has(finalUrl)) return;
+                            seenUrls.add(finalUrl);
+
+                            const titleNode = linkBox.querySelector('div[role="heading"], h3, .JheGif, .mCBkyc');
+                            const title = (titleNode?.textContent || a.textContent || 'Sin título').trim();
+                            const sourceNode = linkBox.querySelector('.CEMjEf, .NUnG9d, .xQ82C, .xQ82C.e8fRJf, .fwzPFf, .SVJrMe');
+                            const source = (sourceNode?.textContent || '').trim() || extractDomainFromUrl(finalUrl) || 'Desconocido';
+
+                            urls.push({
+                                title: title.substring(0, 80) + (title.length > 80 ? '...' : ''),
+                                url: finalUrl,
+                                googleUrl: href,
+                                source,
+                                type: 'Resuelto'
+                            });
+                        });
+                        // Fallback adicional: enlaces aislados
+                        const links = doc.querySelectorAll('a.WlydOe[href]');
+                        links.forEach(a => {
+                            let href = a.getAttribute('href') || '';
+                            if (!href) return;
+                            const finalUrl = resolveUrl(href);
+                            if (!finalUrl || seen.has(finalUrl) || seenUrls.has(finalUrl)) return;
+                            seen.add(finalUrl);
+                            seenUrls.add(finalUrl);
+                            const linkBox = a.closest('div.SoAPf, div.dbsr, .xpd') || a.parentElement;
+                            const titleNode = linkBox?.querySelector('div[role="heading"], h3, .JheGif, .mCBkyc') || a;
+                            const title = (titleNode?.textContent || a.textContent || 'Sin título').trim();
+                            const sourceNode = linkBox?.querySelector('.CEMjEf, .NUnG9d, .MgUUmf.NUnG9d, .xQ82C, .fwzPFf, .SVJrMe');
+                            const source = (sourceNode?.textContent || '').trim() || extractDomainFromUrl(finalUrl) || 'Desconocido';
+                            urls.push({
+                                title: title.substring(0, 80) + (title.length > 80 ? '...' : ''),
+                                url: finalUrl,
+                                googleUrl: href,
+                                source,
+                                type: 'Resuelto'
+                            });
+                        });
+                    }
+
+                    // También buscar URLs directas en el HTML
+                    const urlPattern = /https?:\/\/(?!gstatic)[^\s<>"']+/gi;
+                    let matches;
+                    while ((matches = urlPattern.exec(html)) !== null) {
+                        const foundUrl = matches[0];
+                        if (!seenUrls.has(foundUrl) && isValidNewsUrl(foundUrl)) {
+                            seenUrls.add(foundUrl);
+                            urls.push({
+                                title: 'Enlace directo encontrado',
+                                url: foundUrl,
+                                googleUrl: '',
+                                source: extractDomainFromUrl(foundUrl),
+                                type: 'Directo'
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error extrayendo URLs de Google News:', e);
+
+                // Si falla, al menos devolver las URLs que ya teníamos de la búsqueda actual
+                if (appState.currentResults && appState.currentResults.length > 0) {
+                    appState.currentResults.forEach(result => {
+                        if (result.url && !seenUrls.has(result.url)) {
+                            seenUrls.add(result.url);
+                            urls.push({
+                                title: result.title || 'Sin título',
+                                url: result.url,
+                                googleUrl: result.googleUrl || result.url,
+                                source: result.source || 'Desconocido',
+                                type: 'Caché'
+                            });
+                        }
+                    });
+                }
+            }
+
+            return urls;
+        }
+
+        // Extraer dominio de una URL
+        function extractDomainFromUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                return urlObj.hostname.replace('www.', '').split('.')[0];
+            } catch (e) {
+                return 'Desconocido';
+            }
+        }
+
+        // Validar si es una URL de noticias válida
+        function isValidNewsUrl(url) {
+            const newsdomains = [
+                'elpais', 'elmundo', 'abc', 'lavanguardia', 'elconfidencial',
+                'publico', 'rtve', 'antena3', 'lasexta', 'expansion',
+                'marca', 'as.com', 'sport', '20minutos', 'eldiario',
+                'europapress', 'efe.com', 'reuters', 'bbc', 'cnn'
+            ];
+
+            const urlLower = url.toLowerCase();
+            return newsdomains.some(domain => urlLower.includes(domain));
+        }
+
+        // Mostrar listado de URLs en el modal
+        function displayUrlsList(urls, searchQuery, googleSearchUrl, clickedUrl, clickedTitle) {
+            let htmlContent = `
+                <div style="padding: 20px;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                            🔍 Búsqueda: "${searchQuery}"
+                        </div>
+                        <div style="font-family: 'Courier New', monospace; font-size: 11px;
+                                    word-break: break-all; line-height: 1.4; opacity: 0.9;">
+                            ${googleSearchUrl}
+                        </div>
+                    </div>
+
+                    <div style="background: #f0f4ff; padding: 12px; border-radius: 8px; margin-bottom: 20px;
+                                border-left: 4px solid #4f46e5;">
+                        <div style="font-size: 12px; color: #4f46e5; font-weight: 600; margin-bottom: 6px;">
+                            👉 Noticia seleccionada: ${clickedTitle || 'Sin título'}
+                        </div>
+                        <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">
+                            <strong>URL de Google:</strong>
+                        </div>
+                        <div style="font-family: 'Courier New', monospace; font-size: 11px; color: #333;
+                                    word-break: break-all; line-height: 1.4; margin-bottom: 8px;">
+                            ${clickedUrl}
+                        </div>
+                        
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: #333; font-size: 16px; margin: 0;">
+                            URLs Extraídas (Ordenadas por tipo)
+                        </h3>
+                        <span style="background: #4f46e5; color: white; padding: 6px 12px;
+                                     border-radius: 15px; font-size: 13px; font-weight: 600;">
+                            ${urls.length} URLs encontradas
+                        </span>
+                    </div>
+                    <div style="max-height: 45vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            `;
+
+            // Agrupar URLs por fuente/medio
+            let currentSource = '';
+            let sourceCount = {};
+
+            // Contar cuántas URLs hay por fuente
+            urls.forEach(item => {
+                sourceCount[item.source] = (sourceCount[item.source] || 0) + 1;
+            });
+
+            urls.forEach((item, index) => {
+                // Añadir separador de fuente si cambia
+                if (item.source !== currentSource) {
+                    currentSource = item.source;
+
+                    // Asignar colores específicos a medios conocidos
+                    const sourceColors = {
+                        'elpais': '#1e3a8a',
+                        'elmundo': '#dc2626',
+                        'abc': '#ea580c',
+                        'lavanguardia': '#059669',
+                        'elconfidencial': '#7c3aed',
+                        'rtve': '#0891b2',
+                        'antena3': '#84cc16',
+                        'lasexta': '#10b981',
+                        'marca': '#ef4444',
+                        'as': '#f59e0b',
+                        'expansion': '#8b5cf6',
+                        '20minutos': '#3b82f6',
+                        'europapress': '#a855f7',
+                        'publico': '#e11d48'
+                    };
+
+                    // Buscar color por palabras clave en el nombre de la fuente
+                    let color = '#6b7280'; // Color por defecto
+                    const sourceLower = currentSource.toLowerCase();
+                    for (const [key, sourceColor] of Object.entries(sourceColors)) {
+                        if (sourceLower.includes(key)) {
+                            color = sourceColor;
+                            break;
+                        }
+                    }
+
+                    const count = sourceCount[currentSource];
+
+                    htmlContent += `
+                        <div style="background: ${color}; color: white; padding: 10px 15px;
+                                    font-size: 13px; font-weight: 600; position: sticky; top: 0; z-index: 10;
+                                    display: flex; justify-content: space-between; align-items: center;">
+                            <span>📰 ${currentSource}</span>
+                            <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px;
+                                        font-size: 11px;">${count} URL${count > 1 ? 's' : ''}</span>
+                        </div>
+                    `;
+                }
+
+                htmlContent += `
+                    <div style="padding: 15px; border-bottom: 1px solid #f1f5f9;
+                                background: white; transition: background 0.2s;"
+                         onmouseover="this.style.background='#e0e7ff'"
+                         onmouseout="this.style.background='white'">
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 10px;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; font-size: 13px; color: #1e293b; margin-bottom: 4px;">
+                                    ${item.title}
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">
+                                    <span style="margin-left: 0;">🎯 ${item.source}</span>
+                                </div>
+                                <div style="font-family: 'Courier New', monospace; font-size: 11px;
+                                            color: #475569; word-break: break-all; line-height: 1.4;">
+                                    ${item.url}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                                <button onclick="copyUrlToClipboard('${item.url.replace(/'/g, "\\'")}')"
+                                        style="padding: 5px 10px; border: 1px solid #059669;
+                                               background: white; color: #059669; border-radius: 6px;
+                                               cursor: pointer; font-size: 11px; transition: all 0.2s;"
+                                        onmouseover="this.style.background='#059669'; this.style.color='white'"
+                                        onmouseout="this.style.background='white'; this.style.color='#059669'">
+                                    📋
+                                </button>
+                                <button onclick="window.open('${item.url.replace(/'/g, "\\'")}', '_blank')"
+                                        style="padding: 5px 10px; border: 1px solid #dc2626;
+                                               background: white; color: #dc2626; border-radius: 6px;
+                                               cursor: pointer; font-size: 11px; transition: all 0.2s;"
+                                        onmouseover="this.style.background='#dc2626'; this.style.color='white'"
+                                        onmouseout="this.style.background='white'; this.style.color='#dc2626'">
+                                    🔗
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            htmlContent += `
+                    </div>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="copyAllUrls(${JSON.stringify(urls).replace(/"/g, '&quot;')})"
+                                style="padding: 10px 20px; background: var(--primary-gradient);
+                                       color: white; border: none; border-radius: 20px;
+                                       cursor: pointer; font-size: 14px; font-weight: 500;">
+                            📋 Copiar todas las URLs
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            elements.newsModalBody.innerHTML = htmlContent;
+        }
+
+        // Función para copiar URL al portapapeles
+        function copyUrlToClipboard(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                // Mostrar mensaje temporal de éxito
+                const originalHtml = elements.newsModalBody.innerHTML;
+                const successMsg = document.createElement('div');
+                successMsg.style.cssText = `
+                    position: fixed; top: 20px; right: 20px;
+                    background: #10b981; color: white; padding: 12px 20px;
+                    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 10000; animation: slideIn 0.3s ease;
+                `;
+                successMsg.textContent = '✅ URL copiada';
+                document.body.appendChild(successMsg);
+
+                setTimeout(() => {
+                    successMsg.remove();
+                }, 2000);
+            });
+        }
+
+        // Función para copiar todas las URLs
+        function copyAllUrls(urls) {
+            const allUrlsText = urls.map(item => item.url).join('\n');
+            navigator.clipboard.writeText(allUrlsText).then(() => {
+                const successMsg = document.createElement('div');
+                successMsg.style.cssText = `
+                    position: fixed; top: 20px; right: 20px;
+                    background: #10b981; color: white; padding: 12px 20px;
+                    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 10000;
+                `;
+                successMsg.textContent = `✅ ${urls.length} URLs copiadas`;
+                document.body.appendChild(successMsg);
+
+                setTimeout(() => {
+                    successMsg.remove();
+                }, 2000);
+            });
+        }
+
+
+        function updateOpenModeLabel() {
+            const checkbox = elements.openInSource;
+            const label = elements.openModeLabel;
+            if (!checkbox || !label) return;
+            label.style.display = checkbox.checked ? 'inline-flex' : 'none';
+        }
+
+        // Initialization
+        function initializeApp() {
+            initElements();
+            setupLazyLoading();
+            elements.searchInput?.focus();
+            updateOpenModeLabel();
+            startAutoRefresh();
+
+            // Modal emergente para noticias - basado en Noticiero prueba.html
+        async function ensureLinkModal(url, titleText) {
+            let overlay = document.getElementById('linkModal');
+            if (!overlay) {
+                return;
+            }
+
+            // Limpiar historial del modal al abrir por primera vez
+            modalHistory = [];
+            hideBackButton();
+
+            const titleEl = document.getElementById('linkModalTitle');
+            const bodyEl = document.getElementById('linkModalBody');
+            const sourceLinkEl = document.getElementById('linkModalSourceLink');
+            const closeBtn = document.getElementById('linkModalClose');
+
+            // Configurar título y enlace original
+            if (titleEl) titleEl.textContent = titleText || 'Extrayendo noticia...';
+            if (sourceLinkEl) sourceLinkEl.href = url;
+
+            // Guardar URL actual en el modal
+            overlay.setAttribute('data-current-url', url);
+
+            // Mostrar loading
+            if (bodyEl) {
+                bodyEl.innerHTML = `
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Extrayendo contenido de la noticia...</p>
+                    </div>
+                `;
+            }
+
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+
+            // Event listeners (solo agregar una vez)
+            if (!overlay.dataset.listenersAdded) {
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', hideLinkModal);
+                }
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) hideLinkModal();
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && overlay.style.display === 'block') {
+                        hideLinkModal();
+                    }
+                });
+                overlay.dataset.listenersAdded = 'true';
+            }
+
+            // Extraer contenido de la noticia
+            try {
+                await extractAndDisplayArticle(url, bodyEl, titleEl);
+            } catch (error) {
+                console.error('Error extrayendo artículo:', error);
+                if (bodyEl) {
+                    bodyEl.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #c00;">
+                            <h3>❌ Error al extraer la noticia</h3>
+                            <p>No se pudo obtener el contenido del artículo.</p>
+                            <p style="margin-top: 15px;">
+                                <a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #667eea;">
+                                    Ver noticia original
+                                </a>
+                            </p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function hideLinkModal() {
+            const overlay = document.getElementById('linkModal');
+            const bodyEl = document.getElementById('linkModalBody');
+
+            if (bodyEl) bodyEl.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Cargando...</p></div>';
+            if (overlay) overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Función para extraer y mostrar artículo - basada en Noticiero prueba.html
+        async function extractAndDisplayArticle(url, bodyEl, titleEl) {
+            try {
+                // Usar proxy para obtener el HTML
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const html = await response.text();
+                const article = extractArticleContent(html, url);
+
+                // Actualizar título en el modal si se extrajo uno mejor
+                if (article.title && article.title !== 'Título no encontrado' && titleEl) {
+                    titleEl.textContent = article.title;
+                }
+
+                // Mostrar el artículo extraído
+                displayExtractedArticle(article, url, bodyEl);
+
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Función para extraer contenido del artículo - adaptada de Noticiero prueba.html
+        function extractArticleContent(html, baseUrl) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Remover scripts
+            doc.querySelectorAll('script').forEach(script => script.remove());
+
+            const article = {
+                title: extractTitle(doc),
+                content: extractContent(doc),
+                meta: extractMeta(doc, baseUrl),
+                summary: extractSummary(doc),
+                images: extractImages(doc, baseUrl)
+            };
+
+            return article;
+        }
+
+        // Funciones de extracción adaptadas de Noticiero prueba.html
+        function extractTitle(doc) {
+            // Priorizar eldiario.es
+            const elDiario = doc.querySelector('div.news-header h1.title, .news-header h1.title');
+            if (elDiario && elDiario.textContent.trim()) {
+                return elDiario.textContent.trim();
+            }
+
+            const selectors = [
+                'h1[class*="title"]',
+                'h1[class*="headline"]',
+                '.article-title',
+                '.entry-title',
+                'h1',
+                'title'
+            ];
+
+            for (const selector of selectors) {
+                const element = doc.querySelector(selector);
+                if (element && element.textContent.trim()) {
+                    return element.textContent.trim();
+                }
+            }
+
+            return 'Título no encontrado';
+        }
+
+        function extractContent(doc) {
+            // Priorizar el contenedor principal de eldiario.es
+            const partnerBody = doc.querySelector('div.partner-wrapper.article-page__body-row');
+            if (partnerBody && partnerBody.innerHTML.trim()) {
+                const clone = partnerBody.cloneNode(true);
+                // Quitar columna inicial
+                clone.querySelectorAll('.first-col').forEach(n => n.remove());
+                return clone.innerHTML.trim();
+            }
+
+            const selectors = [
+                '.news-body',
+                '.news-content',
+                '.article-content',
+                '.entry-content',
+                '.post-content',
+                '[class*="article-body"]',
+                '[class*="story-body"]',
+                '.content',
+                'main p'
+            ];
+
+            for (const selector of selectors) {
+                const elements = doc.querySelectorAll(selector);
+                if (elements.length > 0) {
+                    let content = Array.from(elements)
+                        .map(el => {
+                            const clone = el.cloneNode(true);
+                            const recirc = clone.querySelector('.recirculation-area');
+                            if (recirc && recirc.parentNode) {
+                                // Eliminar todo lo que sigue al bloque de recirculación y el propio bloque
+                                const parent = recirc.parentNode;
+                                while (recirc.nextSibling) parent.removeChild(recirc.nextSibling);
+                                parent.removeChild(recirc);
+                            }
+                            // Preservar elementos completos (incluyendo <p>)
+                            return el.outerHTML?.trim() || clone.innerHTML.trim();
+                        })
+                        .join('\n\n');
+
+                    // Mantener el resto del contenido; ya eliminamos recirculation-area en el DOM
+
+                    if (content) return content;
+                }
+            }
+
+            // Fallback: extraer párrafos e imágenes inline (figure y picture.news-image) y cortar por recirculation-area
+            const bodyClone = (doc.body ? doc.body.cloneNode(true) : doc.cloneNode(true));
+            const recirc = bodyClone.querySelector('.recirculation-area');
+            if (recirc && recirc.parentNode) {
+                const parent = recirc.parentNode;
+                while (recirc.nextSibling) parent.removeChild(recirc.nextSibling);
+                parent.removeChild(recirc);
+            }
+            const nodes = bodyClone.querySelectorAll('p, figure');
+            let content = Array.from(nodes)
+                .map(el => el.outerHTML?.trim() || el.innerHTML?.trim() || '')
+                .filter(html => html.length > 0)
+                .join('\n\n');
+
+            // No cortar el HTML concatenado para no perder párrafos posteriores
+
+            return content || 'Contenido no encontrado';
+        }
+
+        function extractMeta(doc, baseUrl) {
+            const meta = {};
+
+            // Buscar primero en info-wrapper
+            const infoWrapper = doc.querySelector('div.info-wrapper');
+            if (infoWrapper) {
+                // Extraer autor del info-wrapper
+                const authorElement = infoWrapper.querySelector('.author, [class*="author"], .byline');
+                if (authorElement) {
+                    meta.author = authorElement.textContent.trim();
+                }
+
+                // Extraer fecha de publicación del info-wrapper
+                const dateElement = infoWrapper.querySelector('time[datetime], .date, [class*="date"], [class*="publish"]');
+                if (dateElement) {
+                    meta.date = dateElement.getAttribute('datetime') || dateElement.textContent.trim();
+                }
+
+                // Extraer fecha de modificación del info-wrapper
+                const modDateElement = infoWrapper.querySelector('[class*="modif"], [class*="updat"], [class*="edit"]');
+                if (modDateElement) {
+                    meta.modifiedDate = modDateElement.getAttribute('datetime') || modDateElement.textContent.trim();
+                }
+            }
+
+            // eldiario.es: extraer autor/fechas del bloque específico
+            try {
+                const edInfo = doc.querySelector('div.news-info div.info-wrapper') || doc.querySelector('div.info-wrapper');
+                if (edInfo) {
+                    // Autor principal (pueden ser varios separados por "/")
+                    const authors = edInfo.querySelector('.authors');
+                    if (!meta.author && authors) {
+                        meta.author = authors.textContent.trim().replace(/\s+\/\s+/g, ' / ');
+                    }
+
+                    // Fecha de publicación
+                    const dateWrapper = edInfo.querySelector('.date-comments-wrapper .date');
+                    const dayNode = dateWrapper?.querySelector('.day');
+                    const hourNode = dateWrapper?.querySelector('.hour');
+                    const pubISO = parseSpanishDateToISO(dayNode?.textContent, hourNode?.textContent);
+                    if (pubISO) meta.date = pubISO;
+
+                    // Fecha de actualización
+                    const timeNode = edInfo.querySelector('time.modification-date[datetime]') || edInfo.querySelector('time[datetime]');
+                    if (timeNode) {
+                        const dt = timeNode.getAttribute('datetime');
+                        if (dt) meta.modifiedDate = new Date(dt).toISOString();
+                        else {
+                            const updDay = timeNode.querySelector('.day')?.textContent || '';
+                            const updHour = timeNode.querySelector('.hour')?.textContent || '';
+                            const updISO = parseSpanishDateToISO(updDay, updHour);
+                            if (updISO) meta.modifiedDate = updISO;
+                        }
+                    }
+                }
+            } catch(_) {}
+
+            // Fallback: Buscar autor en selectores generales si no se encontró en info-wrapper
+            if (!meta.author) {
+                const authorSelectors = [
+                    '[name="author"]',
+                    '.author',
+                    '.byline',
+                    '[class*="author"]'
+                ];
+
+                for (const selector of authorSelectors) {
+                    const element = doc.querySelector(selector);
+                    if (element) {
+                        meta.author = element.getAttribute('content') || element.textContent.trim();
+                        break;
+                    }
+                }
+            }
+
+            // Fallback: Buscar fecha en selectores generales si no se encontró en info-wrapper
+            if (!meta.date) {
+                const dateSelectors = [
+                    '[name="publish-date"]',
+                    '[property="article:published_time"]',
+                    '.date',
+                    'time',
+                    '[class*="date"]'
+                ];
+
+                for (const selector of dateSelectors) {
+                    const element = doc.querySelector(selector);
+                    if (element) {
+                        meta.date = element.getAttribute('content') ||
+                                   element.getAttribute('datetime') ||
+                                   element.textContent.trim();
+                        break;
+                    }
+                }
+            }
+
+            // Subtítulo en <a class="footer-link">
+            const footerLink = doc.querySelector('a[class*="footer-link"]');
+            if (footerLink) {
+                let url = footerLink.getAttribute('href');
+                // Convertir URL relativa a absoluta si es necesario
+                if (url && baseUrl && !url.startsWith('http')) {
+                    if (url.startsWith('/')) {
+                        const base = new URL(baseUrl);
+                        url = `${base.origin}${url}`;
+                    } else {
+                        const base = new URL(baseUrl);
+                        url = `${base.origin}/${url}`;
+                    }
+                }
+                meta.subtitle = {
+                    text: footerLink.textContent.trim(),
+                    url: url
+                };
+            }
+
+            // Fallback: También buscar en <ul class="footer"> <li class="subtitle--hasAnchor">
+            if (!meta.subtitle) {
+                const subtitleElement = doc.querySelector('ul.footer li.subtitle--hasAnchor');
+                if (subtitleElement) {
+                    const link = subtitleElement.querySelector('a');
+                    if (link) {
+                        let url = link.getAttribute('href');
+                        // Convertir URL relativa a absoluta si es necesario
+                        if (url && baseUrl && !url.startsWith('http')) {
+                            if (url.startsWith('/')) {
+                                const base = new URL(baseUrl);
+                                url = `${base.origin}${url}`;
+                            } else {
+                                const base = new URL(baseUrl);
+                                url = `${base.origin}/${url}`;
+                            }
+                        }
+                        meta.subtitle = {
+                            text: link.textContent.trim(),
+                            url: url
+                        };
+                    }
+                }
+            }
+
+            return meta;
+        }
+
+        function extractSummary(doc) {
+            const summarySelectors = [
+                '[name="description"]',
+                '[property="og:description"]',
+                '.summary',
+                '.excerpt',
+                '.lead'
+            ];
+
+            for (const selector of summarySelectors) {
+                const element = doc.querySelector(selector);
+                if (element) {
+                    const summary = element.getAttribute('content') || element.textContent.trim();
+                    if (summary && summary.length > 20) {
+                        return summary;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        // Parser de fechas en español (e.g., "23 de septiembre de 2025" + "22:07 h")
+        function parseSpanishDateToISO(dayText, hourText) {
+            try {
+                if (!dayText && !hourText) return null;
+
+                const months = {
+                    'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+                    'julio': 6, 'agosto': 7, 'septiembre': 8, 'setiembre': 8, 'octubre': 9,
+                    'noviembre': 10, 'diciembre': 11
+                };
+
+                const clean = (s) => (s || '').toString().trim();
+                const dayStr = clean(dayText).toLowerCase();
+                const hourStr = clean(hourText).toLowerCase();
+
+                // Posibles formatos del día: "23 de septiembre de 2025" o "23/09/2025" o "23-09-2025"
+                let day = 1, monthIndex = 0, year = new Date().getFullYear();
+                // 1) "23 de septiembre de 2025"
+                let m = dayStr.match(/(\d{1,2})\s+de\s+([a-záéíóúñ]+)\s+de\s+(\d{4})/i);
+                if (m) {
+                    day = parseInt(m[1], 10);
+                    const monthName = m[2].normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+                    monthIndex = months[monthName] ?? 0;
+                    year = parseInt(m[3], 10);
+                } else {
+                    // 2) "23/09/2025" o "23-09-2025"
+                    m = dayStr.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+                    if (m) {
+                        day = parseInt(m[1], 10);
+                        monthIndex = Math.max(0, parseInt(m[2], 10) - 1);
+                        year = parseInt(m[3], 10);
+                    } else {
+                        // 3) "Actualizado el 23/09/2025" u otros textos
+                        m = dayStr.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+                        if (m) {
+                            day = parseInt(m[1], 10);
+                            monthIndex = Math.max(0, parseInt(m[2], 10) - 1);
+                            year = parseInt(m[3], 10);
+                        }
+                    }
+                }
+
+                // Hora: "22:07 h" o "22:07"
+                let hours = 0, minutes = 0;
+                const hm = hourStr.match(/(\d{1,2}):(\d{2})/);
+                if (hm) {
+                    hours = parseInt(hm[1], 10);
+                    minutes = parseInt(hm[2], 10);
+                }
+
+                // Construir fecha en hora local de España (asumimos zona local del navegador)
+                const localDate = new Date(year, monthIndex, day, hours, minutes, 0);
+                if (isNaN(localDate.getTime())) return null;
+                return localDate.toISOString();
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function extractImages(doc, baseUrl) {
+            const hostname = new URL(baseUrl).hostname.toLowerCase().replace('www.', '');
+
+            // Usar extractor específico según el periódico
+            switch (hostname) {
+                case 'eldiario.es':
+                    return extractImagesElDiario(doc, baseUrl);
+                case 'elpais.com':
+                case 'abc.es':
+                default:
+                    return extractImagesGeneric(doc, baseUrl);
+            }
+        }
+
+        // Extractor específico para elDiario.es
+        function extractImagesElDiario(doc, baseUrl) {
+            const images = [];
+            const seenUrls = new Set();
+
+            // Selectores específicos para elDiario.es
+            const containers = doc.querySelectorAll('.post-item__body');
+
+            for (const container of containers) {
+                // Buscar elementos picture dentro de post-item__body
+                const pictures = container.querySelectorAll('picture');
+
+                for (const picture of pictures) {
+                    const img = picture.querySelector('img');
+                    if (!img) continue;
+
+                    // Obtener la imagen de mayor calidad del srcset
+                    const highQualityUrl = getHighestQualityImage(picture, img, baseUrl);
+
+                    if (highQualityUrl && !seenUrls.has(highQualityUrl)) {
+                        seenUrls.add(highQualityUrl);
+
+                        // Buscar caption específico para elDiario.es
+                        const caption = getElDiarioCaption(container, picture);
+
+                        images.push({
+                            url: highQualityUrl,
+                            caption: caption || '',
+                            alt: img.getAttribute('alt') || '',
+                            fullWidth: true // Marcar para ocupar todo el ancho
+                        });
+                    }
+                }
+            }
+
+            // También buscar imágenes en <figure class="ni-figure"> con <picture class="news-image">
+            const niFigures = doc.querySelectorAll('figure.ni-figure');
+
+            for (const figure of niFigures) {
+                const newsImage = figure.querySelector('picture.news-image');
+                if (newsImage) {
+                    const img = newsImage.querySelector('img');
+                    if (!img) continue;
+
+                    // Obtener la imagen de mayor calidad del srcset
+                    const highQualityUrl = getHighestQualityImage(newsImage, img, baseUrl);
+
+                    if (highQualityUrl && !seenUrls.has(highQualityUrl)) {
+                        seenUrls.add(highQualityUrl);
+
+                        // Buscar caption en el figure
+                        const figcaption = figure.querySelector('figcaption');
+                        const caption = figcaption ? figcaption.textContent.trim() : '';
+
+                        images.push({
+                            url: highQualityUrl,
+                            caption: caption || '',
+                            alt: img.getAttribute('alt') || '',
+                            fullWidth: true // Marcar para ocupar todo el ancho
+                        });
+                    }
+                }
+            }
+
+            return images.slice(0, 10);
+        }
+
+        // Función para obtener imagen de máxima calidad de picture/srcset
+        function getHighestQualityImage(picture, img, baseUrl) {
+            let bestUrl = '';
+            let bestWidth = 0;
+
+            // Revisar sources en picture
+            const sources = picture.querySelectorAll('source');
+            for (const source of sources) {
+                const srcset = source.getAttribute('srcset');
+                if (srcset) {
+                    const bestFromSrcset = getBestFromSrcset(srcset, baseUrl);
+                    if (bestFromSrcset.width > bestWidth) {
+                        bestUrl = bestFromSrcset.url;
+                        bestWidth = bestFromSrcset.width;
+                    }
+                }
+            }
+
+            // Revisar srcset del img
+            const imgSrcset = img.getAttribute('srcset');
+            if (imgSrcset) {
+                const bestFromImg = getBestFromSrcset(imgSrcset, baseUrl);
+                if (bestFromImg.width > bestWidth) {
+                    bestUrl = bestFromImg.url;
+                    bestWidth = bestFromImg.width;
+                }
+            }
+
+            // Fallback al src normal
+            if (!bestUrl) {
+                bestUrl = resolveUrl(img.getAttribute('src'), baseUrl);
+            }
+
+            return bestUrl;
+        }
+
+        function getBestFromSrcset(srcset, baseUrl) {
+            let bestUrl = '';
+            let bestWidth = 0;
+
+            const candidates = srcset.split(',').map(s => s.trim());
+
+            for (const candidate of candidates) {
+                const parts = candidate.split(/\s+/);
+                if (parts.length >= 2) {
+                    const url = parts[0];
+                    const widthMatch = parts[1].match(/(\d+)w/);
+
+                    if (widthMatch) {
+                        const width = parseInt(widthMatch[1]);
+                        if (width > bestWidth) {
+                            bestWidth = width;
+                            bestUrl = resolveUrl(url, baseUrl);
+                        }
+                    }
+                }
+            }
+
+            return { url: bestUrl, width: bestWidth };
+        }
+
+        function getElDiarioCaption(container, picture) {
+            // Buscar caption en contenedores específicos de elDiario.es
+            const captionSelectors = [
+                '.post-item__caption',
+                '.image-caption',
+                '.wp-caption-text',
+                'figcaption'
+            ];
+
+            for (const selector of captionSelectors) {
+                const caption = container.querySelector(selector);
+                if (caption) {
+                    return caption.textContent.trim();
+                }
+            }
+
+            return '';
+        }
+
+        // Extractor genérico (para sitios no específicos)
+        function extractImagesGeneric(doc, baseUrl) {
+            const images = [];
+            const seenUrls = new Set();
+
+            // Selectores para buscar imágenes en diferentes estructuras
+            const imageSelectors = [
+                // Imágenes principales del artículo
+                '.article-content img',
+                '.entry-content img',
+                '.post-content img',
+                'article img',
+                'main img',
+                // Imágenes en figuras
+                'figure img',
+                '.figure img',
+                // Imágenes con data attributes comunes
+                'img[data-src]',
+                'img[data-lazy-src]',
+                'img[data-original]',
+                // Imágenes generales (filtraremos después)
+                'img'
+            ];
+
+            for (const selector of imageSelectors) {
+                const imgElements = doc.querySelectorAll(selector);
+
+                for (const img of imgElements) {
+                    const imageUrl = getImageUrl(img, baseUrl);
+
+                    if (imageUrl && !seenUrls.has(imageUrl) && isValidImage(imageUrl)) {
+                        seenUrls.add(imageUrl);
+
+                        // Buscar caption/descripción
+                        const caption = getImageCaption(img);
+
+                        images.push({
+                            url: imageUrl,
+                            caption: caption || '',
+                            alt: img.getAttribute('alt') || ''
+                        });
+                    }
+                }
+            }
+
+            // Limitar a las primeras 10 imágenes para no sobrecargar
+            return images.slice(0, 10);
+        }
+
+        function getImageUrl(img, baseUrl) {
+            // Intentar obtener URL de diferentes atributos
+            const srcAttributes = ['src', 'data-src', 'data-lazy-src', 'data-original', 'data-srcset'];
+
+            for (const attr of srcAttributes) {
+                const value = img.getAttribute(attr);
+                if (value) {
+                    // Si es srcset, tomar la primera URL
+                    if (attr === 'data-srcset' || attr === 'srcset') {
+                        const firstUrl = value.split(',')[0].trim().split(' ')[0];
+                        return resolveUrl(firstUrl, baseUrl);
+                    }
+                    return resolveUrl(value, baseUrl);
+                }
+            }
+
+            return null;
+        }
+
+        function getImageCaption(img) {
+            // Buscar caption en diferentes lugares
+            const figure = img.closest('figure');
+            if (figure) {
+                const figcaption = figure.querySelector('figcaption');
+                if (figcaption) return figcaption.textContent.trim();
+            }
+
+            // Buscar en elementos hermanos o contenedores
+            const parent = img.parentElement;
+            if (parent) {
+                const caption = parent.querySelector('.caption, .image-caption, .wp-caption-text');
+                if (caption) return caption.textContent.trim();
+            }
+
+            return '';
+        }
+
+        function isValidImage(url) {
+            // Filtrar imágenes que probablemente no sean del contenido
+            const invalidPatterns = [
+                /logo/i,
+                /avatar/i,
+                /profile/i,
+                /icon/i,
+                /button/i,
+                /arrow/i,
+                /social/i,
+                /share/i,
+                /ad[\s\-_]/i,
+                /banner/i,
+                /pixel/i,
+                /tracking/i,
+                /analytics/i,
+                /\.gif$/i // Evitar GIFs animados pequeños
+            ];
+
+            for (const pattern of invalidPatterns) {
+                if (pattern.test(url)) return false;
+            }
+
+            return true;
+        }
+
+        function resolveUrl(url, baseUrl) {
+            if (!url) return '';
+
+            try {
+                // Si ya es una URL completa, devolverla
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    return url;
+                }
+
+                // Si es una URL relativa, resolverla con baseUrl
+                return new URL(url, baseUrl).href;
+            } catch (e) {
+                return '';
+            }
+        }
+
+        // Función para mostrar el artículo extraído - basada en Noticiero prueba.html
+        function displayExtractedArticle(article, url, bodyEl) {
+            const contentHtml = sanitizeHtml(article.content, url);
+            const hasInlineMedia = /<(img|picture|figure)\b/i.test(contentHtml);
+
+            // Detectar imágenes ya presentes inline para evitar duplicados en cabecera
+            const inlineImageUrls = (() => {
+                try {
+                    const container = document.createElement('div');
+                    container.innerHTML = contentHtml;
+                    const urls = new Set();
+                    container.querySelectorAll('img[src]')?.forEach(img => {
+                        const src = img.getAttribute('src');
+                        if (src && /^https?:\/\//i.test(src)) urls.add(src);
+                    });
+                    container.querySelectorAll('source[srcset]')?.forEach(srcEl => {
+                        const set = srcEl.getAttribute('srcset') || '';
+                        const first = set.split(',')[0]?.trim().split(' ')[0] || '';
+                        if (first && /^https?:\/\//i.test(first)) urls.add(first);
+                    });
+                    return urls;
+                } catch (_) { return new Set(); }
+            })();
+            const imagesToShow = (article.images || []).filter(img => img && img.url && /^https?:\/\//i.test(img.url) && !inlineImageUrls.has(img.url));
+
+            // Extraer nombre del periódico desde la URL
+            let newspaper = '';
+            try {
+                const hostname = new URL(url).hostname.toLowerCase().replace('www.', '');
+                const parts = hostname.split('.');
+                if (parts.length > 0) {
+                    // Mapear algunos sitios conocidos
+                    const newspaperMap = {
+                        'elpais.com': 'El País',
+                        'elmundo.es': 'El Mundo',
+                        'abc.es': 'ABC',
+                        'lavanguardia.com': 'La Vanguardia',
+                        'elconfidencial.com': 'El Confidencial',
+                        'publico.es': 'Público',
+                        'eldiario.es': 'ElDiario.es',
+                        'marca.com': 'MARCA',
+                        'as.com': 'AS',
+                        'sport.es': 'Sport',
+                        'expansion.com': 'Expansión'
+                    };
+
+                    newspaper = newspaperMap[hostname] || parts[0].toUpperCase();
+                }
+            } catch (e) {
+                newspaper = 'Periódico';
+            }
+
+            // Formatear fechas a DD-MM-AAAA HH:MM
+            const pad = (n) => String(n).padStart(2, '0');
+            const formatIsoLocal = (iso) => {
+                try {
+                    const d = new Date(iso);
+                    if (isNaN(d.getTime())) return '';
+                    return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                } catch(_) { return ''; }
+            };
+
+            const formattedDate = article.meta.date ? formatIsoLocal(article.meta.date) : '';
+            const formattedUpdated = article.meta.modifiedDate ? formatIsoLocal(article.meta.modifiedDate) : '';
+
+            const html = `
+                <div class="article" style="padding-top: 15px;">
+                    ${(newspaper || article.meta.author || formattedDate || formattedUpdated) ? `
+                    <div class="article-meta" style="margin-top: 8px; margin-bottom: 8px;">
+                        ${newspaper ? `<div><strong>Periódico:</strong> ${escapeHtml(newspaper)}</div>` : ''}
+                        ${article.meta.author ? `<div><strong>Autor:</strong> ${escapeHtml(article.meta.author)}</div>` : ''}
+                        ${formattedDate ? `<div><strong>Publicado:</strong> ${formattedDate}</div>` : ''}
+                        ${formattedUpdated ? `<div><strong>Actualizado:</strong> ${formattedUpdated}</div>` : ''}
+                    </div>` : ''}
+
+                    ${article.summary ? `
+                    <div style="background: #eff6ff; padding: 15px; border-left: 4px solid #3b82f6; margin-top: 8px; margin-bottom: 25px; border-radius: 5px; color: #1e40af;">
+                        <strong>Resumen:</strong> ${escapeHtml(article.summary)}
+                    </div>` : ''}
+
+                    ${(imagesToShow && imagesToShow.length > 0) ? `
+                    <figure class="article-image" style="margin: 20px ${imagesToShow[0].fullWidth ? '-20px' : '0'} 28px; text-align: center;">
+                        <img src="${escapeHtml(imagesToShow[0].url)}"
+                             alt="${escapeHtml(imagesToShow[0].alt || imagesToShow[0].caption || 'Imagen del artículo')}"
+                             style="max-width: 100%; ${imagesToShow[0].fullWidth ? 'width: 100%;' : ''} height: auto; border-radius: ${imagesToShow[0].fullWidth ? '0' : '8px'}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+                             loading="lazy"
+                             onerror="this.parentElement.style.display='none';">
+                        ${imagesToShow[0].caption ? `<figcaption style="margin: 10px ${imagesToShow[0].fullWidth ? '20px' : '0'} 20px; font-size: 0.9rem; color: #444; font-style: italic;">${escapeHtml(imagesToShow[0].caption)}</figcaption>` : ''}
+                    </figure>` : ''}
+
+                    ${article.meta.subtitle ? `
+                    <div style="margin: 24px 0 36px 0; padding: 5px 0;">
+                        <a href="#" onclick="window.handleModalLink(event, this.dataset.url); return false;"
+                           data-url="${escapeHtml(article.meta.subtitle.url)}"
+                           style="color: #3b82f6; text-decoration: underline; font-weight: 500;">
+                            ${escapeHtml(article.meta.subtitle.text)}
+                        </a>
+                    </div>` : ''}
+
+                    <div class="article-content">
+                        ${contentHtml || '<p>No se pudo extraer el contenido del artículo.</p>'}
+                    </div>
+                </div>
+            `;
+
+            bodyEl.innerHTML = html;
+        }
+
+        // Función auxiliar para sanitizar HTML manteniendo elementos seguros
+        function sanitizeHtml(html, baseUrl = '') {
+            // Crear un elemento temporal para limpiar el HTML
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+
+            // Elementos permitidos (seguros)
+            const allowedTags = ['b', 'strong', 'i', 'em', 'u', 'br', 'span', 'a', 'figure', 'img', 'figcaption', 'picture', 'source', 'div', 'h2', 'p', 'h3', 'h4', 'ul', 'ol', 'li'];
+
+            // Procesar todos los elementos
+            const allElements = temp.querySelectorAll('*');
+            for (let i = allElements.length - 1; i >= 0; i--) {
+                const element = allElements[i];
+
+                if (!allowedTags.includes(element.tagName.toLowerCase())) {
+                    // Si no está en la lista de permitidos, reemplazar por su contenido
+                    element.outerHTML = element.innerHTML;
+                } else if (element.tagName.toLowerCase() === 'a') {
+                    // Para enlaces, asegurar que tengan target y agregar evento click personalizado
+                    element.setAttribute('target', '_blank');
+                    element.setAttribute('onclick', 'window.handleModalLink(event, this.href); return false;');
+
+                    // Remover atributos potencialmente peligrosos
+                    const dangerousAttrs = ['onload', 'onerror', 'onmouseover', 'onmouseout', 'javascript:'];
+                    dangerousAttrs.forEach(attr => {
+                        if (element.getAttribute(attr)) {
+                            element.removeAttribute(attr);
+                        }
+                    });
+                } else if (element.tagName.toLowerCase() === 'img') {
+                    // Para imágenes, agregar estilos y manejo de errores
+                    element.style.maxWidth = '100%';
+                    element.style.height = 'auto';
+                    element.style.borderRadius = '8px';
+                    element.style.display = 'block';
+                    element.style.margin = '18px 0';
+                    element.setAttribute('loading', 'eager');
+                    element.setAttribute('onerror', 'this.remove()');
+
+                    // Forzar carga si hay atributos lazy (data-src / data-srcset)
+                    try {
+                        const lazySrc = element.getAttribute('data-src')
+                            || element.getAttribute('data-lazy-src')
+                            || element.getAttribute('data-original')
+                            || element.getAttribute('data-url');
+                        if (lazySrc) {
+                            const resolvedLazySrc = (() => {
+                                try { return new URL(lazySrc, baseUrl || window.location.href).href; } catch (_) { return lazySrc; }
+                            })();
+                            element.setAttribute('src', resolvedLazySrc);
+                        }
+
+                        const lazySrcset = element.getAttribute('data-srcset');
+                        if (lazySrcset) {
+                            const resolvedSet = lazySrcset.split(',').map(part => {
+                                const [u, d] = part.trim().split(/\s+/);
+                                let urlResolved = u;
+                                try { urlResolved = new URL(u, baseUrl || window.location.href).href; } catch (_) {}
+                                return d ? `${urlResolved} ${d}` : urlResolved;
+                            }).join(', ');
+                            element.setAttribute('srcset', resolvedSet);
+                        }
+                    } catch (_) {}
+
+                    // Eliminar clase 'lazy' si existe
+                    try { element.classList && element.classList.remove('lazy'); } catch (_) {}
+
+                    // Validar que la src sea una URL válida
+                    const src = element.getAttribute('src');
+                    if (!src || !src.trim()) {
+                        element.parentElement && (element.parentElement.style.display = 'none');
+                    } else if (!/^https?:\/\//i.test(src)) {
+                        try {
+                            const resolved = new URL(src, baseUrl || window.location.href).href;
+                            element.setAttribute('src', resolved);
+                        } catch (_) {
+                            element.parentElement && (element.parentElement.style.display = 'none');
+                        }
+                    }
+                } else if (element.tagName.toLowerCase() === 'source') {
+                    // Normalizar srcset en <source>, incluyendo data-srcset
+                    try {
+                        const dataSet = element.getAttribute('data-srcset')
+                            || element.getAttribute('data-lazy-srcset')
+                            || element.getAttribute('data-original');
+                        const activeSet = dataSet || element.getAttribute('srcset') || '';
+                        if (activeSet) {
+                            const resolvedSet = activeSet.split(',').map(part => {
+                                const [u, d] = part.trim().split(/\s+/);
+                                let urlResolved = u;
+                                try { urlResolved = new URL(u, baseUrl || window.location.href).href; } catch (_) {}
+                                return d ? `${urlResolved} ${d}` : urlResolved;
+                            }).join(', ');
+                            element.setAttribute('srcset', resolvedSet);
+                            if (dataSet) element.removeAttribute('data-srcset');
+                        }
+                    } catch (_) {}
+                } else if (element.tagName.toLowerCase() === 'picture') {
+                    // Asegurar que picture se renderice como bloque con espacio
+                    element.style.display = 'block';
+                    element.style.margin = '24px 0';
+                } else if (element.tagName.toLowerCase() === 'figure') {
+                    // Para figures, agregar estilos
+                    element.style.margin = '20px 0';
+                    element.style.marginBottom = '24px';
+                    element.style.textAlign = 'center';
+                    // Asegurar que los captions de eldiario.es se muestren
+                    const figcaption = element.querySelector('figcaption');
+                    if (figcaption) {
+                        figcaption.classList.add('image-footer');
+                        figcaption.style.fontSize = '0.9rem';
+                        figcaption.style.color = '#444';
+                        figcaption.style.fontStyle = 'italic';
+                        figcaption.style.marginTop = '10px';
+                        figcaption.style.marginBottom = '16px';
+                    }
+                } else if (element.tagName.toLowerCase() === 'h2' && element.classList.contains('article-text')) {
+                    element.style.fontWeight = '700';
+                    element.style.fontSize = '1.25rem';
+                    element.style.margin = '18px 0 10px';
+                } else if (element.tagName.toLowerCase() === 'p') {
+                    // Espaciado claro para párrafos entre imágenes
+                    element.style.margin = '12px 0';
+                    element.style.lineHeight = '1.6';
+                    // Asegurar visibilidad de todos los párrafos
+                    try { element.removeAttribute('hidden'); } catch (_) {}
+                    try { element.removeAttribute('aria-hidden'); } catch (_) {}
+                    try { element.style.setProperty('display', 'block', 'important'); } catch (_) { element.style.display = 'block'; }
+                    try { element.style.setProperty('visibility', 'visible', 'important'); } catch (_) { element.style.visibility = 'visible'; }
+                    try { element.style.setProperty('opacity', '1', 'important'); } catch (_) { element.style.opacity = '1'; }
+                } else if (element.classList && (element.classList.contains('caption') || element.classList.contains('image-caption') || element.classList.contains('wp-caption-text') || element.classList.contains('image-footer'))) {
+                    // Asegurar legibilidad de captions genéricos
+                    element.style.display = 'block';
+                    element.style.fontSize = '0.9rem';
+                    element.style.color = '#444';
+                    element.style.fontStyle = 'italic';
+                    element.style.margin = '10px 0 20px 0';
+                }
+            }
+
+            return temp.innerHTML;
+        }
+
+        // Función auxiliar para escapar HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Variable para almacenar el historial del modal
+        let modalHistory = [];
+
+        // Función para manejar clics en enlaces dentro del modal
+        function handleModalLink(event, href) {
+            event.preventDefault();
+            try {
+                const overlay = document.getElementById('linkModal');
+                const currentBody = document.getElementById('linkModalBody') || overlay.querySelector('.link-modal-body');
+                if (!overlay || !currentBody) {
+                    console.error('Modal elements not found');
+                    return;
+                }
+
+                // Resolver href relativo contra la URL actual del modal
+                const baseUrl = overlay.getAttribute('data-current-url') || window.location.href;
+                const targetHref = href || (event?.target && event.target.getAttribute && event.target.getAttribute('href')) || '';
+                let resolvedHref = targetHref;
+                try { resolvedHref = new URL(targetHref, baseUrl).href; } catch(_) {}
+
+                // Guardar estado actual
+                modalHistory.push({
+                    content: currentBody.innerHTML,
+                    url: baseUrl
+                });
+
+                // Cargar nuevo contenido
+                loadLinkInModal(resolvedHref, currentBody);
+                showBackButton();
+            } catch (e) {
+                console.error('handleModalLink error:', e);
+            }
+        }
+
+        // Función para mostrar el botón volver atrás
+        function showBackButton() {
+            const modal = document.getElementById('linkModal');
+            const header = modal.querySelector('.link-modal-header');
+            if (!header) return;
+
+            if (!header.querySelector('.back-button')) {
+                const backButton = document.createElement('button');
+                backButton.className = 'back-button';
+                backButton.innerHTML = '← Volver';
+                backButton.style.cssText = 'background: #22c55e; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;';
+                backButton.onclick = goBackInModal;
+
+                const closeButton = document.getElementById('linkModalClose') || header.querySelector('.link-modal-close');
+                if (closeButton) {
+                    header.insertBefore(backButton, closeButton);
+                } else {
+                    header.appendChild(backButton);
+                }
+            }
+        }
+
+        // Función para volver atrás en el historial del modal
+        function goBackInModal() {
+            if (modalHistory.length > 0) {
+                const previousState = modalHistory.pop();
+                const overlay = document.getElementById('linkModal');
+                const currentBody = document.getElementById('linkModalBody') || overlay.querySelector('.link-modal-body');
+                if (!overlay || !currentBody) return;
+
+                currentBody.innerHTML = previousState.content;
+                overlay.setAttribute('data-current-url', previousState.url);
+
+                if (modalHistory.length === 0) {
+                    hideBackButton();
+                }
+            }
+        }
+
+        // Función para ocultar el botón volver atrás
+        function hideBackButton() {
+            const modal = document.getElementById('linkModal');
+            const backButton = modal.querySelector('.back-button');
+            if (backButton) {
+                backButton.remove();
+            }
+        }
+
+        // Función para cargar un enlace en el modal
+        async function loadLinkInModal(url, bodyElement) {
+            try {
+                bodyElement.innerHTML = '<div style="text-align: center; padding: 20px;">Cargando...</div>';
+
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+
+                const response = await fetch(proxyUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const html = await response.text();
+
+                const article = extractArticleContent(html, url);
+
+                displayExtractedArticle(article, url, bodyElement);
+
+                // Actualizar título del modal si existe
+                try {
+                    const titleEl = document.getElementById('linkModalTitle');
+                    if (titleEl && article.title && article.title !== 'Título no encontrado') {
+                        titleEl.textContent = article.title;
+                    }
+                } catch(_) {}
+
+                // Actualizar la URL actual en el modal
+                document.getElementById('linkModal').setAttribute('data-current-url', url);
+
+            } catch (error) {
+                console.error('Error loading link:', error);
+                bodyElement.innerHTML = '<div style="color: #dc2626; text-align: center; padding: 20px;">Error al cargar el contenido: ' + error.message + '</div>';
+            }
+        }
+
+        // Event listener para enlaces del modal usando delegación de eventos
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('a.modal-link')) {
+                e.preventDefault();
+                const url = e.target.getAttribute('data-url');
+                if (url) {
+                    handleModalLink(e, url);
+                }
+            }
+        });
+
+        // Make functions globally accessible for inline event handlers
+            window.searchNews = searchNews;
+            window.handleEnterKey = handleEnterKey;
+            window.handleLimitChange = handleLimitChange;
+            window.handleSourceChange = handleSourceChange;
+            window.handleModalLink = handleModalLink;
+            window.goBackInModal = goBackInModal;
+            window.filterByMedia = filterByMedia;
+            window.onNewsLinkClick = onNewsLinkClick;
+            window.scrollToTop = scrollToTop;
+            window.ensureLinkModal = ensureLinkModal;
+            window.hideLinkModal = hideLinkModal;
+
+            // Event listeners
+            elements.openInSource?.addEventListener('change', updateOpenModeLabel);
+
+            window.addEventListener('scroll', () => {
+                elements.scrollToTop.style.display = window.pageYOffset > 300 ? 'block' : 'none';
+            });
+
+            // Check URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+            if (query) {
+                elements.searchInput.value = query;
+                searchNews();
+            }
+        }
+
+        // Función para iniciar el auto-refresh
+        function startAutoRefresh() {
+            // Limpiar intervalo anterior si existe
+            if (appState.autoRefreshInterval) {
+                clearInterval(appState.autoRefreshInterval);
+            }
+
+            // Reiniciar countdown
+            appState.refreshCountdown = 300; // 5 minutos
+
+            // Actualizar timer cada segundo
+            appState.autoRefreshInterval = setInterval(() => {
+                appState.refreshCountdown--;
+
+                // Actualizar display del timer
+                updateTimerDisplay();
+
+                // Si llega a 0, hacer refresh
+                if (appState.refreshCountdown <= 0) {
+                    performAutoRefresh();
+                    appState.refreshCountdown = 300; // Reiniciar contador
+                }
+            }, 1000);
+        }
+
+        // Función para actualizar el display del timer
+        function updateTimerDisplay() {
+            const timerElement = document.getElementById('timerText');
+            const timerContainer = document.getElementById('autoRefreshTimer');
+
+            if (!timerElement) return;
+
+            const minutes = Math.floor(appState.refreshCountdown / 60);
+            const seconds = appState.refreshCountdown % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (appState.refreshCountdown <= 10) {
+                timerContainer.classList.add('refreshing');
+                timerElement.textContent = `Actualizando en ${timeString}`;
+            } else {
+                timerContainer.classList.remove('refreshing');
+                timerElement.textContent = `Próxima actualización en ${timeString}`;
+            }
+        }
+
+        // Función para realizar el auto-refresh
+        async function performAutoRefresh() {
+            // Solo hacer refresh si hay una búsqueda activa
+            if (!appState.searchQuery) return;
+
+            const timerElement = document.getElementById('timerText');
+            const timerContainer = document.getElementById('autoRefreshTimer');
+
+            if (timerElement) {
+                timerContainer.classList.add('refreshing');
+                timerElement.textContent = '🔄 Actualizando...';
+            }
+
+            // Limpiar caché para forzar búsqueda nueva
+            cache.searchResults.clear();
+
+            // Realizar nueva búsqueda
+            await searchNews();
+
+            // Reiniciar el timer después de la búsqueda
+            setTimeout(() => {
+                startAutoRefresh();
+            }, 1000);
+        }
+
+        // Start app
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
