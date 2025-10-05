@@ -1682,7 +1682,8 @@
             // Mostrar logs con estos emojis importantes
             if (message.includes('🌐') || message.includes('📡') || message.includes('📰') || 
                 message.includes('🗑️') || message.includes('❌') || message.includes('✅') || 
-                message.includes('⚠️') || message.includes('🔧') || message.includes('🔄')) {
+                message.includes('⚠️') || message.includes('🔧') || message.includes('🔄') ||
+                message.includes('📊')) {
                 addDebugLog('log', message);
             }
         };
@@ -2595,7 +2596,7 @@
             }
 
             parseGoogleNewsResults(html) {
-                console.log('🔧 VERSIÓN: 3.0 - Con fallback robusto para subtítulos en móvil');
+                console.log('🔧🔧🔧 PARSEANDO NOTICIAS - VERSIÓN 3.0');
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const news = [];
@@ -2703,8 +2704,10 @@
                 }
                 
                 // FALLBACK: Si ningún selector funcionó, buscar cualquier div/span con texto largo
-                console.log('🔄 Intentando fallback: buscando cualquier texto largo...');
+                console.log('🔄🔄🔄 FALLBACK ACTIVADO - Buscando texto largo...');
                 const allDivs = item.querySelectorAll('div, span');
+                console.log(`📊 Encontrados ${allDivs.length} divs/spans para revisar`);
+                
                 for (const div of allDivs) {
                     const text = div.textContent?.trim() || '';
                     // Debe ser texto largo (> 50 chars) pero no demasiado largo (< 500 chars)
@@ -2712,12 +2715,12 @@
                     if (text.length > 50 && text.length < 500 && 
                         !this.isDateText(text) && 
                         !div.querySelector('h1, h2, h3, h4, h5, h6')) {
-                        console.log(`✅ Subtítulo encontrado con fallback: "${text.substring(0, 50)}..."`);
+                        console.log(`✅✅✅ SUBTITULO ENCONTRADO: "${text.substring(0, 50)}..."`);
                         return div;
                     }
                 }
                 
-                console.warn(`⚠️ NO se encontró subtítulo ni con selectores ni con fallback`);
+                console.log(`❌❌❌ NO SE ENCONTRO SUBTITULO`);
                 return null;
             }
 
