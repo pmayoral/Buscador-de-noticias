@@ -1617,11 +1617,12 @@
         function detectarSistemaOperativo() {
             const userAgent = navigator.userAgent.toLowerCase();
             
+            // Android y iOS deben ir primero porque también pueden contener "linux" o "mac"
+            if (userAgent.includes('android')) return 'Android';
+            if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'iOS';
             if (userAgent.includes('win')) return 'Windows';
             if (userAgent.includes('mac')) return 'MacOS';
             if (userAgent.includes('linux')) return 'Linux';
-            if (userAgent.includes('android')) return 'Android';
-            if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'iOS';
             
             return 'Desconocido';
         }
@@ -1629,14 +1630,22 @@
         function detectarNavegador() {
             const userAgent = navigator.userAgent;
             
-            if (userAgent.includes('Firefox')) return 'Firefox';
-            if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
-            if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
+            // Navegadores específicos primero (antes de Chrome, ya que usan Chromium)
+            if (userAgent.includes('SoulBrowser') || userAgent.includes('Soul')) return 'Soul Browser';
+            if (userAgent.includes('Brave') || userAgent.includes('brave')) return 'Brave';
+            if (userAgent.includes('SamsungBrowser')) return 'Samsung Internet';
+            if (userAgent.includes('UCBrowser') || userAgent.includes('UCWeb')) return 'UC Browser';
+            if (userAgent.includes('Vivaldi')) return 'Vivaldi';
             if (userAgent.includes('Edg')) return 'Edge';
             if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
+            
+            // Navegadores principales
+            if (userAgent.includes('Firefox')) return 'Firefox';
+            if (userAgent.includes('Chrome')) return 'Chrome';
+            if (userAgent.includes('Safari')) return 'Safari';
             if (userAgent.includes('Trident')) return 'Internet Explorer';
             
-            return 'Desconocido';
+            return 'Navegador basado en Chromium';
         }
 
         function obtenerInfoDispositivo() {
