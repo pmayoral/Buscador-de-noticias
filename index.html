@@ -3000,19 +3000,27 @@
 
                     for (const proxy of preferredProxies) {
                         try {
+                            console.log(`🌐 Intentando proxy: ${proxy.substring(0, 40)}...`);
                             const proxyUrl = proxy + encodeURIComponent(googleNewsUrl);
                             const response = await fetch(proxyUrl);
+
+                            console.log(`📡 Respuesta proxy: status ${response.status}`);
 
                             if (response.ok) {
                                 const htmlContent = await response.text();
                                 const news = this.parseGoogleNewsResults(htmlContent);
 
+                                console.log(`📰 Noticias encontradas con este proxy: ${news.length}`);
+
                                 if (news.length > 0) {
                                     allResults.push(...news);
                                     break;
                                 }
+                            } else {
+                                console.warn(`⚠️ Proxy falló con status ${response.status}`);
                             }
                         } catch (error) {
+                            console.error(`❌ Error con proxy: ${error.message}`);
                             continue;
                         }
                     }
@@ -3035,16 +3043,23 @@
                     // Ordenar por fecha
                     const sortedNews = this.sortNewsByDate(filteredNews);
 
-                    // Eliminar duplicados basándose en URL
+                    // Eliminar duplicados basándose en URL Y título (más agresivo)
                     const uniqueNews = [];
                     const seenUrls = new Set();
+                    const seenTitles = new Set();
                     sortedNews.forEach(news => {
-                        if (!seenUrls.has(news.link)) {
+                        const normalizedTitle = news.title.toLowerCase().trim();
+                        const key = `${news.link}||${normalizedTitle}`;
+                        
+                        if (!seenUrls.has(news.link) && !seenTitles.has(normalizedTitle)) {
                             seenUrls.add(news.link);
+                            seenTitles.add(normalizedTitle);
                             uniqueNews.push(news);
+                        } else {
+                            console.log(`🗑️ Duplicado eliminado: "${news.title.substring(0, 50)}..."`);
                         }
                     });
-                    console.log(`🗑️ Eliminados ${sortedNews.length - uniqueNews.length} duplicados`);
+                    console.log(`🗑️ Total eliminados: ${sortedNews.length - uniqueNews.length} duplicados de ${sortedNews.length} noticias`);
 
                     // Limitar a maxCount
                     const limitedNews = uniqueNews.slice(0, maxCount);
