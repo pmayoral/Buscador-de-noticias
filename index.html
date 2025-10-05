@@ -1631,7 +1631,7 @@
             const userAgent = navigator.userAgent;
             
             // Navegadores específicos primero (antes de Chrome, ya que usan Chromium)
-            if (userAgent.includes('SoulBrowser') || userAgent.includes('Soul')) return 'Soul Browser';
+            if (userAgent.includes('Jkfk')) return 'Soul Browser';
             if (userAgent.includes('Brave') || userAgent.includes('brave')) return 'Brave';
             if (userAgent.includes('SamsungBrowser')) return 'Samsung Internet';
             if (userAgent.includes('UCBrowser') || userAgent.includes('UCWeb')) return 'UC Browser';
@@ -1693,8 +1693,25 @@
                 <p><strong>📐 Resolución:</strong> ${info.resolucion}</p>
                 <p><strong>🗣️ Idioma:</strong> ${info.idioma}</p>
                 <p style="margin-top: 15px;"><strong>🔍 UserAgent (copia esto):</strong></p>
-                <textarea readonly style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 12px; font-family: monospace;">${navigator.userAgent}</textarea>
-                <button id="closeInfoBtn" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%;">Cerrar</button>
+                <textarea readonly style="
+                    width: 100%;
+                    height: 100px;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 12px;
+                    font-family: monospace;"
+                >${navigator.userAgent}</textarea>
+                <button id="closeInfoBtn" style="
+                    margin-top: 15px;
+                    padding: 10px 20px;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    width: 100%;"
+                >Cerrar</button>
             `;
             
             document.body.appendChild(infoDiv);
