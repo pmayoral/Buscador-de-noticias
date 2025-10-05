@@ -1631,6 +1631,70 @@
      </div>
 
     <script>
+        // ===== MINI CONSOLA VISUAL PARA DEBUG =====
+        const debugLogs = [];
+        const originalConsoleLog = console.log;
+        const originalConsoleWarn = console.warn;
+        const originalConsoleError = console.error;
+        
+        function createDebugConsole() {
+            const debugDiv = document.createElement('div');
+            debugDiv.id = 'debug-console';
+            debugDiv.style.cssText = `
+                position: fixed;
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                max-height: 150px;
+                background: rgba(0, 0, 0, 0.9);
+                color: #00ff00;
+                padding: 10px;
+                border-radius: 8px;
+                font-family: monospace;
+                font-size: 10px;
+                overflow-y: auto;
+                z-index: 99998;
+                display: none;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            `;
+            document.body.appendChild(debugDiv);
+            return debugDiv;
+        }
+        
+        function addDebugLog(type, message) {
+            const debugDiv = document.getElementById('debug-console') || createDebugConsole();
+            const timestamp = new Date().toLocaleTimeString();
+            const colorMap = { log: '#00ff00', warn: '#ffaa00', error: '#ff0000' };
+            const color = colorMap[type] || '#00ff00';
+            
+            debugLogs.push(`[${timestamp}] ${message}`);
+            if (debugLogs.length > 20) debugLogs.shift(); // Mantener solo últimos 20
+            
+            debugDiv.innerHTML = debugLogs.map(log => `<div style="color: ${color}">${log}</div>`).join('');
+            debugDiv.style.display = 'block';
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            const message = args.join(' ');
+            if (message.includes('🌐') || message.includes('📡') || message.includes('📰') || message.includes('🗑️') || message.includes('❌')) {
+                addDebugLog('log', message);
+            }
+        };
+        
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            addDebugLog('warn', args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addDebugLog('error', args.join(' '));
+        };
+        // ===== FIN MINI CONSOLA =====
+        
         // ===== DETECCIÓN DE DISPOSITIVO Y NAVEGADOR =====
         function esMovil() {
             const userAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
