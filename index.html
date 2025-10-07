@@ -17,9 +17,7 @@
             --secondary-gradient: linear-gradient(135deg, #4ecdc4, #44a08d);
             --white-transparent: rgba(255, 255, 255, 0.95);
             --shadow-light: 0 20px 40px rgba(0,0,0,0.1);
-            --border-light: 1px solid rgba(255, 255, 255, 0.2);
-            --transition: var(--transition);
-            --radius: 20px;
+            --border-light: 1px solid rgba(255, 255, 255, 0.2);            --radius: 20px;
         }
 
         * {
@@ -551,14 +549,26 @@
             font-size: inherit !important;
             line-height: inherit !important;
             color: inherit !important;
-            font-weight: inherit !important;
-            text-decoration: inherit !important;
+        }
+
+        /* IMPORTANTE: Preservar negritas, cursivas y otros estilos de texto */
+        .modal-text strong,
+        .modal-text b {
+            font-weight: 700 !important;
+        }
+
+        .modal-text em,
+        .modal-text i {
+            font-style: italic !important;
+        }
+
+        .modal-text u {
+            text-decoration: underline !important;
         }
 
         .modal-text a {
             color: #2563eb !important;
             text-decoration: underline !important;
-            font-weight: inherit !important;
             cursor: pointer !important;
         }
 
@@ -1164,6 +1174,7 @@
             margin-bottom: 8px;
             padding-bottom: 6px;
             border-bottom: 2px solid #e2e8f0;
+            gap: 8px;
         }
 
         .newspapers-dropdown__title {
@@ -1198,6 +1209,29 @@
             box-shadow: none;
         }
 
+        .newspapers-dropdown__info-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .newspapers-dropdown__info-btn:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
         .newspapers-dropdown__list {
             list-style: none;
             padding: 0;
@@ -1214,12 +1248,24 @@
             cursor: pointer;
             border: 1px solid transparent;
             line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
         }
 
         .newspapers-dropdown__item:hover {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
             border-color: #667eea;
             transform: translateX(5px);
+        }
+
+        .newspapers-dropdown__item-content {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: baseline;
+            min-width: 0;
         }
 
         .newspapers-dropdown__text {
@@ -1232,7 +1278,217 @@
             margin-left: 4px;
         }
 
+        .newspapers-dropdown__item-info-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(72, 187, 120, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .newspapers-dropdown__item-info-btn:hover {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            transform: scale(1.15);
+            box-shadow: 0 3px 10px rgba(72, 187, 120, 0.5);
+        }
+
+        .newspapers-dropdown__item-info-btn:active {
+            transform: scale(1.05);
+        }
+
+        /* Estilos para la modal de información del periódico */
+        .newspaper-info-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .newspaper-info-modal.active {
+            display: flex;
+            opacity: 1;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .newspaper-modal-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .newspaper-modal-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            color: white;
+            padding: 28px 30px;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+        }
+
+        .newspaper-modal-header h2 {
+            font-size: 1.9em;
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: white;
+        }
+
+        .newspaper-modal-url {
+            opacity: 0.95;
+            font-size: 1em;
+            color: white;
+        }
+
+        .newspaper-modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            font-size: 26px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .newspaper-modal-close:hover {
+            background: rgba(255,255,255,0.25);
+            transform: rotate(90deg);
+        }
+
+        .newspaper-modal-body {
+            padding: 32px;
+            max-height: calc(100vh - 220px);
+            overflow-y: auto;
+            background: #1a1a1a;
+            color: #aaa;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .newspaper-modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .newspaper-modal-body::-webkit-scrollbar-track {
+            background: #222;
+            border-radius: 4px;
+        }
+
+        .newspaper-modal-body::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
+        .newspaper-modal-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .newspaper-modal-section {
+            margin-bottom: 30px;
+        }
+
+        .newspaper-modal-section h3 {
+            color: #8b5cf6;
+            font-size: 1.4em;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+            font-weight: 600;
+        }
+
+        .newspaper-modal-section ul {
+            padding-left: 22px;
+            line-height: 1.7;
+        }
+
+        .newspaper-modal-section li {
+            margin-bottom: 7px;
+            font-size: 0.93em;
+        }
+
+        .newspaper-modal-section li::marker {
+            color: #666;
+        }
+
+        .newspaper-modal-info-item {
+            background: rgba(99, 102, 241, 0.08);
+            padding: 11px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #6366f1;
+            font-size: 0.93em;
+        }
+
+        .newspaper-modal-info-item strong {
+            color: #fff;
+            display: inline-block;
+            min-width: 140px;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
+            .newspaper-info-modal.active {
+                padding: 20px 10px;
+            }
+
+            .newspaper-modal-content {
+                max-width: 100%;
+            }
+
+            .newspaper-modal-header {
+                padding: 20px;
+            }
+
+            .newspaper-modal-header h2 {
+                font-size: 1.5em;
+            }
+
+            .newspaper-modal-body {
+                padding: 20px;
+            }
+
+            .newspaper-modal-section h3 {
+                font-size: 1.2em;
+            }
+
             .newspapers-button {
                 top: 10px;
                 left: 10px;
@@ -1257,277 +1513,353 @@
     <!-- Desplegable de periódicos -->
     <div class="newspapers-dropdown" id="newspapersDropdown">
         <div class="newspapers-dropdown__header">
-            <div class="newspapers-dropdown__title">Periódicos (67)</div>
+            <div class="newspapers-dropdown__title">Periódicos (49)</div>
             <button class="newspapers-dropdown__export-btn" id="exportNewspapersBtn">Exportar</button>
+            <button class="newspapers-dropdown__info-btn" id="deviceInfoBtn" title="Información del dispositivo">ℹ️</button>
         </div>
         <ul class="newspapers-dropdown__list" id="newspapersList">
             <li class="newspapers-dropdown__item" data-domain="abc.es">
-                <span class="newspapers-dropdown__text">ABC</span>
-                <span class="newspapers-dropdown__domain">(abc.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="antena3.com">
-                <span class="newspapers-dropdown__text">Antena 3</span>
-                <span class="newspapers-dropdown__domain">(antena3.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">ABC</span>
+                    <span class="newspapers-dropdown__domain">(abc.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ABC', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="es.ara.cat">
-                <span class="newspapers-dropdown__text">ARA</span>
-                <span class="newspapers-dropdown__domain">(es.ara.cat)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">ARA</span>
+                    <span class="newspapers-dropdown__domain">(es.ara.cat)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ARA', event)" title="Ver información del periódico">📋</button>
+            </li>
+            <li class="newspapers-dropdown__item" data-domain="antena3.com">
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Antena 3</span>
+                    <span class="newspapers-dropdown__domain">(antena3.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Antena 3', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="cadenaser.com">
-                <span class="newspapers-dropdown__text">Cadena SER</span>
-                <span class="newspapers-dropdown__domain">(cadenaser.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Cadena SER</span>
+                    <span class="newspapers-dropdown__domain">(cadenaser.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Cadena SER', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="catalunyapress.es">
-                <span class="newspapers-dropdown__text">CATALUNYAPRESS.ES</span>
-                <span class="newspapers-dropdown__domain">(catalunyapress.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">CatalunyaPress</span>
+                    <span class="newspapers-dropdown__domain">(catalunyapress.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('CatalunyaPress', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="cope.es">
-                <span class="newspapers-dropdown__text">Cope.es</span>
-                <span class="newspapers-dropdown__domain">(cope.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">COPE</span>
+                    <span class="newspapers-dropdown__domain">(cope.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('COPE', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="cuadernosdeseguridad.com">
-                <span class="newspapers-dropdown__text">CUADERNOSDESEGURIDAD.COM</span>
-                <span class="newspapers-dropdown__domain">(cuadernosdeseguridad.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Cuadernos de Seguridad</span>
+                    <span class="newspapers-dropdown__domain">(cuadernosdeseguridad.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Cuadernos de Seguridad', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="deia.eus">
-                <span class="newspapers-dropdown__text">Deia.eus</span>
-                <span class="newspapers-dropdown__domain">(deia.eus)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Deia</span>
+                    <span class="newspapers-dropdown__domain">(deia.eus)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Deia', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="democrata.es">
-                <span class="newspapers-dropdown__text">Demócrata</span>
-                <span class="newspapers-dropdown__domain">(democrata.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Demócrata</span>
+                    <span class="newspapers-dropdown__domain">(democrata.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Demócrata', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariodemallorca.es">
-                <span class="newspapers-dropdown__text">DIARIODEMALLORCA.ES</span>
-                <span class="newspapers-dropdown__domain">(diariodemallorca.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Diario de Mallorca</span>
+                    <span class="newspapers-dropdown__domain">(diariodemallorca.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario de Mallorca', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariosocialista.net">
-                <span class="newspapers-dropdown__text">DIARIOSOCIALISTA.NET</span>
-                <span class="newspapers-dropdown__domain">(diariosocialista.net)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Diario Socialista</span>
+                    <span class="newspapers-dropdown__domain">(diariosocialista.net)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario Socialista', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariosur.es">
-                <span class="newspapers-dropdown__text">DIARIOSUR.ES</span>
-                <span class="newspapers-dropdown__domain">(diariosur.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Diario Sur</span>
+                    <span class="newspapers-dropdown__domain">(diariosur.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario Sur', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariosigloxxi.com">
-                <span class="newspapers-dropdown__text">Diariosigloxxi.com</span>
-                <span class="newspapers-dropdown__domain">(diariosigloxxi.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Diario Siglo XXI</span>
+                    <span class="newspapers-dropdown__domain">(diariosigloxxi.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario Siglo XXI', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elconfidencial.com">
-                <span class="newspapers-dropdown__text">EL CONFIDENCIAL</span>
-                <span class="newspapers-dropdown__domain">(elconfidencial.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El Confidencial</span>
+                    <span class="newspapers-dropdown__domain">(elconfidencial.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Confidencial', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elconfidencialdigital.com">
-                <span class="newspapers-dropdown__text">ELCONFIDENCIALDIGITAL.COM</span>
-                <span class="newspapers-dropdown__domain">(elconfidencialdigital.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El Confidencial Digital</span>
+                    <span class="newspapers-dropdown__domain">(elconfidencialdigital.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Confidencial Digital', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elcorreo.com">
-                <span class="newspapers-dropdown__text">ELCORREO.COM</span>
-                <span class="newspapers-dropdown__domain">(elcorreo.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El Correo</span>
+                    <span class="newspapers-dropdown__domain">(elcorreo.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Correo', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldebate.com">
-                <span class="newspapers-dropdown__text">elDEBATE</span>
-                <span class="newspapers-dropdown__domain">(eldebate.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">elDEBATE</span>
+                    <span class="newspapers-dropdown__domain">(eldebate.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('elDEBATE', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldia.es">
-                <span class="newspapers-dropdown__text">ELDIA.ES</span>
-                <span class="newspapers-dropdown__domain">(eldia.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">ELDIA.ES (El Día)</span>
+                    <span class="newspapers-dropdown__domain">(eldia.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ELDIA.ES', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldiario.es">
-                <span class="newspapers-dropdown__text">Eldiario.es</span>
-                <span class="newspapers-dropdown__domain">(eldiario.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">elDiario.es</span>
+                    <span class="newspapers-dropdown__domain">(eldiario.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('elDiario.es', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldiariodemadrid.es">
-                <span class="newspapers-dropdown__text">Eldiariodemadrid.es</span>
-                <span class="newspapers-dropdown__domain">(eldiariodemadrid.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Eldiariodemadrid.es</span>
+                    <span class="newspapers-dropdown__domain">(eldiariodemadrid.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Eldiariodemadrid.es', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elespanol.com">
-                <span class="newspapers-dropdown__text">El Español</span>
-                <span class="newspapers-dropdown__domain">(elespanol.com)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="elglobalfarma.com">
-                <span class="newspapers-dropdown__text">ELGLOBALFARMA.COM</span>
-                <span class="newspapers-dropdown__domain">(elglobalfarma.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El Español</span>
+                    <span class="newspapers-dropdown__domain">(elespanol.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Español', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="huffingtonpost.es">
-                <span class="newspapers-dropdown__text">El HuffPost</span>
-                <span class="newspapers-dropdown__domain">(huffingtonpost.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El HuffPost</span>
+                    <span class="newspapers-dropdown__domain">(huffingtonpost.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El HuffPost', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elindependiente.com">
-                <span class="newspapers-dropdown__text">El Independiente</span>
-                <span class="newspapers-dropdown__domain">(elindependiente.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El Independiente</span>
+                    <span class="newspapers-dropdown__domain">(elindependiente.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Independiente', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elmundo.es">
-                <span class="newspapers-dropdown__text">El Mundo</span>
-                <span class="newspapers-dropdown__domain">(elmundo.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El Mundo</span>
+                    <span class="newspapers-dropdown__domain">(elmundo.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Mundo', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elmundotoday.com">
-                <span class="newspapers-dropdown__text">ELMUNDOTODAY.COM</span>
-                <span class="newspapers-dropdown__domain">(elmundotoday.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">ELMUNDOTODAY.COM</span>
+                    <span class="newspapers-dropdown__domain">(elmundotoday.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ELMUNDOTODAY.COM', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elnoticierodigital.com">
-                <span class="newspapers-dropdown__text">ELNOTICIERODIGITAL.COM</span>
-                <span class="newspapers-dropdown__domain">(elnoticierodigital.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">ELNOTICIERODIGITAL.COM</span>
+                    <span class="newspapers-dropdown__domain">(elnoticierodigital.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ELNOTICIERODIGITAL.COM', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elpais.com">
-                <span class="newspapers-dropdown__text">El País</span>
-                <span class="newspapers-dropdown__domain">(elpais.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El País</span>
+                    <span class="newspapers-dropdown__domain">(elpais.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El País', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elperiodico.com">
-                <span class="newspapers-dropdown__text">El Periódico</span>
-                <span class="newspapers-dropdown__domain">(elperiodico.com)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="eltelevisero.huffingtonpost.es">
-                <span class="newspapers-dropdown__text">ELTELEVISERO.HUFFINGTONPOST.ES</span>
-                <span class="newspapers-dropdown__domain">(eltelevisero.huffingtonpost.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">El Periódico</span>
+                    <span class="newspapers-dropdown__domain">(elperiodico.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Periódico', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="epe.es">
-                <span class="newspapers-dropdown__text">Epe.es</span>
-                <span class="newspapers-dropdown__domain">(epe.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Epe.es</span>
+                    <span class="newspapers-dropdown__domain">(epe.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Epe.es', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="escudodigital.com">
-                <span class="newspapers-dropdown__text">ESCUDODIGITAL.COM</span>
-                <span class="newspapers-dropdown__domain">(escudodigital.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">ESCUDODIGITAL.COM</span>
+                    <span class="newspapers-dropdown__domain">(escudodigital.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ESCUDODIGITAL.COM', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="estrelladigital.es">
-                <span class="newspapers-dropdown__text">ESTRELLADIGITAL.ES</span>
-                <span class="newspapers-dropdown__domain">(estrelladigital.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="eurocarne.com">
-                <span class="newspapers-dropdown__text">EUROCARNE.COM</span>
-                <span class="newspapers-dropdown__domain">(eurocarne.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Estrella Digital</span>
+                    <span class="newspapers-dropdown__domain">(estrelladigital.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Estrella Digital', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="europapress.es">
-                <span class="newspapers-dropdown__text">Europa Press</span>
-                <span class="newspapers-dropdown__domain">(europapress.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="gacetamedica.com">
-                <span class="newspapers-dropdown__text">GACETAMEDICA.COM</span>
-                <span class="newspapers-dropdown__domain">(gacetamedica.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Europa Press</span>
+                    <span class="newspapers-dropdown__domain">(europapress.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Europa Press', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="gacetinmadrid.com">
-                <span class="newspapers-dropdown__text">Gacetinmadrid.com</span>
-                <span class="newspapers-dropdown__domain">(gacetinmadrid.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Gacetín Madrid</span>
+                    <span class="newspapers-dropdown__domain">(gacetinmadrid.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Gacetín Madrid', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="hoyaragon.es">
-                <span class="newspapers-dropdown__text">HOYARAGON.ES</span>
-                <span class="newspapers-dropdown__domain">(hoyaragon.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="infoplay.info">
-                <span class="newspapers-dropdown__text">INFOPLAY.INFO</span>
-                <span class="newspapers-dropdown__domain">(infoplay.info)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">HOY ARAGÓN</span>
+                    <span class="newspapers-dropdown__domain">(hoyaragon.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('HOY ARAGÓN', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="infobae.com">
-                <span class="newspapers-dropdown__text">INFOBAE.COM</span>
-                <span class="newspapers-dropdown__domain">(infobae.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Infobae</span>
+                    <span class="newspapers-dropdown__domain">(infobae.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Infobae', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="infolibre.es">
-                <span class="newspapers-dropdown__text">INFOLIBRE</span>
-                <span class="newspapers-dropdown__domain">(infolibre.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">infoLibre</span>
+                    <span class="newspapers-dropdown__domain">(infolibre.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('infoLibre', event)" title="Ver información del periódico">📋</button>
             </li>
-            <li class="newspapers-dropdown__item" data-domain="insst.es">
-                <span class="newspapers-dropdown__text">INSST.ES</span>
-                <span class="newspapers-dropdown__domain">(insst.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="interempresas.net">
-                <span class="newspapers-dropdown__text">INTEREMPRESAS.NET</span>
-                <span class="newspapers-dropdown__domain">(interempresas.net)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="joanseguidor.com">
-                <span class="newspapers-dropdown__text">Joan Seguidor</span>
-                <span class="newspapers-dropdown__domain">(joanseguidor.com)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="lamoncloa.gob.es">
-                <span class="newspapers-dropdown__text">LAMONCLOA.GOB.ES</span>
-                <span class="newspapers-dropdown__domain">(lamoncloa.gob.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="laopiniondezamora.es">
-                <span class="newspapers-dropdown__text">LAOPINIONDEZAMORA.ES</span>
-                <span class="newspapers-dropdown__domain">(laopiniondezamora.es)</span>
+            <li class="newspapers-dropdown__item" data-domain="infoplay.info">
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">INFOPLAY</span>
+                    <span class="newspapers-dropdown__domain">(infoplay.info)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('INFOPLAY', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="larazon.es">
-                <span class="newspapers-dropdown__text">LA RAZÓN</span>
-                <span class="newspapers-dropdown__domain">(larazon.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">LA RAZÓN</span>
+                    <span class="newspapers-dropdown__domain">(larazon.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('LA RAZÓN', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="lasexta.com">
-                <span class="newspapers-dropdown__text">laSexta</span>
-                <span class="newspapers-dropdown__domain">(lasexta.com)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="lavanguardia.com">
-                <span class="newspapers-dropdown__text">La Vanguardia</span>
-                <span class="newspapers-dropdown__domain">(lavanguardia.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">laSexta</span>
+                    <span class="newspapers-dropdown__domain">(lasexta.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('laSexta', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="libertaddigital.com">
-                <span class="newspapers-dropdown__text">LIBERTAD DIGITAL</span>
-                <span class="newspapers-dropdown__domain">(libertaddigital.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Libertad Digital</span>
+                    <span class="newspapers-dropdown__domain">(libertaddigital.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Libertad Digital', event)" title="Ver información del periódico">📋</button>
             </li>
-            <li class="newspapers-dropdown__item" data-domain="maspalomas24h.com">
-                <span class="newspapers-dropdown__text">MASPALOMAS24H.COM</span>
-                <span class="newspapers-dropdown__domain">(maspalomas24h.com)</span>
+            <li class="newspapers-dropdown__item" data-domain="lavanguardia.com">
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">La Vanguardia</span>
+                    <span class="newspapers-dropdown__domain">(lavanguardia.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('La Vanguardia', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="naiz.eus">
-                <span class="newspapers-dropdown__text">Naiz</span>
-                <span class="newspapers-dropdown__domain">(naiz.eus)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">NAIZ</span>
+                    <span class="newspapers-dropdown__domain">(naiz.eus)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('NAIZ', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="newtral.es">
-                <span class="newspapers-dropdown__text">Newtral.es</span>
-                <span class="newspapers-dropdown__domain">(newtral.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="noteolvidesdelsaharaoccidental.org">
-                <span class="newspapers-dropdown__text">NOTEOLVIDESDELSAHARAOCCIDENTAL.ORG</span>
-                <span class="newspapers-dropdown__domain">(noteolvidesdelsaharaoccidental.org)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="nuevatribuna.es">
-                <span class="newspapers-dropdown__text">NUEVATRIBUNA.ES</span>
-                <span class="newspapers-dropdown__domain">(nuevatribuna.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="ondacero.es">
-                <span class="newspapers-dropdown__text">ONDACERO.ES</span>
-                <span class="newspapers-dropdown__domain">(ondacero.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Newtral</span>
+                    <span class="newspapers-dropdown__domain">(newtral.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Newtral', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="okdiario.com">
-                <span class="newspapers-dropdown__text">OKDIARIO</span>
-                <span class="newspapers-dropdown__domain">(okdiario.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">OKDIARIO</span>
+                    <span class="newspapers-dropdown__domain">(okdiario.com)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('OKDIARIO', event)" title="Ver información del periódico">📋</button>
+            </li>
+            <li class="newspapers-dropdown__item" data-domain="ondacero.es">
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Onda Cero</span>
+                    <span class="newspapers-dropdown__domain">(ondacero.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Onda Cero', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="pressdigital.es">
-                <span class="newspapers-dropdown__text">PRESSDIGITAL.ES</span>
-                <span class="newspapers-dropdown__domain">(pressdigital.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">PressDigital</span>
+                    <span class="newspapers-dropdown__domain">(pressdigital.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('PressDigital', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="publico.es">
-                <span class="newspapers-dropdown__text">Público</span>
-                <span class="newspapers-dropdown__domain">(publico.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="puertollano.es">
-                <span class="newspapers-dropdown__text">PUERTOLLANO.ES</span>
-                <span class="newspapers-dropdown__domain">(puertollano.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="radiopopular.com">
-                <span class="newspapers-dropdown__text">Radiopopular.com</span>
-                <span class="newspapers-dropdown__domain">(radiopopular.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Público</span>
+                    <span class="newspapers-dropdown__domain">(publico.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Público', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="rtve.es">
-                <span class="newspapers-dropdown__text">RTVE</span>
-                <span class="newspapers-dropdown__domain">(rtve.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="salamancartvaldia.es">
-                <span class="newspapers-dropdown__text">SALAMANCARTVALDIA.ES</span>
-                <span class="newspapers-dropdown__domain">(salamancartvaldia.es)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">RTVE</span>
+                    <span class="newspapers-dropdown__domain">(rtve.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('RTVE', event)" title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="telecinco.es">
-                <span class="newspapers-dropdown__text">Telecinco</span>
-                <span class="newspapers-dropdown__domain">(telecinco.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="telemadrid.es">
-                <span class="newspapers-dropdown__text">Telemadrid.es</span>
-                <span class="newspapers-dropdown__domain">(telemadrid.es)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="teleprensa.com">
-                <span class="newspapers-dropdown__text">Teleprensa</span>
-                <span class="newspapers-dropdown__domain">(teleprensa.com)</span>
-            </li>
-            <li class="newspapers-dropdown__item" data-domain="valenciaplaza.com">
-                <span class="newspapers-dropdown__text">VALENCIAPLAZA.COM</span>
-                <span class="newspapers-dropdown__domain">(valenciaplaza.com)</span>
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Telecinco</span>
+                    <span class="newspapers-dropdown__domain">(telecinco.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Telecinco', event)" title="Ver información del periódico">📋</button>
             </li>
         </ul>
     </div>
@@ -1605,8 +1937,359 @@
          </div>
      </div>
 
-    <script>
+    <!-- Modal para mostrar información del periódico -->
+    <div class="newspaper-info-modal" id="newspaperInfoModal">
+        <div class="newspaper-modal-content">
+            <div class="newspaper-modal-header">
+                <button class="newspaper-modal-close" onclick="closeNewspaperModal()">&times;</button>
+                <h2 id="newspaperModalTitle">Cargando...</h2>
+                <div class="newspaper-modal-url" id="newspaperModalUrl"></div>
+            </div>
+            <div class="newspaper-modal-body" id="newspaperModalBody">
+                <div style="text-align: center; padding: 60px; color: #666;">
+                    Cargando información...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // ===== BASE DE DATOS DE PERIÓDICOS =====
+        // Cargar la base de datos desde el archivo Periodicos espana.html
+        let periodicosDB = null;
+        
+        // Función para cargar la base de datos de forma síncrona
+        function cargarBaseDatos() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'Periodicos espana.html', false);  // Síncrono
+            try {
+                xhr.send(null);
+                if (xhr.status === 200) {
+                    const html = xhr.responseText;
+                    const scriptMatch = html.match(/const periodicos = ({[\s\S]*?});[\s\S]*?\/\/ Función para renderizar/);
+                    if (scriptMatch) {
+                        periodicosDB = eval('(' + scriptMatch[1] + ')');
+                        console.log('✅ Base de datos de periódicos cargada correctamente');
+                        console.log('📊 Total de periódicos:', Object.keys(periodicosDB).length);
+                        console.log('📋 Primeros periódicos:', Object.keys(periodicosDB).slice(0, 5));
+                    } else {
+                        console.error('❌ No se encontró la base de datos en el archivo');
+                        periodicosDB = {};
+                    }
+                } else {
+                    console.error('❌ Error al cargar archivo. Status:', xhr.status);
+                    periodicosDB = {};
+                }
+            } catch (e) {
+                console.error('❌ Error al cargar base de datos:', e);
+                periodicosDB = {};
+            }
+        }
+        
+        // Cargar la base de datos al inicio
+        cargarBaseDatos();
+
+        // ===== DETECCIÓN DE DISPOSITIVO Y NAVEGADOR =====
+        function esMovil() {
+            var userAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            var pantallaPequeña = window.innerWidth <= 768;
+            var tieneTouch = 'ontouchstart' in window;
+            return userAgent || (pantallaPequeña && tieneTouch);
+        }
+
+        function detectarSistemaOperativo() {
+            var userAgent = navigator.userAgent.toLowerCase();
+            
+            // Android y iOS deben ir primero porque también pueden contener "linux" o "mac"
+            if (userAgent.includes('android')) return 'Android';
+            if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'iOS';
+            if (userAgent.includes('win')) return 'Windows';
+            if (userAgent.includes('mac')) return 'MacOS';
+            if (userAgent.includes('linux')) return 'Linux';
+            
+            return 'Desconocido';
+        }
+
+        function detectarNavegador() {
+            var userAgent = navigator.userAgent;
+            
+            // Navegadores específicos primero (antes de Chrome, ya que usan Chromium)
+            if (userAgent.includes('Jkfk')) return 'Soul Browser';
+            if (userAgent.includes('Brave') || userAgent.includes('brave')) return 'Brave';
+            if (userAgent.includes('SamsungBrowser')) return 'Samsung Internet';
+            if (userAgent.includes('UCBrowser') || userAgent.includes('UCWeb')) return 'UC Browser';
+            if (userAgent.includes('Vivaldi')) return 'Vivaldi';
+            if (userAgent.includes('Edg')) return 'Edge';
+            if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
+            
+            // Navegadores principales
+            if (userAgent.includes('Firefox')) return 'Firefox';
+            if (userAgent.includes('Chrome')) return 'Chrome';
+            if (userAgent.includes('Safari')) return 'Safari';
+            if (userAgent.includes('Trident')) return 'Internet Explorer';
+            
+            return 'Navegador basado en Chromium';
+        }
+
+        function obtenerInfoDispositivo() {
+            var sistema = detectarSistemaOperativo();
+            var navegador = detectarNavegador();
+            var tipoDispositivo = esMovil() ? 'Móvil' : 'Ordenador';
+            var resolucion = window.screen.width + ' x ' + window.screen.height;
+            var idioma = navigator.language;
+            
+            return {
+                sistema: sistema,
+                navegador: navegador,
+                tipoDispositivo: tipoDispositivo,
+                resolucion: resolucion,
+                idioma: idioma
+            };
+        }
+
+        // Función para abrir la información del periódico en modal
+        function openNewspaperInfo(newspaperName, event) {
+            // Evitar que se propague el evento al item padre
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            
+            showNewspaperModal(newspaperName);
+        }
+
+        // Función para mostrar la modal con información del periódico
+        function showNewspaperModal(newspaperName) {
+            const modal = document.getElementById('newspaperInfoModal');
+            const modalTitle = document.getElementById('newspaperModalTitle');
+            const modalUrl = document.getElementById('newspaperModalUrl');
+            const modalBody = document.getElementById('newspaperModalBody');
+            
+            // Mostrar título genérico mientras carga
+            modalTitle.textContent = newspaperName;
+            modalUrl.textContent = 'Cargando información...';
+            modalBody.innerHTML = '<div style="text-align: center; padding: 60px; color: #aaa;">Cargando información del periódico...</div>';
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            try {
+                // Verificar que la base de datos esté cargada
+                if (!periodicosDB || Object.keys(periodicosDB).length === 0) {
+                    // Intentar cargar de nuevo
+                    cargarBaseDatos();
+                }
+                
+                // Buscar el periódico (primero por clave directa, luego por nombre)
+                let periodico = periodicosDB[newspaperName];
+                
+                // Si no se encuentra, buscar por nombre
+                if (!periodico) {
+                    const key = Object.keys(periodicosDB).find(k => 
+                        periodicosDB[k].nombre === newspaperName || 
+                        periodicosDB[k].nombre.toLowerCase() === newspaperName.toLowerCase()
+                    );
+                    if (key) {
+                        periodico = periodicosDB[key];
+                    }
+                }
+                
+                if (!periodico) {
+                    console.log('Periódico buscado:', newspaperName);
+                    console.log('Claves disponibles:', Object.keys(periodicosDB));
+                    modalTitle.textContent = 'Periódico no encontrado';
+                    modalUrl.textContent = '';
+                    modalBody.innerHTML = `
+                        <p style="text-align: center; color: #666; padding: 40px;">
+                            No hay información disponible para este periódico.
+                            <br><br>
+                            <span style="font-size: 0.9em; color: #999;">Periódico buscado: "${newspaperName}"</span>
+                        </p>
+                    `;
+                    return;
+                }
+                
+                // Actualizar título y URL
+                modalTitle.textContent = periodico.nombre;
+                modalUrl.textContent = periodico.url;
+                
+                // Generar el contenido de la modal
+                modalBody.innerHTML = `
+                    <div class="newspaper-modal-section">
+                        <h3>📋 Datos Generales</h3>
+                        ${Object.entries(periodico.datos).map(([key, value]) => `
+                            <div class="newspaper-modal-info-item">
+                                <strong>${key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}:</strong> ${value}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="newspaper-modal-section">
+                        <h3>📜 Historia</h3>
+                        <ul>
+                            ${periodico.historia.map(h => `<li>${h}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="newspaper-modal-section">
+                        <h3>🎯 Línea Editorial</h3>
+                        <ul>
+                            ${periodico.lineaEditorial.map(l => `<li>${l}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="newspaper-modal-section">
+                        <h3>⭐ Características Distintivas</h3>
+                        <ul>
+                            ${periodico.caracteristicas.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    ${periodico.premios && periodico.premios.length > 0 ? `
+                        <div class="newspaper-modal-section">
+                            <h3>🏆 Reconocimientos y Premios</h3>
+                            <ul>
+                                ${periodico.premios.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    <div class="newspaper-modal-section">
+                        <h3>📊 Datos de Difusión</h3>
+                        <ul>
+                            ${periodico.difusion.map(d => `<li>${d}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="newspaper-modal-section">
+                        <h3>🏢 Propiedad y Grupo Empresarial</h3>
+                        <ul>
+                            ${periodico.propiedad.map(p => `<li>${p}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error al cargar información del periódico:', error);
+                modalTitle.textContent = 'Error';
+                modalUrl.textContent = '';
+                modalBody.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #e53e3e;">
+                        <p style="margin-bottom: 20px;">No se pudo cargar la información del periódico.</p>
+                        <p style="font-size: 0.9em; color: #999;">Detalles: ${error.message}</p>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 15px;">Asegúrate de que el archivo "Periodicos espana.html" esté en la misma carpeta.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Función para cerrar la modal de periódico
+        function closeNewspaperModal() {
+            const modal = document.getElementById('newspaperInfoModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Función para mostrar información del dispositivo
+        function mostrarInfoDispositivo() {
+            var info = obtenerInfoDispositivo();
+            
+            // Crear un div flotante con la información
+            var infoDiv = document.createElement('div');
+            infoDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 99999;
+                max-width: 90%;
+                max-height: 80%;
+                overflow-y: auto;
+            `;
+            
+            infoDiv.innerHTML = `
+                <h3 style="margin: 0 0 15px 0; color: #667eea;">📱 Información del Dispositivo</h3>
+                <p><strong>🖥️ Tipo:</strong> ${info.tipoDispositivo}</p>
+                <p><strong>💻 Sistema:</strong> ${info.sistema}</p>
+                <p><strong>🌐 Navegador:</strong> ${info.navegador}</p>
+                <p><strong>📐 Resolución:</strong> ${info.resolucion}</p>
+                <p><strong>🗣️ Idioma:</strong> ${info.idioma}</p>
+                <p style="margin-top: 15px;"><strong>🔍 UserAgent:</strong></p>
+                <textarea readonly style="
+                    width: 100%;
+                    height: 100px;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 12px;
+                    font-family: monospace;"
+                >${navigator.userAgent}</textarea>
+                <button id="closeInfoBtn" style="
+                    margin-top: 15px;
+                    padding: 10px 20px;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    width: 100%;"
+                >Cerrar</button>
+            `;
+            
+            document.body.appendChild(infoDiv);
+            
+            // Cerrar al hacer clic en el botón
+            document.getElementById('closeInfoBtn').addEventListener('click', function() {
+                infoDiv.remove();
+            });
+            
+            // Auto-seleccionar el textarea al hacer clic
+            infoDiv.querySelector('textarea').addEventListener('click', function() {
+                this.select();
+            });
+        }
+        // ===== FIN DETECCIÓN =====
+
         class NewsSearcher {
+
+        // ===== CONSTANTES DE CONFIGURACIÓN =====
+        static TIMEOUTS = {
+            MOBILE_FETCH: 20000,
+            DESKTOP_FETCH: 10000,
+            BLUESKY_API: 10000
+        };
+
+        static TEXT_THRESHOLDS = {
+            MIN_SUBTITLE_LENGTH: 20,
+            MIN_SNIPPET_LENGTH: 30,
+            MAX_SNIPPET_LENGTH: 400,
+            MIN_FALLBACK_SCORE: 5,
+            MIN_SNIPPET_FOR_VALIDATION: 20,
+            SIMILARITY_THRESHOLD: 0.8
+        };
+
+        static REGEX_PATTERNS = {
+            DAILYMOTION_DATA_ID: /data-video-id=["']([^"']+)["']/gi,
+            DAILYMOTION_IFRAME: /src=["']https?:\/\/(?:www\.)?dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/gi,
+            DAILYMOTION_URL: /dailymotion\.com\/video\/([a-zA-Z0-9]+)/gi,
+            YOUTUBE_EMBED: /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/gi,
+            YOUTUBE_WATCH: /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/gi,
+            TWITTER_VIDEO: /video\.twimg\.com/gi,
+            BLUESKY_POST: /https:\/\/bsky\.app\/profile\/([^/]+)\/post\/([a-zA-Z0-9]+)/gi
+        };
+
+        static COMMON_AD_SELECTORS = [
+            '.ad', '.advertisement', '.publicidad', '.banner',
+            '[class*="ad-"]', '[id*="ad-"]',
+            '[class*="taboola"]', '[class*="outbrain"]',
+            '.comments', '#disqus_thread', '.w_rs'
+        ];
+        // ===== FIN CONSTANTES =====
+
+
             constructor() {
                 this.elements = {
                     searchInput: document.getElementById('searchInput'),
@@ -1966,6 +2649,112 @@
                         date: '.voc-author__time, time',
                         videoContainers: '.video, .nibara-element',  // Contenedores de video Brightcove
                         exclude: '.voc-header, .voc-header-news, .voc-advertising, .voc-breadcrumbs, .voc-social, .voc-share-social, .voc-save-news, .voc-comments-panel, #disqus_thread, #comments-container, .voc-see-comments, .voc-d-c-related-news, .voc-most-read, .voc-ob-wrapper, .voc-ints, .voc-cope-mod, .voc-discounts, .paywall2, .voc-premium, .voc-footer, .voc-onplus, .voc-btn__container'
+                    },
+
+                    // -----------------------------------------------------------------
+                    // ANTENA 3
+                    // -----------------------------------------------------------------
+                    'antena3.com': {
+                        title: [
+                            '.article-main__title',
+                            '.article-main__header h1',
+                            'h1'
+                        ].join(', '),
+                        subtitle: '.article-main__description',
+                        content: '.article-main__content, #intext, .article-main, article',
+                        author: [
+                            '.article-author__name a',
+                            '.article-author__body',
+                            '.article-author'
+                        ].join(', '),
+                        authorImage: '.article-author__avatar img',
+                        images: [
+                            '.multimedia img',
+                            '.video-main-picture img',
+                            '.article-main img',
+                            '.article-main__content img'
+                        ].join(', '),
+                        date: [
+                            '.article-dates__detail.date_updated time',
+                            '.article-dates__detail time',
+                            'time[datetime]',
+                            '.article-dates time'
+                        ].join(', '),
+                        exclude: [
+                            // Menú y cabecera
+                            '#menu-custom',
+                            '.cont-menu-custom',
+                            '.container-menu',
+                            // Publicidad
+                            '.ad',
+                            '.advertisement',
+                            '.publicidad',
+                            // Recirculación y contenido relacionado
+                            '.recirculation',
+                            '.recirculation-title',
+                            '.recirculation-list-row',
+                            '.recirculation-item-row',
+                            // Sección lateral
+                            '.col-md-4',
+                            '.mod-sticky',
+                            '.tab',
+                            '.tab--articles',
+                            '.most-viewed-list',
+                            // Compartir
+                            '.article-share',
+                            // Comentarios
+                            '.comments',
+                            '#disqus_thread',
+                            // Widgets externos
+                            '.taboola',
+                            '.outbrain'
+                        ].join(', ')
+                    },
+
+                    // -----------------------------------------------------------------
+                    // ARA (es.ara.cat)
+                    // -----------------------------------------------------------------
+                    'es.ara.cat': {
+                        title: 'h1, .ara-opening h1, .title',
+                        subtitle: [
+                            '.ara-opening-info h2.subtitle',
+                            'h2.subtitle',
+                            '.subtitle'
+                        ].join(', '),
+                        content: [
+                            '.layout-left .ara-body',
+                            '.ara-body',
+                            '.ara-main--wrapper',
+                            'main.ara-main'
+                        ].join(', '),
+                        author: [
+                            '.authors .author.author--last',
+                            '.authors .author',
+                            '.author'
+                        ].join(', '),
+                        authorImage: '.opening-actions__authors-image img',
+                        images: [
+                            '.ara-opening ara-multimedia-visor figure.image picture img',
+                            'ara-multimedia-visor figure.image picture img',
+                            'figure.image picture img',
+                            'article img',
+                            '.ara-main img'
+                        ].join(', '),
+                        imageCaption: [
+                            'figcaption.footer .text',
+                            'figcaption .text',
+                            'figcaption'
+                        ].join(', '),
+                        imageCaptionAuthor: [
+                            'figcaption.footer .author',
+                            'figcaption .author'
+                        ].join(', '),
+                        date: [
+                            '.opening-actions__date',
+                            'time[datetime]',
+                            '.date'
+                        ].join(', '),  // También se extraerá desde meta tags
+                        exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .social-share, .opening-actions, .seo-links, .seo-links--top, .seo-links--bottom'
                     }
                 };
 
@@ -2019,13 +2808,11 @@
                     
                     // Prevenir duplicados: mismo elemento en menos de 500ms
                     if (trigger === lastClickedElement && (now - lastClickTime) < 500) {
-                        console.log(`🚫 Clic duplicado bloqueado (${eventType})`);
                         return;
                     }
                     
                     // Prevenir si ya estamos procesando otro clic
                     if (isProcessing) {
-                        console.log(`🚫 Ya procesando otra noticia (${eventType})`);
                         return;
                     }
                     
@@ -2033,7 +2820,6 @@
                     lastClickedElement = trigger;
                     lastClickTime = now;
                     
-                    console.log(`✅ Abriendo noticia (${eventType})`);
                     
                     const { link, title, author, date, subtitle } = trigger.dataset;
                     this.openNewsPopup(
@@ -2071,7 +2857,6 @@
                 });
 
                 // Click en periódico para buscar
-                const self = this;
                 document.querySelectorAll('.newspapers-dropdown__item').forEach(item => {
                     item.addEventListener('click', async (e) => {
                         e.stopPropagation();
@@ -2085,7 +2870,7 @@
 
                         // Hacer una nueva búsqueda con ese periódico
                         try {
-                            await self.searchByNewspaper(domain, newspaperName);
+                            await this.searchByNewspaper(domain, newspaperName);
                         } catch (error) {
                             alert('Error al buscar: ' + error.message);
                         }
@@ -2097,6 +2882,13 @@
                 exportBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.exportNewNewspapers();
+                });
+
+                // Botón de información del dispositivo
+                const deviceInfoBtn = document.getElementById('deviceInfoBtn');
+                deviceInfoBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    mostrarInfoDispositivo();
                 });
             }
 
@@ -2229,10 +3021,11 @@
             }
 
             async search() {
-                const query = this.elements.searchInput.value.trim();
+                let query = this.elements.searchInput.value.trim();
+                
+                // Si no hay término de búsqueda, usar "a" para obtener noticias del día
                 if (!query) {
-                    alert('Por favor, introduce un término de búsqueda');
-                    return;
+                    query = 'a';
                 }
 
                 this.currentQuery = query;
@@ -2279,19 +3072,16 @@
 
                 let googleNewsUrl = this.buildGoogleNewsUrl(query, selectedValue, numResults);
 
-                console.log('🔍 Buscando noticias con:', query);
-                console.log('📱 User Agent:', navigator.userAgent);
 
                 for (let i = 0; i < this.proxies.length; i++) {
                     const proxy = this.proxies[i];
                     try {
-                        console.log(`🌐 Intentando proxy ${i + 1}/${this.proxies.length}:`, proxy);
                         
                         const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
                         
                         // Timeout adaptativo: 10 segundos en ordenador, 20 en móvil
                         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                        const timeout = isMobile ? 20000 : 10000;
+                        const timeout = isMobile ? NewsSearcher.TIMEOUTS.MOBILE_FETCH : NewsSearcher.TIMEOUTS.DESKTOP_FETCH;
                         const controller = new AbortController();
                         const timeoutId = setTimeout(() => controller.abort(), timeout);
                         
@@ -2305,44 +3095,98 @@
                         
                         clearTimeout(timeoutId);
 
-                        console.log(`✅ Respuesta del proxy ${i + 1}:`, response.status);
 
                         if (response.ok) {
                             const htmlContent = await response.text();
-                            console.log(`📄 HTML recibido (${htmlContent.length} caracteres)`);
                             
                             const news = this.parseGoogleNewsResults(htmlContent);
-                            console.log(`📰 Noticias parseadas: ${news.length}`);
 
                             if (news.length > 0) {
                                 allResults.push(...news);
-                                console.log(`✅ Éxito con proxy ${i + 1}!`);
                                 break;
                             } else {
-                                console.log(`⚠️ Proxy ${i + 1} no devolvió noticias, probando siguiente...`);
                             }
                         }
                     } catch (error) {
-                        console.error(`❌ Error con proxy ${i + 1}:`, error.message);
                         if (i === this.proxies.length - 1) {
-                            console.error('❌ Todos los proxies fallaron');
                         }
                         continue;
                     }
                 }
 
-                console.log(`📊 Total noticias encontradas: ${allResults.length}`);
                 return allResults;
             }
 
             buildGoogleNewsUrl(query, selectedValue, numResults) {
+                // Cuando query es "a" (búsqueda sin término), usar qdr=h (última hora) y ordenar por fecha
+                const isDefaultSearch = (query === 'a');
+                
+                if (isDefaultSearch) {
+                    // Búsqueda sin término: última hora ordenada por fecha
+                    if (selectedValue !== 'all') {
+                        const selectedDomain = this.newspaperToDomain[selectedValue];
+                        if (selectedDomain) {
+                            return `https://www.google.com/search?` +
+                                `q=site:${selectedDomain}+${encodeURIComponent(query)}&` +
+                                `tbm=nws&` +
+                                `hl=es&` +
+                                `gl=es&` +
+                                `lr=lang_es&` +
+                                `ie=UTF-8&` +
+                                `oe=UTF-8&` +
+                                `num=${numResults}&` +
+                                `qdr=h&` +
+                                `tbs=sbd:1`;
+                        }
+                    }
+                    return `https://www.google.com/search?` +
+                           `q=${encodeURIComponent(query)}&` +
+                           `tbm=nws&` +
+                           `hl=es&` +
+                           `gl=es&` +
+                           `lr=lang_es&` +
+                           `ie=UTF-8&` +
+                           `oe=UTF-8&` +
+                           `num=${numResults}&` +
+                           `qdr=h&` +
+                           `tbs=sbd:1`;
+                }
+                
+                // Búsquedas normales con término
                 if (selectedValue !== 'all') {
                     const selectedDomain = this.newspaperToDomain[selectedValue];
                     return selectedDomain ?
-                        `https://www.google.com/search?q=site:${selectedDomain}+${encodeURIComponent(query)}&tbm=nws&tbs=qdr:w&hl=es&gl=es&lr=lang_es&ie=UTF-8&oe=UTF-8&num=${numResults}` :
-                        `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=nws&qdr:m&hl=es&gl=es&lr=lang_es&ie=UTF-8&oe=UTF-8&num=${numResults}`;
+                        `https://www.google.com/search?` +
+                        `q=site:${selectedDomain}+${encodeURIComponent(query)}&` +
+                        `tbm=nws&` +
+                        `tbs=qdr:w&` +
+                        `hl=es&` +
+                        `gl=es&` +
+                        `lr=lang_es&` +
+                        `ie=UTF-8&` +
+                        `oe=UTF-8&` +
+                        `num=${numResults}` :
+                        `https://www.google.com/search?` +
+                        `q=${encodeURIComponent(query)}&` +
+                        `tbm=nws&` +
+                        `qdr:m&` +
+                        `hl=es&` +
+                        `gl=es&` +
+                        `lr=lang_es&` +
+                        `ie=UTF-8&` +
+                        `oe=UTF-8&` +
+                        `num=${numResults}`;
                 }
-                return `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=nws&qdr:m&hl=es&gl=es&lr=lang_es&ie=UTF-8&oe=UTF-8&num=${numResults}`;
+                return `https://www.google.com/search?` +
+                       `q=${encodeURIComponent(query)}&` +
+                       `tbm=nws&` +
+                       `qdr:m&` +
+                       `hl=es&` +
+                       `gl=es&` +
+                       `lr=lang_es&` +
+                       `ie=UTF-8&` +
+                       `oe=UTF-8&` +
+                       `num=${numResults}`;
             }
 
             buildProxyUrl(proxy, url) {
@@ -2480,7 +3324,6 @@
 
                 // Log para depuración
                 if (Math.random() < 0.1) {  // Solo 10% para no saturar
-                    console.log(`🕒 parseDate recibió: "${originalDate}"`);
                 }
 
                 // Minutos - Español
@@ -2551,7 +3394,6 @@
                 }
 
                 // Si nada funciona, devolver el original
-                console.warn(`⚠️ No se pudo parsear fecha: "${originalDate}"`);
                 return dateStr;
             }
 
@@ -2566,11 +3408,7 @@
                 return date.toLocaleDateString('es-ES', options);
             }
 
-            parseDateForSorting(dateStr) {
-                if (!dateStr || dateStr === 'Fecha no disponible') {
-                    return new Date(0);
-                }
-
+            parseDateToObject(dateStr) {
                 const now = new Date();
 
                 // Minutos - Español e Inglés
@@ -2615,8 +3453,8 @@
 
             sortNewsByDate(news) {
                 return [...news].sort((a, b) => {
-                    const dateA = this.parseDateForSorting(a.date);
-                    const dateB = this.parseDateForSorting(b.date);
+                    const dateA = this.parseDateToObject(a.date);
+                    const dateB = this.parseDateToObject(b.date);
                     return dateB - dateA;
                 });
             }
@@ -2628,6 +3466,11 @@
             }
 
             filterNewsByQuery(news, query) {
+                // Si es búsqueda por defecto (sin término), no filtrar
+                if (query === 'a') {
+                    return news;
+                }
+                
                 const queryNormalized = this.normalizeText(query);
                 return news.filter(item => {
                     const titleNormalized = this.normalizeText(item.title);
@@ -2675,20 +3518,14 @@
             }
 
             displayNews(news) {
-                console.log(`📰 displayNews llamado con ${news.length} noticias`);
                 
                 // Estadística de subtítulos
                 const withSubtitle = news.filter(n => n.subtitle && n.subtitle.trim()).length;
-                console.log(`📊 ${withSubtitle} de ${news.length} noticias tienen subtítulo (${Math.round(withSubtitle/news.length*100)}%)`);
                 
                 this.elements.resultsContainer.innerHTML = '';
 
                 news.forEach((item, index) => {
                     if (index < 3) {  // Log solo las primeras 3 noticias
-                        console.log(`📋 Noticia ${index + 1}:`);
-                        console.log(`   📰 Título: "${item.title.substring(0, 50)}..."`);
-                        console.log(`   📝 Subtítulo: ${item.subtitle ? '"' + item.subtitle.substring(0, 50) + '..."' : '❌ NO TIENE'}`);
-                        console.log(`   🕐 Fecha: "${item.date}"`);
                     }
                     
                     const isPopupMode = this.elements.readingModeSwitch.checked;
@@ -2805,22 +3642,47 @@
             }
 
             async searchByNewspaper(domain, newspaperName) {
-                const query = this.elements.searchInput.value.trim();
+                let query = this.elements.searchInput.value.trim();
 
+                // Si no hay término de búsqueda, usar "a" para obtener noticias recientes
                 if (!query) {
-                    alert('Por favor, introduce una palabra de búsqueda primero');
-                    return;
+                    query = 'a';
                 }
 
-                // Mostrar loading
+                this.currentQuery = query;
+                this.allNews = [];
+
                 this.showLoading(true);
+                this.hideMessages();
 
                 try {
                     const maxCount = parseInt(this.elements.countSelect.value);
                     const numResults = maxCount + 20;
 
                     // Construir URL con site:dominio
-                    const googleNewsUrl = `https://www.google.com/search?q=site:${domain}+${encodeURIComponent(query)}&tbm=nws&tbs=qdr:w&hl=es&gl=es&lr=lang_es&ie=UTF-8&oe=UTF-8&num=${numResults}`;
+                    const isDefaultSearch = (query === 'a');
+                    const googleNewsUrl = isDefaultSearch ?
+                        `https://www.google.com/search?` +
+                        `q=site:${domain}+${encodeURIComponent(query)}&` +
+                        `tbm=nws&` +
+                        `hl=es&` +
+                        `gl=es&` +
+                        `lr=lang_es&` +
+                        `ie=UTF-8&` +
+                        `oe=UTF-8&` +
+                        `num=${numResults}&` +
+                        `qdr=h&` +
+                        `tbs=sbd:1` :
+                        `https://www.google.com/search?` +
+                        `q=site:${domain}+${encodeURIComponent(query)}&` +
+                        `tbm=nws&` +
+                        `tbs=qdr:w&` +
+                        `hl=es&` +
+                        `gl=es&` +
+                        `lr=lang_es&` +
+                        `ie=UTF-8&` +
+                        `oe=UTF-8&` +
+                        `num=${numResults}`;
 
                     let allResults = [];
 
@@ -3044,13 +3906,28 @@
             async loadFullContent(url) {
                 try {
                     let content = null;
+                    const domain = new URL(url).hostname.replace('www.', '');
+                    console.log(`🔍 Cargando contenido de: ${domain}`);
 
-                    for (const proxy of this.proxies) {
+                    // Probar los 2 proxies principales en paralelo
+                    const proxiesParalelos = [
+                        'https://proxy.cors.sh/',
+                        'https://corsproxy.io/?'
+                    ];
+
+                    console.log(`⚡ Probando ${proxiesParalelos.length} proxies en PARALELO...`);
+
+                    // Crear promesas para cada proxy
+                    const fetchPromises = proxiesParalelos.map(async (proxy) => {
                         try {
                             const proxyUrl = this.buildProxyUrl(proxy, url);
+                            console.log(`⏳ Lanzando petición con: ${proxy.substring(0, 30)}...`);
+                            
                             const response = await fetch(proxyUrl);
 
                             if (response.ok) {
+                                console.log(`✅ Proxy respondió exitosamente: ${proxy.substring(0, 30)}... para ${domain}`);
+                                
                                 // Leer como buffer para detectar la codificación correcta
                                 const buffer = await response.arrayBuffer();
                                 const bytes = new Uint8Array(buffer);
@@ -3081,14 +3958,70 @@
                                 // Corrección adicional por si acaso
                                 html = this.fixEncoding(html);
                                 
-                                content = await this.extractArticleContent(html, url);
+                                const extractedContent = await this.extractArticleContent(html, url);
 
-                                if (content && (content.text || content.images.length > 0)) {
-                                    break;
+                                if (extractedContent && (extractedContent.text || extractedContent.images.length > 0)) {
+                                    console.log(`🎉 Contenido extraído exitosamente de ${domain} usando ${proxy.substring(0, 30)}...`);
+                                    return { success: true, content: extractedContent, proxy };
                                 }
+                            } else {
+                                console.log(`❌ Proxy falló (status ${response.status}): ${proxy.substring(0, 30)}...`);
                             }
+                            
+                            throw new Error('Proxy no devolvió contenido válido');
                         } catch (error) {
-                            continue;
+                            console.log(`❌ Proxy error: ${proxy.substring(0, 30)}... - ${error.message}`);
+                            throw error;
+                        }
+                    });
+
+                    // Usar Promise.race para obtener el primero que responda exitosamente
+                    try {
+                        const result = await Promise.any(fetchPromises);
+                        if (result.success) {
+                            content = result.content;
+                        }
+                    } catch (error) {
+                        console.log(`❌ Todos los proxies paralelos fallaron, intentando con los proxies de respaldo...`);
+                        
+                        // Si ambos fallan, probar los proxies de respaldo secuencialmente
+                        const proxiesRespaldo = [
+                            'https://api.codetabs.com/v1/proxy?quest=',
+                            'https://cors-anywhere.herokuapp.com/'
+                        ];
+
+                        for (const proxy of proxiesRespaldo) {
+                            try {
+                                const proxyUrl = this.buildProxyUrl(proxy, url);
+                                console.log(`⏳ Probando proxy de respaldo: ${proxy.substring(0, 30)}...`);
+                                const response = await fetch(proxyUrl);
+
+                                if (response.ok) {
+                                    console.log(`✅ Proxy de respaldo funcionó: ${proxy.substring(0, 30)}...`);
+                                    
+                                    const buffer = await response.arrayBuffer();
+                                    const bytes = new Uint8Array(buffer);
+                                    let decoder = new TextDecoder('utf-8', { fatal: true });
+                                    let html;
+                                    try {
+                                        html = decoder.decode(bytes);
+                                    } catch (e) {
+                                        decoder = new TextDecoder('windows-1252');
+                                        html = decoder.decode(bytes);
+                                    }
+                                    
+                                    html = this.fixEncoding(html);
+                                    content = await this.extractArticleContent(html, url);
+
+                                    if (content && (content.text || content.images.length > 0)) {
+                                        console.log(`🎉 Contenido extraído con proxy de respaldo`);
+                                        break;
+                                    }
+                                }
+                            } catch (error) {
+                                console.log(`❌ Proxy de respaldo error: ${proxy.substring(0, 30)}...`);
+                                continue;
+                            }
                         }
                     }
 
@@ -3204,6 +4137,46 @@
                     }
                 }
 
+                return videos;
+            }
+
+            detectAntena3Videos(html, doc) {
+                const videos = [];
+                const seen = new Set();
+
+                // Función helper para normalizar URLs
+                const normalizeVideoUrl = (url) => {
+                    return url.split('?')[0].toLowerCase();
+                };
+
+                // Método 1: Buscar en elementos <source> dentro de <video>
+                const videoElements = doc.querySelectorAll('video.video-main source, .video-wrapper video source');
+                videoElements.forEach(source => {
+                    // EXCLUIR videos que están dentro de .recirculation-video (noticias secundarias)
+                    if (source.closest('.recirculation-video')) {
+                        return; // Saltar este video
+                    }
+                    
+                    const videoUrl = source.getAttribute('src');
+                    if (videoUrl && videoUrl.includes('.mp4')) {
+                        const normalizedUrl = normalizeVideoUrl(videoUrl);
+                        if (!seen.has(normalizedUrl)) {
+                            seen.add(normalizedUrl);
+                            const filename = videoUrl.split('/').pop().split('?')[0];
+                            videos.push({
+                                type: 'Antena3-MP4',
+                                id: filename,
+                                embedUrl: videoUrl,
+                                isDirect: true
+                            });
+                        }
+                    }
+                });
+
+                // Método 2: Buscar URLs de dpvclip.antena3.com en el HTML (solo si no fueron encontradas en Método 1)
+                // Este método está deshabilitado para evitar capturar videos de noticias secundarias (.recirculation-video)
+                // ya que el Método 1 es más preciso y puede filtrar por contenedor
+                
                 return videos;
             }
 
@@ -3638,6 +4611,87 @@
                 return tweets;
             }
 
+            detectInstagramEmbeds(html, doc) {
+                const instagrams = [];
+                const seen = new Set();
+
+                // -----------------------------------------------------------------
+                // MÉTODO 1: Buscar blockquotes de Instagram embebidos
+                // -----------------------------------------------------------------
+                doc.querySelectorAll('blockquote.instagram-media').forEach(blockquote => {
+                    const permalink = blockquote.getAttribute('data-instgrm-permalink') || 
+                                     blockquote.getAttribute('cite');
+                    
+                    if (permalink && /instagram\.com\/(p|reel|reels|tv)\/[^\/\?]+/i.test(permalink)) {
+                        const cleanUrl = permalink.split('?')[0];
+                        const key = `instagram-${cleanUrl}`;
+                        
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            const postId = cleanUrl.match(/\/(p|reel|reels|tv)\/([^\/\?]+)/i)?.[2] || '';
+                            
+                            instagrams.push({
+                                type: 'Instagram',
+                                id: postId,
+                                url: cleanUrl,
+                                embedUrl: cleanUrl,
+                                isInstagram: true
+                            });
+                        }
+                    }
+                });
+
+                // -----------------------------------------------------------------
+                // MÉTODO 2: Buscar enlaces directos de Instagram en el documento
+                // -----------------------------------------------------------------
+                doc.querySelectorAll('a[href*="instagram.com"]').forEach(link => {
+                    const href = link.href;
+                    
+                    if (/instagram\.com\/(p|reel|reels|tv)\/[^\/\?]+/i.test(href)) {
+                        const cleanUrl = href.split('?')[0];
+                        const key = `instagram-${cleanUrl}`;
+                        
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            const postId = cleanUrl.match(/\/(p|reel|reels|tv)\/([^\/\?]+)/i)?.[2] || '';
+                            
+                            instagrams.push({
+                                type: 'Instagram',
+                                id: postId,
+                                url: cleanUrl,
+                                embedUrl: cleanUrl,
+                                isInstagram: true
+                            });
+                        }
+                    }
+                });
+
+                // -----------------------------------------------------------------
+                // MÉTODO 3: Buscar URLs de Instagram en el HTML crudo
+                // -----------------------------------------------------------------
+                const instagramUrlRegex = /https?:\/\/(?:www\.)?instagram\.com\/(p|reel|reels|tv)\/([a-zA-Z0-9_-]+)/gi;
+                let match;
+                while ((match = instagramUrlRegex.exec(html)) !== null) {
+                    const cleanUrl = match[0].split('?')[0];
+                    const key = `instagram-${cleanUrl}`;
+                    const postId = match[2];
+                    
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        
+                        instagrams.push({
+                            type: 'Instagram',
+                            id: postId,
+                            url: cleanUrl,
+                            embedUrl: cleanUrl,
+                            isInstagram: true
+                        });
+                    }
+                }
+
+                return instagrams;
+            }
+
             detectBrightcoveVideos(html, doc) {
                 const videos = [];
                 const seen = new Set();
@@ -3761,11 +4815,15 @@
                     exclude: '.ad, .advertisement, .publicidad, .banner'
                 };
 
-                // PRIMERO: Detectar videos Y TWEETS ANTES de eliminar cualquier elemento
+                // PRIMERO: Detectar videos y TWEETS ANTES de eliminar cualquier elemento
                 const dailymotionVideos = this.detectDailymotionVideos(html);
                 const brightcoveVideos = this.detectBrightcoveVideos(html, doc);
                 const elPaisVideos = domain === 'elpais.com' ? this.detectElPaisVideos(html, doc) : [];
+                const antena3Videos = domain === 'antena3.com' ? this.detectAntena3Videos(html, doc) : [];
                 const twitterVideos = this.detectTwitterVideos(html, doc, domain);
+                
+                // Instagram embeds: NO los detectamos como objetos separados
+                // Los dejamos inline en el texto para que se muestren en su posición original
 
                 // Detectar posts de Bluesky embebidos
                 const blueskyPosts = this.detectBlueskyVideos(html, doc);
@@ -3778,14 +4836,18 @@
                     }
                 }
 
-                const videos = [...elPaisVideos, ...dailymotionVideos, ...brightcoveVideos, ...blueskyVideos];
+                const videos = [...elPaisVideos, ...antena3Videos, ...dailymotionVideos, ...brightcoveVideos, ...blueskyVideos];
 
                 // SEGUNDO: Extraer imágenes, autor Y CONTENIDO ADICIONAL ANTES de eliminar elementos
                 const images = this.extractImages(doc, config, url);
                 const authorImage = this.extractAuthorImage(doc, domain, url);
                 
                 // Extraer datos adicionales (resúmenes, standfirst, etc.) ANTES de eliminar elementos
-                const { footerSummary, subtitleLink, subtitleLinkText } = this.extractAdditionalContent(doc, domain, url);
+                const { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews } = this.extractAdditionalContent(doc, domain, url);
+
+                // Extraer título y autor ANTES de eliminar elementos
+                const title = this.extractTextContent(doc, config.title);
+                const author = this.extractAuthor(doc, config, domain);
 
                 // TERCERO: Ahora eliminar elementos excluidos (incluyendo contenedores de video)
                 if (config.exclude) {
@@ -3795,13 +4857,20 @@
                 // Eliminar también contenedores de video de ABC después de extraer los datos
                 if (domain === 'abc.es') {
                     doc.querySelectorAll('.video, .nibara-element').forEach(el => el.remove());
+                    
+                    // NO eliminar blockquotes de Instagram - deben quedarse en el texto para mostrarse inline
                 }
 
                 // Eliminar elementos AMP de Twitter (El País y otros) después de extraer los datos
                 doc.querySelectorAll('amp-twitter, [data-tweetid], .a_em').forEach(el => el.remove());
 
-                const title = this.extractTextContent(doc, config.title);
-                const author = this.extractAuthor(doc, config, domain);
+                // Eliminar elementos de noticias en directo (El Mundo y Antena 3) después de extraer los datos
+                if (domain === 'elmundo.es') {
+                    doc.querySelectorAll('article.ue-c-streamlive-comment, #divNarration, .ue-c-streamlive__body').forEach(el => el.remove());
+                }
+                if (domain === 'antena3.com') {
+                    doc.querySelectorAll('section.timeline-new, .timeline').forEach(el => el.remove());
+                }
 
                 // Ahora eliminar el c-header para que no aparezca en el contenido del texto
                 const cHeaderToRemove = doc.querySelector('.c-header');
@@ -3833,6 +4902,8 @@
                     metaDescription: metaDescription,
                     subtitleLink: subtitleLink,
                     subtitleLinkText: subtitleLinkText,
+                    relatedLinks: relatedLinks || [],
+                    timelineNews: timelineNews || [],
                     images: images.slice(0, 5),
                     links: links.slice(0, 10),
                     videos: videos,
@@ -3917,6 +4988,38 @@
                 }
 
                 // -----------------------------------------------------------------
+                // ANTENA 3
+                // Busca el autor en .article-author__name > a (enlace dentro del nombre)
+                // -----------------------------------------------------------------
+                if (domain === 'antena3.com') {
+                    // Primero intentar obtener el enlace dentro de .article-author__name
+                    const authorLink = doc.querySelector('.article-author__name a');
+                    if (authorLink && authorLink.textContent.trim()) {
+                        const authorText = this.cleanText(authorLink.textContent);
+                        // Eliminar cualquier texto de fecha que pueda haber sido incluido
+                        return authorText.split('Publicado')[0].trim();
+                    }
+                    
+                    // Fallback: intentar solo con .article-author__name
+                    const authorName = doc.querySelector('.article-author__name');
+                    if (authorName && authorName.textContent.trim()) {
+                        const authorText = this.cleanText(authorName.textContent);
+                        return authorText.split('Publicado')[0].trim();
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // ARA (es.ara.cat)
+                // Busca el autor en el enlace dentro de .authors
+                // -----------------------------------------------------------------
+                if (domain === 'es.ara.cat') {
+                    const authorLink = doc.querySelector('.authors .author.author--last, .authors .author, .authors a.author');
+                    if (authorLink && authorLink.textContent.trim()) {
+                        return this.cleanText(authorLink.textContent);
+                    }
+                }
+
+                // -----------------------------------------------------------------
                 // PERIÓDICOS GENÉRICOS O NO CONFIGURADOS
                 // Usa el selector de la configuración general
                 // -----------------------------------------------------------------
@@ -3936,6 +5039,43 @@
                     const authorImageEl = doc.querySelector('.voc-author__image img');
                     if (authorImageEl) {
                         let src = authorImageEl.src || authorImageEl.getAttribute('data-src') || authorImageEl.getAttribute('data-lazy-src');
+                        if (src && !src.includes('data:image') && src.length > 10) {
+                            if (src.startsWith('/')) {
+                                src = new URL(url).origin + src;
+                            }
+                            return src;
+                        }
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // ANTENA 3
+                // Extrae la foto del autor desde .article-author__avatar img
+                // -----------------------------------------------------------------
+                if (domain === 'antena3.com') {
+                    const authorImageEl = doc.querySelector('.article-author__avatar img');
+                    if (authorImageEl) {
+                        let src = authorImageEl.src || authorImageEl.getAttribute('data-src') || authorImageEl.getAttribute('data-lazy-src');
+                        if (src && !src.includes('data:image') && src.length > 10) {
+                            if (src.startsWith('/')) {
+                                src = new URL(url).origin + src;
+                            }
+                            return src;
+                        }
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // ARA (es.ara.cat)
+                // Extrae la foto del autor desde .opening-actions__authors-image img
+                // -----------------------------------------------------------------
+                if (domain === 'es.ara.cat') {
+                    const authorImageEl = doc.querySelector('.opening-actions__authors-image img, .opening-actions__authors-image picture img');
+                    if (authorImageEl) {
+                        let src = authorImageEl.src || 
+                                  authorImageEl.getAttribute('src') ||
+                                  authorImageEl.getAttribute('data-src') || 
+                                  authorImageEl.getAttribute('data-lazy-src');
                         if (src && !src.includes('data:image') && src.length > 10) {
                             if (src.startsWith('/')) {
                                 src = new URL(url).origin + src;
@@ -4167,6 +5307,25 @@
                 }
 
                 // -----------------------------------------------------------------
+                // ANTENA 3
+                // Extrae fechas desde meta tags date y article:published_time
+                // -----------------------------------------------------------------
+                if (domain === 'antena3.com') {
+                    publishDate = this.extractDateFromMeta(doc, [
+                        "meta[name='date']",
+                        "meta[property='article:published_time']",
+                        "meta[name='DC.date.issued']",
+                        "time[datetime]",
+                        ".article-dates__detail time"
+                    ]);
+
+                    updateDate = this.extractDateFromMeta(doc, [
+                        "meta[property='article:modified_time']",
+                        ".article-dates__detail.date_updated time"
+                    ]);
+                }
+
+                // -----------------------------------------------------------------
                 // EL MUNDO
                 // Extrae fechas desde meta tags y .ue-c-article__publishdate
                 // Estructura: .ue-c-article__bar-footer > .ue-c-article__publishdate > time > span
@@ -4220,10 +5379,75 @@
                     }
                 }
 
+                // -----------------------------------------------------------------
+                // ARA (es.ara.cat)
+                // Extrae fechas desde JSON-LD (datePublished, dateModified) y meta tags
+                // -----------------------------------------------------------------
+                if (domain === 'es.ara.cat') {
+                    // Primero intentar desde JSON-LD
+                    const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                    jsonLdScripts.forEach(script => {
+                        try {
+                            const jsonData = JSON.parse(script.textContent);
+                            if (jsonData.datePublished && !publishDate) {
+                                console.log('🔍 ARA datePublished original:', jsonData.datePublished);
+                                publishDate = this.formatDateFromISO(jsonData.datePublished);
+                                console.log('✅ ARA publishDate formateada:', publishDate);
+                            }
+                            if (jsonData.dateModified && !updateDate) {
+                                console.log('🔍 ARA dateModified original:', jsonData.dateModified);
+                                updateDate = this.formatDateFromISO(jsonData.dateModified);
+                                console.log('✅ ARA updateDate formateada:', updateDate);
+                            }
+                        } catch (e) {
+                            // Ignorar errores de parsing
+                        }
+                    });
+
+                    // Si no se encontró en JSON-LD, intentar desde meta tags SIN conversión de zona horaria
+                    if (!publishDate) {
+                        const metaPublish = doc.querySelector("meta[property='article:published_time'], meta[name='article:published_time']");
+                        if (metaPublish) {
+                            const dateValue = metaPublish.getAttribute('content') || metaPublish.getAttribute('datetime');
+                            if (dateValue) {
+                                console.log('🔍 ARA meta publishDate:', dateValue);
+                                publishDate = this.formatDateFromISO(dateValue);
+                                console.log('✅ ARA publishDate desde meta:', publishDate);
+                            }
+                        }
+                    }
+
+                    if (!updateDate) {
+                        const metaModified = doc.querySelector("meta[property='article:modified_time'], meta[name='article:modified_time']");
+                        if (metaModified) {
+                            const dateValue = metaModified.getAttribute('content') || metaModified.getAttribute('datetime');
+                            if (dateValue) {
+                                console.log('🔍 ARA meta updateDate:', dateValue);
+                                updateDate = this.formatDateFromISO(dateValue);
+                                console.log('✅ ARA updateDate desde meta:', updateDate);
+                            }
+                        }
+                    }
+                }
+
                 // Para El País, buscar específicamente el contenedor a_c clearfix
                 let contentEl;
                 if (domain === 'elpais.com') {
                     contentEl = doc.querySelector('.a_c.clearfix');
+                }
+
+                // Para Antena 3, buscar específicamente el contenedor article-main__content
+                if (domain === 'antena3.com' && !contentEl) {
+                    contentEl = doc.querySelector('.article-main__content') || 
+                                doc.querySelector('#intext') ||
+                                doc.querySelector('.article-main');
+                }
+
+                // Para ARA, buscar específicamente el contenedor ara-body
+                if (domain === 'es.ara.cat' && !contentEl) {
+                    contentEl = doc.querySelector('.layout-left .ara-body') || 
+                                doc.querySelector('.ara-body') ||
+                                doc.querySelector('.ara-main--wrapper');
                 }
 
                 // Si no se encuentra el contenedor específico, usar la configuración general
@@ -4276,6 +5500,31 @@
                             'aside', '.voc-grid__col', '.voc-grid__col--sticky-adver'
                         ];
                         elementsToRemove.push(...abcRemove);
+                    }
+
+                    // -----------------------------------------------------------------
+                    // ANTENA 3 - Elementos específicos a eliminar
+                    // Incluye: recirculación, widgets, lateral, compartir
+                    // -----------------------------------------------------------------
+                    if (domain === 'antena3.com') {
+                        const antena3Remove = [
+                            '.recirculation', '.recirculation-title', '.recirculation-list-row',
+                            '.recirculation-item-row', '.recirculation-video'
+                        ];
+                        elementsToRemove.push(...antena3Remove);
+                    }
+
+                    // -----------------------------------------------------------------
+                    // ARA (es.ara.cat) - Elementos específicos a eliminar
+                    // Incluye: enlaces SEO, compartir, opening-actions, subtítulo (ya se usa como resumen)
+                    // -----------------------------------------------------------------
+                    if (domain === 'es.ara.cat') {
+                        const araRemove = [
+                            '.seo-links', '.seo-links--top', '.seo-links--bottom',
+                            '.opening-actions', '.opening-actions--opinion', '.opening-actions--standard',
+                            '.ara-opening-info', 'h2.subtitle', '.subtitle'
+                        ];
+                        elementsToRemove.push(...araRemove);
                     }
 
                     // Aplicar eliminaciones
@@ -4373,9 +5622,14 @@
                             'figure.ni-figure, figure.news-image, figure';
                     }
 
-                    // ABC - Selectores específicos
+                    // ABC - Selectores específicos (incluyendo blockquotes de Instagram)
                     if (domain === 'abc.es') {
-                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, .voc-p, .voc-title, .voc-subtitle';
+                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, blockquote.instagram-media, ul, ol, .voc-p, .voc-title, .voc-subtitle';
+                    }
+
+                    // ANTENA 3 - Selectores específicos
+                    if (domain === 'antena3.com') {
+                        contentSelector = 'p, h2.title-h2, h2, h3, h4, h5, blockquote, ul, ol';
                     }
 
                     const contentElements = contentEl.querySelectorAll(contentSelector);
@@ -4474,27 +5728,90 @@
                         }
 
                         // Para el resto de elementos, verificar longitud de texto
-                        const cleanText = this.cleanText(el.textContent);
-                        if (cleanText.length > 15) {
-                            let htmlContent = el.innerHTML; // Preservar HTML incluyendo enlaces
+                        // IMPORTANTE: Usar textContent solo para validar longitud, NO para extraer contenido
+                        const textLength = (el.textContent || '').trim().length;
+                        if (textLength > 15) {
+                            // ANTENA 3 - Filtrar párrafos de promoción de WhatsApp y Atresplayer
+                            if (domain === 'antena3.com') {
+                                const textContent = (el.textContent || '').trim();
+                                // Excluir párrafos que contengan texto promocional
+                                if (textContent.includes('Síguenos en nuestro canal de WhatsApp') ||
+                                    textContent.includes('whatsapp') ||
+                                    textContent.includes('WhatsApp') ||
+                                    textContent.includes('Puedes ver el informativo completo') ||
+                                    textContent.includes('Atresplayer')) {
+                                    return; // Saltar este párrafo
+                                }
+                            }
 
-                            // Solo procesar enlaces normales (know-more ya se procesó arriba)
-                            htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([^<]+)<\/a>/gi,
-                                (match, beforeHref, url, afterHref, linkText) => {
-                                    // Escapar tanto comillas simples como dobles en el texto del enlace
-                                    const safeText = linkText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                                    return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeText}')">${linkText}</a>`;
-                                });
+                            // PRESERVAR TODO EL HTML interno: negritas (<strong>, <b>), cursivas (<em>, <i>), etc.
+                            let htmlContent = el.innerHTML;
+
+                            // Para Antena 3 y otros periódicos: procesar enlaces para que abran en modal
+                            // SOLO si la URL no apunta a un recurso externo de Twitter, YouTube, etc.
+                            if (domain !== 'eldiario.es') {
+                                htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([\s\S]*?)<\/a>/gi,
+                                    (match, beforeHref, url, afterHref, linkContent) => {
+                                        // Si es enlace externo o a redes sociales, dejarlo como está
+                                        if (url.includes('twitter.com') || url.includes('x.com') || 
+                                            url.includes('youtube.com') || url.includes('facebook.com') ||
+                                            url.includes('instagram.com') || url.startsWith('mailto:') || 
+                                            url.startsWith('tel:')) {
+                                            return match; // Mantener enlace original
+                                        }
+                                        
+                                        // Para enlaces internos, abrir en modal
+                                        const tempDiv = document.createElement('div');
+                                        tempDiv.innerHTML = linkContent;
+                                        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+                                        const safeText = plainText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                                        // IMPORTANTE: Preservar linkContent con TODO su HTML interno
+                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeText}')">${linkContent}</a>`;
+                                    });
+                            }
 
                             if (tagName === 'div' && el.classList.contains('know-more-container')) {
                                 // Los know-more-container se añaden tal como están
                                 textParts.push(el.outerHTML);
                             } else if (tagName.startsWith('h')) {
-                                // Preservar las clases de los elementos h
-                                const className = el.className ? ` class="${el.className}"` : '';
-                                textParts.push(`<${tagName}${className}>${htmlContent}</${tagName}>`);
+                                // Para Antena 3: h2 con clase title-h2 en negrita y más grande
+                                if (domain === 'antena3.com' && tagName === 'h2' && el.classList.contains('title-h2')) {
+                                    textParts.push(`<h2 style="font-weight: 700 !important; font-size: 1.5em !important; margin: 25px 0 15px 0 !important; color: #333 !important;">${htmlContent}</h2>`);
+                                } else {
+                                    // Preservar las clases de los elementos h
+                                    const className = el.className ? ` class="${el.className}"` : '';
+                                    textParts.push(`<${tagName}${className}>${htmlContent}</${tagName}>`);
+                                }
                             } else if (tagName === 'blockquote') {
-                                textParts.push(`<blockquote>${htmlContent}</blockquote>`);
+                                // Para ABC: detectar blockquotes de Instagram y darles formato embebido
+                                if (domain === 'abc.es' && el.classList.contains('instagram-media')) {
+                                    const permalink = el.getAttribute('data-instgrm-permalink') || el.getAttribute('cite') || '';
+                                    
+                                    textParts.push(`
+                                        <div class="modal-instagram-card" style="
+                                            background: #fafafa;
+                                            border: 1px solid #e1e8ed;
+                                            border-radius: 16px;
+                                            padding: 20px;
+                                            margin: 20px 0;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: flex-start;
+                                            min-height: 500px;
+                                        ">
+                                            <blockquote class="instagram-media" 
+                                                data-instgrm-permalink="${permalink}"
+                                                data-instgrm-version="14"
+                                                data-instgrm-captioned
+                                                style="max-width: 100%; width: 100%; min-width: 100%; margin: 0 auto;">
+                                                ${el.innerHTML}
+                                            </blockquote>
+                                        </div>
+                                    `);
+                                } else {
+                                    // Blockquote normal
+                                    textParts.push(`<blockquote>${htmlContent}</blockquote>`);
+                                }
                             } else if (tagName === 'ul' || tagName === 'ol') {
                                 textParts.push(`<${tagName}>${htmlContent}</${tagName}>`);
                             } else {
@@ -4778,6 +6095,34 @@
                         }
 
                         // -----------------------------------------------------------------
+                        // ARA (es.ara.cat) - Extracción de pie de foto
+                        // Busca figcaption.footer con .text y .author
+                        // -----------------------------------------------------------------
+                        if (domain === 'es.ara.cat') {
+                            let container = img.parentElement;
+                            let attempts = 0;
+
+                            // Subir hasta 5 niveles buscando el contenedor con figcaption
+                            while (container && attempts < 5) {
+                                const figcaption = container.querySelector('figcaption.footer, figcaption');
+                                if (figcaption) {
+                                    const captionText = figcaption.querySelector('.text');
+                                    const captionAuthorEl = figcaption.querySelector('.author');
+
+                                    if (captionText) {
+                                        caption = this.cleanText(captionText.textContent);
+                                    }
+                                    if (captionAuthorEl) {
+                                        captionAuthor = this.cleanText(captionAuthorEl.textContent);
+                                    }
+                                    break;
+                                }
+                                container = container.parentElement;
+                                attempts++;
+                            }
+                        }
+
+                        // -----------------------------------------------------------------
                         // EL MUNDO - Extracción de pie de foto
                         // Busca .ue-c-article__media-caption con descripción y autor
                         // -----------------------------------------------------------------
@@ -4920,6 +6265,70 @@
                 let footerSummary = '';
                 let subtitleLink = '';
                 let subtitleLinkText = '';
+                let relatedLinks = []; // Array de enlaces relacionados
+                let timelineNews = []; // Array de noticias en directo (Antena 3)
+
+                // -----------------------------------------------------------------
+                // ANTENA 3
+                // Extrae enlaces relacionados desde .article-abstract__item
+                // Y noticias en directo desde .timeline-new
+                // -----------------------------------------------------------------
+                if (domain === 'antena3.com') {
+                    const abstractItems = doc.querySelectorAll('li.article-abstract__item');
+                    abstractItems.forEach(item => {
+                        const link = item.querySelector('a');
+                        if (link && link.href) {
+                            const linkText = this.cleanText(link.textContent);
+                            let linkUrl = link.href;
+                            
+                            // Asegurar URL absoluta
+                            if (linkUrl && linkUrl.startsWith('/')) {
+                                const urlObj = new URL(url);
+                                linkUrl = urlObj.origin + linkUrl;
+                            }
+                            
+                            if (linkText && linkUrl) {
+                                relatedLinks.push({
+                                    text: linkText,
+                                    url: linkUrl
+                                });
+                            }
+                        }
+                    });
+
+                    // Extraer noticias en directo (timeline)
+                    const timelineSections = doc.querySelectorAll('section.timeline-new');
+                    timelineSections.forEach(section => {
+                        const timeEl = section.querySelector('.timeline-new__time time');
+                        const titleEl = section.querySelector('.timeline-new__title');
+                        const summaryEl = section.querySelector('.timeline-new__summary');
+                        
+                        if (timeEl && titleEl) {
+                            const time = this.cleanText(timeEl.textContent);
+                            const title = this.cleanText(titleEl.textContent);
+                            let summary = '';
+                            
+                            if (summaryEl) {
+                                // Extraer todos los párrafos del resumen
+                                const paragraphs = summaryEl.querySelectorAll('p');
+                                const summaryParts = [];
+                                paragraphs.forEach(p => {
+                                    const text = this.cleanText(p.textContent);
+                                    if (text) {
+                                        summaryParts.push(text);
+                                    }
+                                });
+                                summary = summaryParts.join('\n\n');
+                            }
+                            
+                            timelineNews.push({
+                                time: time,
+                                title: title,
+                                summary: summary
+                            });
+                        }
+                    });
+                }
 
                 // -----------------------------------------------------------------
                 // ELDIARIO.ES
@@ -4947,6 +6356,17 @@
                                 }
                             }
                         }
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // ARA (es.ara.cat)
+                // Extrae el subtítulo como resumen desde h2.subtitle
+                // -----------------------------------------------------------------
+                if (domain === 'es.ara.cat') {
+                    const subtitleEl = doc.querySelector('.ara-opening-info h2.subtitle, h2.subtitle, .subtitle');
+                    if (subtitleEl && subtitleEl.textContent.trim()) {
+                        footerSummary = this.cleanText(subtitleEl.textContent);
                     }
                 }
 
@@ -4993,6 +6413,7 @@
                 // EL MUNDO
                 // Extrae el standfirst como resumen desde:
                 // .ue-l-article__header-content > .ue-c-article__standfirst > .ue-c-article__paragraph
+                // Y noticias en directo desde .ue-c-streamlive-comment
                 // -----------------------------------------------------------------
                 if (domain === 'elmundo.es') {
                     const headerContent = doc.querySelector('.ue-l-article__header-content, .ue-c-article__header');
@@ -5011,9 +6432,43 @@
                             }
                         }
                     }
+
+                    // Extraer noticias en directo (streamlive)
+                    const streamliveArticles = doc.querySelectorAll('article.ue-c-streamlive-comment');
+                    streamliveArticles.forEach(article => {
+                        const timeEl = article.querySelector('.ue-c-streamlive-comment__time span');
+                        const bodyEl = article.querySelector('.ue-c-streamlive-comment__body');
+                        
+                        if (timeEl && bodyEl) {
+                            const time = this.cleanText(timeEl.textContent);
+                            
+                            // Extraer título (h2 dentro del body)
+                            const titleEl = bodyEl.querySelector('h2.ue-c-article__subheadline');
+                            const title = titleEl ? this.cleanText(titleEl.textContent) : '';
+                            
+                            // Extraer todos los párrafos del body
+                            const paragraphs = bodyEl.querySelectorAll('p.ue-c-article__paragraph');
+                            const summaryParts = [];
+                            paragraphs.forEach(p => {
+                                const text = this.cleanText(p.textContent);
+                                if (text) {
+                                    summaryParts.push(text);
+                                }
+                            });
+                            const summary = summaryParts.join('\n\n');
+                            
+                            if (time && (title || summary)) {
+                                timelineNews.push({
+                                    time: time,
+                                    title: title,
+                                    summary: summary
+                                });
+                            }
+                        }
+                    });
                 }
 
-                return { footerSummary, subtitleLink, subtitleLinkText };
+                return { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews };
             }
 
             getCurrentFormattedDate(hoursOffset = 0) {
@@ -5057,6 +6512,17 @@
                 return `${day}-${month}-${year} ${hours}:${minutes}`;
             }
 
+            formatDateFromISO(isoString) {
+                if (!isoString) return '';
+                // Parsear fecha ISO 8601 manteniendo la zona horaria original
+                // Formato: "2025-10-07T12:19:45+00:00" o "2025-10-07T07:30:38+02:00"
+                const match = isoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+                if (!match) return '';
+                
+                const [, year, month, day, hours, minutes] = match;
+                return `${day}-${month}-${year} ${hours}:${minutes}`;
+            }
+
             displayModalContent(content) {
                 // Actualizar el título si el contenido tiene un título extraído
                 if (content.title && content.title.trim().length > 0) {
@@ -5072,9 +6538,9 @@
                 html += '<div class="modal-info-grid">';
                 const newspaper = (content.stats && content.stats.domain) || this.extractNewspaperFromUrl() || 'Periódico no disponible';
                 html += `
-                    <div class="modal-info-item">
-                        <span class="modal-info-label">Periódico:</span>
-                        <span class="modal-info-value">${newspaper}</span>
+                    <div class="modal-info-item" style="grid-column: 1 / -1; margin-bottom: 5px;">
+                        <span class="modal-info-label" style="color: #000000; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">Periódico:</span>
+                        <span class="modal-info-value" style="font-size: 1.3em; font-weight: 700; background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block; margin-left: 8px;">${newspaper}</span>
                     </div>
                 `;
                 const author = content.author || 'Autor no disponible';
@@ -5110,8 +6576,13 @@
                 // Sección de resumen - priorizar según periódico
                 let summaryText = '';
 
-                // Para elmundo.es, priorizar footerSummary (standfirst) sobre metaDescription
-                if (domain === 'elmundo.es') {
+                // Para es.ara.cat usar el footerSummary (h2.subtitle)
+                if (domain === 'es.ara.cat') {
+                    if (content.footerSummary && content.footerSummary.trim().length > 10) {
+                        summaryText = content.footerSummary;
+                    }
+                } else if (domain === 'elmundo.es') {
+                    // Para elmundo.es, priorizar footerSummary (standfirst) sobre metaDescription
                     if (content.footerSummary && content.footerSummary.trim().length > 20) {
                         summaryText = content.footerSummary;
                     } else if (content.metaDescription && content.metaDescription.trim().length > 20) {
@@ -5121,30 +6592,43 @@
                     }
                 } else {
                     // Para otros periódicos, orden original
-                if (content.metaDescription && content.metaDescription.trim().length > 20) {
-                    summaryText = content.metaDescription;
-                } else if (content.footerSummary && content.footerSummary.trim().length > 20) {
-                    summaryText = content.footerSummary;
-                } else if (domain !== 'eldiario.es' && this.currentSubtitle && this.currentSubtitle.trim().length > 10) {
-                    // Para eldiario.es NO usar currentSubtitle porque contiene texto del artículo
-                    summaryText = this.currentSubtitle;
+                    if (content.metaDescription && content.metaDescription.trim().length > 20) {
+                        summaryText = content.metaDescription;
+                    } else if (content.footerSummary && content.footerSummary.trim().length > 20) {
+                        summaryText = content.footerSummary;
+                    } else if (domain !== 'eldiario.es' && this.currentSubtitle && this.currentSubtitle.trim().length > 10) {
+                        // Para eldiario.es NO usar currentSubtitle porque contiene texto del artículo
+                        summaryText = this.currentSubtitle;
                     }
                 }
 
-                html += '<div class="modal-section modal-summary-section">';
-                html += '<div class="modal-summary-label">Resumen:</div>';
+                // Solo mostrar la sección de resumen si realmente existe
                 if (summaryText) {
+                    html += '<div class="modal-section modal-summary-section">';
+                    html += '<div class="modal-summary-label">Resumen:</div>';
                     html += `<div class="modal-summary-text">${summaryText}</div>`;
-                } else {
-                    html += '<div class="modal-summary-text">Resumen no disponible</div>';
+                    
+                    if (content.subtitleLink && content.subtitleLinkText) {
+                        // Enlace en el resumen - ahora se abre en la misma modal
+                        html += `<div class="modal-summary-link">
+                            <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${content.subtitleLink}', '${content.subtitleLinkText.replace(/'/g, "\\'")}')">${content.subtitleLinkText}</a>
+                        </div>`;
+                    }
+                    
+                    // Enlaces relacionados para Antena 3
+                    if (domain === 'antena3.com' && content.relatedLinks && content.relatedLinks.length > 0) {
+                        html += '<div style="margin-top: 12px; line-height: 1.3;">';
+                        content.relatedLinks.forEach(link => {
+                            const safeText = link.text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                            html += `<div class="modal-summary-link" style="margin-bottom: 2px; padding: 1px 0;">
+                                <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${link.url}', '${safeText}')" style="font-weight: 600; line-height: 1.3; display: inline;">${link.text}</a>
+                            </div>`;
+                        });
+                        html += '</div>';
+                    }
+                    
+                    html += '</div>';
                 }
-                if (content.subtitleLink && content.subtitleLinkText) {
-                    // Enlace en el resumen - ahora se abre en la misma modal
-                    html += `<div class="modal-summary-link">
-                        <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${content.subtitleLink}', '${content.subtitleLinkText.replace(/'/g, "\\'")}')">${content.subtitleLinkText}</a>
-                    </div>`;
-                }
-                html += '</div>';
 
                 // Videos (Dailymotion, Brightcove, El País MP4, Bluesky, etc.)
                 if (content.videos && content.videos.length > 0) {
@@ -5281,10 +6765,32 @@
                     html += '</div>';
                 }
 
+                // Noticias en directo (timeline) para Antena 3 y El Mundo - AL FINAL DE TODO
+                if ((domain === 'antena3.com' || domain === 'elmundo.es') && content.timelineNews && content.timelineNews.length > 0) {
+                    html += '<div class="modal-timeline-section" style="margin-top: 30px;">';
+                    html += `<h4 style="font-size: 1.2em; color: #ff8c00; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        📡 Noticias en Directo (${content.timelineNews.length})
+                    </h4>`;
+                    content.timelineNews.forEach(news => {
+                        html += `<div style="margin-bottom: 15px; padding: 12px; background-color: #fffacd; border-left: 4px solid #ffd700; border-radius: 4px;">
+                            <div style="margin-bottom: 8px;">
+                                <span style="font-weight: 700; background-color: #ffd700; padding: 3px 8px; border-radius: 3px; display: inline-block;">${news.time}</span>
+                            </div>
+                            ${news.title ? `<h4 style="font-size: 1.1em; font-weight: 600; margin: 8px 0; color: #333;">${news.title}</h4>` : ''}
+                            ${news.summary ? `<p style="margin: 8px 0 0 0; color: #555; line-height: 1.5; white-space: pre-line;">${news.summary}</p>` : ''}
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+
                 modalBody.innerHTML = html;
 
                 // Inicializar videos HLS después de insertar el HTML
                 this.initializeHlsVideos();
+                
+                // Inicializar embeds de Instagram (procesa todos los blockquotes de Instagram inline)
+                // Esto es especialmente importante para ABC que tiene Instagram embeds en el texto
+                this.initializeInstagramEmbeds();
             }
 
             initializeHlsVideos() {
@@ -5386,12 +6892,91 @@
                     </div>`;
                 }
             }
+
+            initializeInstagramEmbeds() {
+                console.log('📷 Inicializando embeds de Instagram...');
+                
+                // Eliminar scripts anteriores de Instagram para recargar
+                const oldScripts = document.querySelectorAll('script[src*="instagram.com/embed"]');
+                oldScripts.forEach(s => s.remove());
+                
+                // Cargar script de Instagram
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.instagram.com/embed.js';
+                script.onload = () => {
+                    console.log('✅ Script de Instagram cargado');
+                    if (typeof window.instgrm !== 'undefined') {
+                        // Procesar todos los embeds de Instagram
+                        window.instgrm.Embeds.process();
+                        console.log('✅ Embeds de Instagram procesados');
+                        
+                        // Ajustar estilos después de un delay
+                        setTimeout(() => {
+                            const blockquotes = document.querySelectorAll('.modal-instagram-section .instagram-media');
+                            blockquotes.forEach(blockquote => {
+                                blockquote.style.maxWidth = '100%';
+                                blockquote.style.width = '100%';
+                                blockquote.style.minWidth = '100%';
+                                
+                                const iframe = blockquote.querySelector('iframe');
+                                if (iframe) {
+                                    iframe.style.width = '100%';
+                                    iframe.style.maxWidth = '100%';
+                                    iframe.style.border = 'none';
+                                }
+                            });
+                        }, 1000);
+                    }
+                };
+                script.onerror = () => {
+                    console.error('❌ Error al cargar script de Instagram');
+                };
+                document.body.appendChild(script);
+            }
         }
 
         let newsSearcher;
         document.addEventListener('DOMContentLoaded', () => {
             newsSearcher = new NewsSearcher();
             window.newsSearcher = newsSearcher;
+
+            // Event listeners para la modal de periódicos
+            const newspaperModal = document.getElementById('newspaperInfoModal');
+            
+            // Cerrar modal al hacer clic fuera
+            newspaperModal.addEventListener('click', (e) => {
+                if (e.target.id === 'newspaperInfoModal') {
+                    closeNewspaperModal();
+                }
+            });
+            
+            // Cerrar modal con tecla ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && newspaperModal.classList.contains('active')) {
+                    closeNewspaperModal();
+                }
+            });
+
+            // Event listener para mensajes de Instagram que ajustan la altura del iframe
+            window.addEventListener('message', function(event) {
+                // Instagram envía mensajes con información de altura
+                if (event.origin === 'https://www.instagram.com') {
+                    try {
+                        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                        
+                        if (data.type === 'MEASURE' && data.details && data.details.height) {
+                            const iframes = document.querySelectorAll('iframe[src*="instagram.com"]');
+                            iframes.forEach(iframe => {
+                                // Aplicar la altura que Instagram nos envía
+                                iframe.style.height = data.details.height + 'px';
+                            });
+                        }
+                    } catch (e) {
+                        // Ignorar errores de parsing
+                    }
+                }
+            });
         });
     </script>
 </body>
@@ -5401,85 +6986,71 @@
 
 PERIÓDICOS LISTADOS
 ===================
-ABC (abc.es)
-Antena 3 (antena3.com)
-ARA (es.ara.cat)
-Cadena SER (cadenaser.com)
-CATALUNYAPRESS.ES (catalunyapress.es)
-Cope.es (cope.es)
-CUADERNOSDESEGURIDAD.COM (cuadernosdeseguridad.com)
-Deia.eus (deia.eus)
-Demócrata (democrata.es)
-DIARIODEMALLORCA.ES (diariodemallorca.es)
-DIARIOSOCIALISTA.NET (diariosocialista.net)
-DIARIOSUR.ES (diariosur.es)
-Diariosigloxxi.com (diariosigloxxi.com)
-EL CONFIDENCIAL (elconfidencial.com)
-ELCONFIDENCIALDIGITAL.COM (elconfidencialdigital.com)
-ELCORREO.COM (elcorreo.com)
-elDEBATE (eldebate.com)
-ELDIA.ES (eldia.es)
-Eldiario.es (eldiario.es)
-Eldiariodemadrid.es (eldiariodemadrid.es)
-El Español (elespanol.com)
-ELGLOBALFARMA.COM (elglobalfarma.com)
-El HuffPost (huffingtonpost.es)
-El Independiente (elindependiente.com)
-El Mundo (elmundo.es)
-ELMUNDOTODAY.COM (elmundotoday.com)
-ELNOTICIERODIGITAL.COM (elnoticierodigital.com)
-El País (elpais.com)
-El Periódico (elperiodico.com)
-ELTELEVISERO.HUFFINGTONPOST.ES (eltelevisero.huffingtonpost.es)
-Epe.es (epe.es)
-ESCUDODIGITAL.COM (escudodigital.com)
-ESTRELLADIGITAL.ES (estrelladigital.es)
-EUROCARNE.COM (eurocarne.com)
-Europa Press (europapress.es)
-GACETAMEDICA.COM (gacetamedica.com)
-Gacetinmadrid.com (gacetinmadrid.com)
-HOYARAGON.ES (hoyaragon.es)
-INFOBAE.COM (infobae.com)
-INFOLIBRE (infolibre.es)
-INFOPLAY.INFO (infoplay.info)
-INSST.ES (insst.es)
-INTEREMPRESAS.NET (interempresas.net)
-Joan Seguidor (joanseguidor.com)
-LAMONCLOA.GOB.ES (lamoncloa.gob.es)
-LAOPINIONDEZAMORA.ES (laopiniondezamora.es)
-LA RAZÓN (larazon.es)
-laSexta (lasexta.com)
-La Vanguardia (lavanguardia.com)
-LIBERTAD DIGITAL (libertaddigital.com)
-MASPALOMAS24H.COM (maspalomas24h.com)
-Naiz (naiz.eus)
-Newtral.es (newtral.es)
-NOTEOLVIDESDELSAHARAOCCIDENTAL.ORG (noteolvidesdelsaharaoccidental.org)
-NUEVATRIBUNA.ES (nuevatribuna.es)
-OKDIARIO (okdiario.com)
-ONDACERO.ES (ondacero.es)
-PRESSDIGITAL.ES (pressdigital.es)
-Público (publico.es)
-PUERTOLLANO.ES (puertollano.es)
-Radiopopular.com (radiopopular.com)
-RTVE (rtve.es)
-SALAMANCARTVALDIA.ES (salamancartvaldia.es)
-Telecinco (telecinco.es)
-Telemadrid.es (telemadrid.es)
-Teleprensa (teleprensa.com)
-VALENCIAPLAZA.COM (valenciaplaza.com)
+1. ABC (abc.es)
+2. ARA (es.ara.cat)
+3. Antena 3 (antena3.com)
+4. Cadena SER (cadenaser.com)
+5. CatalunyaPress (catalunyapress.es)
+6. COPE (cope.es)
+7. Cuadernos de Seguridad (cuadernosdeseguridad.com)
+8. Deia (deia.eus)
+9. Demócrata (democrata.es)
+10. Diario de Mallorca (diariodemallorca.es)
+11. Diario Socialista (diariosocialista.net)
+12. Diario Sur (diariosur.es)
+13. Diario Siglo XXI (diariosigloxxi.com)
+14. El Confidencial (elconfidencial.com)
+15. El Confidencial Digital (elconfidencialdigital.com)
+16. El Correo (elcorreo.com)
+17. elDEBATE (eldebate.com)
+18. ELDIA.ES (El Día) (eldia.es)
+19. elDiario.es (eldiario.es)
+20. Eldiariodemadrid.es (eldiariodemadrid.es)
+21. El Español (elespanol.com)
+22. El HuffPost (huffingtonpost.es)
+23. El Independiente (elindependiente.com)
+24. El Mundo (elmundo.es)
+25. ELMUNDOTODAY.COM (elmundotoday.com)
+26. ELNOTICIERODIGITAL.COM (elnoticierodigital.com)
+27. El País (elpais.com)
+28. El Periódico (elperiodico.com)
+29. Epe.es (epe.es)
+30. ESCUDODIGITAL.COM (escudodigital.com)
+31. Estrella Digital (estrelladigital.es)
+32. Europa Press (europapress.es)
+33. Gacetín Madrid (gacetinmadrid.com)
+34. HOY ARAGÓN (hoyaragon.es)
+35. Infobae (infobae.com)
+36. infoLibre (infolibre.es)
+37. INFOPLAY (infoplay.info)
+38. LA RAZÓN (larazon.es)
+39. laSexta (lasexta.com)
+40. Libertad Digital (libertaddigital.com)
+41. La Vanguardia (lavanguardia.com)
+42. NAIZ (naiz.eus)
+43. Newtral (newtral.es)
+44. OKDIARIO (okdiario.com)
+45. Onda Cero (ondacero.es)
+46. PressDigital (pressdigital.es)
+47. Público (publico.es)
+48. RTVE (rtve.es)
+49. Telecinco (telecinco.es)
 
-TOTAL: 67 periódicos
+TOTAL: 49 periódicos
 
 PERIÓDICOS CONFIGURADOS (NO TOCAR !!)
 ====================================
-Eldiario.es (eldiario.es)
-El País (elpais.com)
-ABC (abc.es)
-El Mundo (elmundo.es)
+1. Eldiario.es (eldiario.es)
+2. El País (elpais.com)
+3. ABC (abc.es)
+4. Antena 3 (antena3.com)
+5. El Mundo (elmundo.es)
+6. ARA (es.ara.cat)
 
 
 OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido propio.
+
+
 
 ÍNDICE DE CONFIGURACIONES POR PERIÓDICO
 ========================================
@@ -5493,32 +7064,39 @@ de cada periódico para facilitar las modificaciones futuras:
 
 2. EXTRACCIÓN DE AUTOR (línea 3522)
    - Función: extractAuthor()
-   - Lógica específica para: eldiario.es, elpais.com
-   - Periódicos genéricos usan config.author
+   - Lógica específica para: eldiario.es, elpais.com, antena3.com
+   - Periódicos genéricos usan config.author (ara.cat, etc.)
 
 3. EXTRACCIÓN DE IMAGEN DEL AUTOR (línea 3772)
    - Función: extractAuthorImage()
-   - Lógica específica para: abc.es, elpais.com, eldiario.es, elmundo.es
+   - Lógica específica para: abc.es, antena3.com, es.ara.cat, elpais.com, eldiario.es, elmundo.es
+   - es.ara.cat: extrae desde .opening-actions__authors-image img
    - elmundo.es: extrae desde JSON-LD schema.org ({"@type":"Person","image":"..."})
 
 4. EXTRACCIÓN DE CONTENIDO Y FECHAS (línea 3812)
    - Función: extractContent()
    - Fechas de publicación/actualización
-   - Lógica específica para: eldiario.es, elpais.com, abc.es, elmundo.es
+   - Lógica específica para: eldiario.es, elpais.com, abc.es, antena3.com, elmundo.es, es.ara.cat
    - elmundo.es: extrae desde .ue-c-article__bar-footer > .ue-c-article__publishdate > time > span
+   - es.ara.cat: extrae desde JSON-LD (datePublished, dateModified) con formatDateFromISO() para mantener zona horaria, fallback a meta tags
+   - formatDateFromISO(): parsea fechas ISO 8601 sin conversión de zona horaria
    - Eliminación de elementos específicos por periódico
    - Selectores de contenido específicos
 
 5. EXTRACCIÓN DE IMÁGENES (línea 4248)
    - Función: extractImages()
    - Optimización de calidad de imagen para: abc.es, elpais.com, eldiario.es
-   - Extracción de pies de foto para: abc.es, elpais.com, elmundo.es
+   - Extracción de pies de foto para: abc.es, elpais.com, elmundo.es, es.ara.cat
+   - es.ara.cat: extrae desde figcaption.footer (.text y .author)
    - elmundo.es: extrae descripción (.ue-c-article__media-description) y autor/agencia
 
 6. EXTRACCIÓN DE CONTENIDO ADICIONAL (línea 4581)
    - Función: extractAdditionalContent()
-   - Lógica específica para: eldiario.es (enlaces relacionados), abc.es (subtítulos), elmundo.es (standfirst)
+   - Lógica específica para: eldiario.es (enlaces relacionados), abc.es (subtítulos), es.ara.cat (subtítulo), elmundo.es (standfirst y noticias en directo), antena3.com (enlaces relacionados y noticias en directo)
+   - es.ara.cat: extrae el subtítulo (h2.subtitle) que se usa como resumen
    - elmundo.es: extrae el standfirst (.ue-c-article__standfirst) que aparece en el resumen del modal
+   - elmundo.es: extrae noticias en directo desde article.ue-c-streamlive-comment (tiempo, título, párrafos)
+   - antena3.com: extrae noticias en directo desde section.timeline-new (tiempo, título, resumen)
 
 7. DETECCIÓN DE VIDEOS (líneas 2945-3475)
    - detectDailymotionVideos() - línea 2945
