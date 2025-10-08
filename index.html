@@ -1954,6 +1954,139 @@
     </div>
 
     <script type="text/javascript">
+        // ===== FILTRO DE CONSOLA =====
+        // Suprimir mensajes de scripts externos (NPAW/Youbora, etc.)
+        // Este filtro debe ejecutarse ANTES que cualquier otro script
+        (function() {
+            'use strict';
+            
+            // Palabras clave a filtrar
+            const filterKeywords = [
+                'NPAW', 'npaw', '[NPAW', '[npaw',
+                'youbora', 'Youbora', 'YOUBORA',
+                'gtag', 'analytics', 'Analytics', 
+                'PMUser', 'pmuser', 'TRITONNNN', 'tritonnnn',
+                'GSI_LOGGER', 'gsi_logger',
+                'hls.js.map', 'flv.js.map', 'No se pudo leer el mapa',
+                'Certification Tool', 'certification tool',
+                'Video Analytics', 'video analytics',
+                'Ads Analytics', 'ads analytics',
+                'MAT v', 'mat v', 'C  O  R  E', 'lib loaded',
+                'rms_', 'RMS_', 'FedCM', 'fedcm',
+                'Adapter', 'adapter', 'onFullConsent', 'DEMO'
+            ];
+            
+            // Función para verificar si debe filtrarse
+            const shouldFilter = (args) => {
+                if (!args || args.length === 0) return false;
+                // Convertir primer argumento a string
+                const firstArg = args[0];
+                let message = '';
+                
+                if (typeof firstArg === 'string') {
+                    message = firstArg;
+                } else if (firstArg && typeof firstArg === 'object') {
+                    try {
+                        message = JSON.stringify(firstArg);
+                    } catch(e) {
+                        message = String(firstArg);
+                    }
+                } else {
+                    message = String(firstArg);
+                }
+                
+                return filterKeywords.some(keyword => message.includes(keyword));
+            };
+            
+            // Guardar referencias originales de forma inmutable
+            const _originalLog = console.log.bind(console);
+            const _originalWarn = console.warn.bind(console);
+            const _originalError = console.error.bind(console);
+            const _originalInfo = console.info ? console.info.bind(console) : _originalLog;
+            const _originalDebug = console.debug ? console.debug.bind(console) : _originalLog;
+            
+            // Crear wrappers que no se pueden sobrescribir
+            const logWrapper = function(...args) {
+                if (!shouldFilter(args)) {
+                    _originalLog(...args);
+                }
+            };
+            
+            const warnWrapper = function(...args) {
+                if (!shouldFilter(args)) {
+                    _originalWarn(...args);
+                }
+            };
+            
+            const errorWrapper = function(...args) {
+                if (!shouldFilter(args)) {
+                    _originalError(...args);
+                }
+            };
+            
+            const infoWrapper = function(...args) {
+                if (!shouldFilter(args)) {
+                    _originalInfo(...args);
+                }
+            };
+            
+            const debugWrapper = function(...args) {
+                if (!shouldFilter(args)) {
+                    _originalDebug(...args);
+                }
+            };
+            
+            // Sobrescribir console con defineProperty para hacerlo no configurable
+            try {
+                Object.defineProperty(console, 'log', {
+                    value: logWrapper,
+                    writable: true,
+                    enumerable: true,
+                    configurable: false
+                });
+                Object.defineProperty(console, 'warn', {
+                    value: warnWrapper,
+                    writable: true,
+                    enumerable: true,
+                    configurable: false
+                });
+                Object.defineProperty(console, 'error', {
+                    value: errorWrapper,
+                    writable: true,
+                    enumerable: true,
+                    configurable: false
+                });
+                Object.defineProperty(console, 'info', {
+                    value: infoWrapper,
+                    writable: true,
+                    enumerable: true,
+                    configurable: false
+                });
+                Object.defineProperty(console, 'debug', {
+                    value: debugWrapper,
+                    writable: true,
+                    enumerable: true,
+                    configurable: false
+                });
+            } catch(e) {
+                // Si falla defineProperty, usar asignación directa
+                console.log = logWrapper;
+                console.warn = warnWrapper;
+                console.error = errorWrapper;
+                console.info = infoWrapper;
+                console.debug = debugWrapper;
+            }
+            
+            // Re-aplicar el filtro periódicamente por si scripts externos intentan sobrescribirlo
+            setInterval(() => {
+                if (console.log !== logWrapper) console.log = logWrapper;
+                if (console.warn !== warnWrapper) console.warn = warnWrapper;
+                if (console.error !== errorWrapper) console.error = errorWrapper;
+                if (console.info !== infoWrapper) console.info = infoWrapper;
+                if (console.debug !== debugWrapper) console.debug = debugWrapper;
+            }, 100);
+        })();
+
         // ===== BASE DE DATOS DE PERIÓDICOS =====
         // Cargar la base de datos desde el archivo Periodicos espana.html
         let periodicosDB = null;
@@ -1969,9 +2102,6 @@
                     const scriptMatch = html.match(/const periodicos = ({[\s\S]*?});[\s\S]*?\/\/ Función para renderizar/);
                     if (scriptMatch) {
                         periodicosDB = eval('(' + scriptMatch[1] + ')');
-                        console.log('✅ Base de datos de periódicos cargada correctamente');
-                        console.log('📊 Total de periódicos:', Object.keys(periodicosDB).length);
-                        console.log('📋 Primeros periódicos:', Object.keys(periodicosDB).slice(0, 5));
                     } else {
                         console.error('❌ No se encontró la base de datos en el archivo');
                         periodicosDB = {};
@@ -1981,7 +2111,12 @@
                     periodicosDB = {};
                 }
             } catch (e) {
-                console.error('❌ Error al cargar base de datos:', e);
+                // Silenciar el error si es por protocolo file:// (esperado en desarrollo local)
+                if (e.name === 'NetworkError' && window.location.protocol === 'file:') {
+                    console.warn('⚠️ Base de datos de periódicos no disponible (modo archivo local)');
+                } else {
+                    console.error('❌ Error al cargar base de datos:', e.message || e);
+                }
                 periodicosDB = {};
             }
         }
@@ -2095,8 +2230,6 @@
                 }
                 
                 if (!periodico) {
-                    console.log('Periódico buscado:', newspaperName);
-                    console.log('Claves disponibles:', Object.keys(periodicosDB));
                     modalTitle.textContent = 'Periódico no encontrado';
                     modalUrl.textContent = '';
                     modalBody.innerHTML = `
@@ -2374,6 +2507,7 @@
                     'eldiario.es': 'eldiario.es',
                     'laSexta': 'lasexta',
                     'Antena 3': 'antena3',
+                    'Cadena SER': 'cadenaser',
                     'RTVE': 'rtve',
                     'Europa Press': 'europapress',
                     'EFE': 'efe',
@@ -2410,6 +2544,7 @@
                     'eldiario.es': 'eldiario.es',
                     'lasexta.com': 'laSexta',
                     'antena3.com': 'Antena 3',
+                    'cadenaser.com': 'Cadena SER',
                     'rtve.es': 'RTVE',
                     'europapress.es': 'Europa Press',
                     'efe.com': 'EFE',
@@ -2444,6 +2579,117 @@
                 // =====================================================================
 
                 this.siteConfigs = {
+                    // -----------------------------------------------------------------
+                    // CADENA SER
+                    // -----------------------------------------------------------------
+                    'cadenaser.com': {
+                        title: [
+                            'main.epi-pod .cnt-data-art .c-i h1',
+                            'h1',
+                            '.article-title',
+                            '.news-title h1',
+                            'article h1',
+                            '.content h1'
+                        ].join(', '),
+                        content: [
+                            'main.epi-pod .cnt-data-art .c-i',
+                            'main.epi-pod .cnt-data-art',
+                            '.cnt-data-art .c-i',
+                            '.cnt-data-art',
+                            'article .content',
+                            '.article-content',
+                            '.news-content',
+                            '.article-body',
+                            '.content-body',
+                            'main article',
+                            '.article-text'
+                        ].join(', '),
+                        author: [
+                            '.cnt-byline .c-dat-art .emi',
+                            '.cnt-byline .c-dat-art a.emi',
+                            '.cnt-data-art .cnt-byline .emi',
+                            '.c-dat-art .emi',
+                            '.author',
+                            '.article-author',
+                            '.news-author',
+                            '.byline',
+                            '.author-name'
+                        ].join(', '),
+                        images: [
+                            'article img',
+                            '.article-image img',
+                            '.news-image img',
+                            '.content img',
+                            'figure img',
+                            '.media img'
+                        ].join(', '),
+                        date: [
+                            '.cnt-byline .c-dat-art time .a_ti',
+                            '.cnt-byline .c-dat-art time span.a_ti',
+                            '.cnt-data-art .cnt-byline time .a_ti',
+                            '.c-dat-art time .a_ti',
+                            'meta[property="article:published_time"]',
+                            'meta[name="article:published_time"]',
+                            'time',
+                            '.date',
+                            '.article-date',
+                            '.news-date'
+                        ].join(', '),
+                        exclude: [
+                            'script[src*="youbora"]',
+                            'script[src*="npaw"]',
+                            'script[src*="analytics"]',
+                            'script[src*="gtag"]',
+                            'script[src*="gtm"]',
+                            '.ads',
+                            '.advertisement',
+                            '.social-share',
+                            '.comments',
+                            '.related-articles',
+                            '.newsletter-signup',
+                            '.footer',
+                            '.navigation',
+                            '.sidebar',
+                            '.promo',
+                            '.cookie-banner',
+                            'script',
+                            'style'
+                        ].join(', ')
+                    },
+                    
+                    // -----------------------------------------------------------------
+                    // CATALUNYAPRESS
+                    // -----------------------------------------------------------------
+                    'catalunyapress.es': {
+                        title: 'h1, .article-title, #read_content h1',
+                        content: [
+                            '#article_content.article_content.story_editor',
+                            '#read_content .article_main',
+                            '#read_content',
+                            'article',
+                            '.article-content'
+                        ].join(', '),
+                        author: [
+                            '.article_legend .article_author',
+                            '.article_author',
+                            '.article_legend a',
+                            '.author',
+                            '.byline'
+                        ].join(', '),
+                        images: [
+                            'article#read_content .article_main .article_content.story_editor figure.image img',
+                            '#read_content .article_main #article_content figure.image img',
+                            '#article_content.article_content.story_editor figure.image img',
+                            '#article_content figure.image img',
+                            'figure.image img',
+                            '#article_content img',
+                            '#read_content img',
+                            'article img'
+                        ].join(', '),
+                        date: 'time, .date, .article-date, .article_legend time',
+                        exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .related'
+                    },
+                    
                     // -----------------------------------------------------------------
                     // ELDIARIO.ES
                     // -----------------------------------------------------------------
@@ -2800,30 +3046,47 @@
                     const trigger = e.target.closest('.modal-trigger');
                     if (!trigger) return;
                     
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    
                     const now = Date.now();
                     
                     // Prevenir duplicados: mismo elemento en menos de 500ms
                     if (trigger === lastClickedElement && (now - lastClickTime) < 500) {
+                        e.preventDefault();
+                        e.stopPropagation();
                         return;
                     }
                     
                     // Prevenir si ya estamos procesando otro clic
                     if (isProcessing) {
+                        e.preventDefault();
+                        e.stopPropagation();
                         return;
                     }
+                    
+                    const { link } = trigger.dataset;
+                    const url = decodeURIComponent(link);
+                    
+                    // Si se presiona CTRL (o CMD en Mac) + clic, abrir en nueva pestaña
+                    if (e.ctrlKey || e.metaKey) {
+                        // Permitir que el navegador maneje la apertura en nueva pestaña
+                        // No prevenir el default para que funcione nativamente
+                        window.open(url, '_blank');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    
+                    // Comportamiento normal (modal o nueva pestaña según switch)
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                     
                     isProcessing = true;
                     lastClickedElement = trigger;
                     lastClickTime = now;
                     
-                    
-                    const { link, title, author, date, subtitle } = trigger.dataset;
+                    const { title, author, date, subtitle } = trigger.dataset;
                     this.openNewsPopup(
-                        decodeURIComponent(link),
+                        url,
                         decodeURIComponent(title),
                         decodeURIComponent(author),
                         decodeURIComponent(date),
@@ -3556,17 +3819,7 @@
                     
                     // Verificar subtítulo en DOM (solo primeras 3)
                     if (index < 3 && item.subtitle) {
-                        setTimeout(() => {
-                            const subtitleInDOM = newsElement.querySelector('.news-subtitle');
-                            if (subtitleInDOM) {
-                                const styles = window.getComputedStyle(subtitleInDOM);
-                                console.log(`🔍 Noticia ${index + 1} - Subtítulo en DOM: ✅`);
-                                console.log(`   Display: ${styles.display}, Visibility: ${styles.visibility}`);
-                                console.log(`   Height: ${styles.height}, Overflow: ${styles.overflow}`);
-                            } else {
-                                console.log(`❌ Noticia ${index + 1} - Subtítulo NO encontrado en DOM`);
-                            }
-                        }, 100);
+                        // Comentado: logs de depuración de subtítulos
                     }
                 });
             }
@@ -3907,7 +4160,6 @@
                 try {
                     let content = null;
                     const domain = new URL(url).hostname.replace('www.', '');
-                    console.log(`🔍 Cargando contenido de: ${domain}`);
 
                     // Probar los 2 proxies principales en paralelo
                     const proxiesParalelos = [
@@ -3915,18 +4167,14 @@
                         'https://corsproxy.io/?'
                     ];
 
-                    console.log(`⚡ Probando ${proxiesParalelos.length} proxies en PARALELO...`);
-
                     // Crear promesas para cada proxy
                     const fetchPromises = proxiesParalelos.map(async (proxy) => {
                         try {
                             const proxyUrl = this.buildProxyUrl(proxy, url);
-                            console.log(`⏳ Lanzando petición con: ${proxy.substring(0, 30)}...`);
                             
                             const response = await fetch(proxyUrl);
 
                             if (response.ok) {
-                                console.log(`✅ Proxy respondió exitosamente: ${proxy.substring(0, 30)}... para ${domain}`);
                                 
                                 // Leer como buffer para detectar la codificación correcta
                                 const buffer = await response.arrayBuffer();
@@ -3961,16 +4209,12 @@
                                 const extractedContent = await this.extractArticleContent(html, url);
 
                                 if (extractedContent && (extractedContent.text || extractedContent.images.length > 0)) {
-                                    console.log(`🎉 Contenido extraído exitosamente de ${domain} usando ${proxy.substring(0, 30)}...`);
                                     return { success: true, content: extractedContent, proxy };
                                 }
-                            } else {
-                                console.log(`❌ Proxy falló (status ${response.status}): ${proxy.substring(0, 30)}...`);
                             }
                             
                             throw new Error('Proxy no devolvió contenido válido');
                         } catch (error) {
-                            console.log(`❌ Proxy error: ${proxy.substring(0, 30)}... - ${error.message}`);
                             throw error;
                         }
                     });
@@ -3982,7 +4226,6 @@
                             content = result.content;
                         }
                     } catch (error) {
-                        console.log(`❌ Todos los proxies paralelos fallaron, intentando con los proxies de respaldo...`);
                         
                         // Si ambos fallan, probar los proxies de respaldo secuencialmente
                         const proxiesRespaldo = [
@@ -3993,11 +4236,9 @@
                         for (const proxy of proxiesRespaldo) {
                             try {
                                 const proxyUrl = this.buildProxyUrl(proxy, url);
-                                console.log(`⏳ Probando proxy de respaldo: ${proxy.substring(0, 30)}...`);
                                 const response = await fetch(proxyUrl);
 
                                 if (response.ok) {
-                                    console.log(`✅ Proxy de respaldo funcionó: ${proxy.substring(0, 30)}...`);
                                     
                                     const buffer = await response.arrayBuffer();
                                     const bytes = new Uint8Array(buffer);
@@ -4014,12 +4255,10 @@
                                     content = await this.extractArticleContent(html, url);
 
                                     if (content && (content.text || content.images.length > 0)) {
-                                        console.log(`🎉 Contenido extraído con proxy de respaldo`);
                                         break;
                                     }
                                 }
                             } catch (error) {
-                                console.log(`❌ Proxy de respaldo error: ${proxy.substring(0, 30)}...`);
                                 continue;
                             }
                         }
@@ -4059,6 +4298,322 @@
                 } catch (e) {
                     return html;
                 }
+            }
+
+            async detectCadenaSERAudios(html, doc) {
+                const allAudios = [];
+                const seenUrls = new Set(); // Para detectar duplicados
+                let globalIndex = 0;
+                
+                // 1. Buscar elementos <audio> con atributos src y elementos <source>
+                const audioElements = Array.from(doc.querySelectorAll('audio'));
+                audioElements.forEach(audio => {
+                    const sources = audio.querySelectorAll('source');
+                    const srcAttr = audio.getAttribute('src');
+                    
+                    // Si tiene src directo
+                    if (srcAttr) {
+                        const fileName = srcAttr.split('/').pop().split('?')[0];
+                        if (!seenUrls.has(fileName)) {
+                            seenUrls.add(fileName);
+                            
+                            // Buscar título y descripción en el contenedor padre
+                            let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
+                            let description = '';
+                            
+                            const parent = audio.closest('figure, div, article, section, main');
+                            if (parent) {
+                                const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .audio-title, [class*="title"]');
+                                if (titleEl && !title) title = this.cleanText(titleEl.textContent);
+                                
+                                const descEl = parent.querySelector('p, .description, .audio-description, .cnt-txt p, [class*="description"]');
+                                if (descEl) description = this.cleanText(descEl.textContent);
+                            }
+                            
+                            allAudios.push({
+                                type: 'audio',
+                                src: srcAttr,
+                                title: title || 'Audio sin título',
+                                description: description || '',
+                                position: ++globalIndex,
+                                source: 'audio-element'
+                            });
+                        }
+                    }
+                    
+                    // Si tiene elementos <source>
+                    sources.forEach(source => {
+                        const srcAttr = source.getAttribute('src');
+                        if (!srcAttr) return;
+                        
+                        const fileName = srcAttr.split('/').pop().split('?')[0];
+                        if (!seenUrls.has(fileName)) {
+                            seenUrls.add(fileName);
+                            
+                            let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
+                            let description = '';
+                            
+                            const parent = audio.closest('figure, div, article, section, main');
+                            if (parent) {
+                                const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .audio-title, [class*="title"]');
+                                if (titleEl && !title) title = this.cleanText(titleEl.textContent);
+                                
+                                const descEl = parent.querySelector('p, .description, .audio-description, .cnt-txt p, [class*="description"]');
+                                if (descEl) description = this.cleanText(descEl.textContent);
+                            }
+                            
+                            allAudios.push({
+                                type: 'audio',
+                                src: srcAttr,
+                                title: title || 'Audio sin título',
+                                description: description || '',
+                                position: ++globalIndex,
+                                source: 'audio-source'
+                            });
+                        }
+                    });
+                });
+                
+                // 2. Buscar URLs de audio en el HTML usando expresiones regulares
+                // Incluye: mp3, m4a, ogg, wav, aac, flac
+                const audioUrlRegex = /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi;
+                let match;
+                
+                while ((match = audioUrlRegex.exec(html)) !== null) {
+                    const audioUrl = match[1];
+                    const cleanUrl = audioUrl.split('"')[0];
+                    const fileName = cleanUrl.split('/').pop().split('?')[0];
+                    
+                    if (!seenUrls.has(fileName)) {
+                        seenUrls.add(fileName);
+                        
+                        // Intentar encontrar contexto para este audio
+                        // Buscar en el HTML el elemento que contiene esta URL
+                        let title = 'Audio detectado';
+                        let description = '';
+                        
+                        // Buscar en los selectores específicos de Cadena SER
+                        const mainTitle = doc.querySelector('main.epi-pod .cnt-data-art .c-i h1');
+                        if (mainTitle) title = this.cleanText(mainTitle.textContent);
+                        
+                        const mainDesc = doc.querySelector('main.epi-pod .cnt-data-art .c-i .cnt-txt p');
+                        if (mainDesc) description = this.cleanText(mainDesc.textContent);
+                        
+                        allAudios.push({
+                            type: 'audio',
+                            src: cleanUrl,
+                            title: title,
+                            description: description,
+                            position: ++globalIndex,
+                            source: 'html-regex'
+                        });
+                    }
+                }
+                
+                // 3. Buscar enlaces a /audio/ (episodios de Cadena SER)
+                // Hacer scraping de cada página de episodio para extraer el audio EN PARALELO
+                const audioLinks = Array.from(doc.querySelectorAll('a[href*="/audio/"]'));
+                
+                // Crear promesas para procesar todos los episodios en paralelo
+                const episodePromises = audioLinks.map(async (link) => {
+                    const href = link.getAttribute('href');
+                    if (!href) return null;
+                    
+                    // Convertir URL relativa a absoluta
+                    let episodeUrl = href;
+                    if (href.startsWith('/')) {
+                        episodeUrl = 'https://cadenaser.com' + href;
+                    }
+                    
+                    // Extraer ID del episodio para control de duplicados
+                    const episodeId = href.split('/').filter(Boolean).pop();
+                    if (seenUrls.has(episodeId)) return null;
+                    seenUrls.add(episodeId);
+                    
+                    // Extraer título y descripción de la página actual
+                    let title = link.textContent.trim() || link.getAttribute('title') || link.getAttribute('aria-label') || '';
+                    let description = '';
+                    
+                    const parent = link.closest('article, section, div, li, figure');
+                    if (parent) {
+                        const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, .title, [class*="title"]');
+                        if (titleEl && !title) title = this.cleanText(titleEl.textContent);
+                        
+                        const descEl = parent.querySelector('p, .description, [class*="description"]');
+                        if (descEl) description = this.cleanText(descEl.textContent);
+                    }
+                    
+                    // Si no hay descripción, buscar texto antes del enlace
+                    if (!description) {
+                        let prevNode = link.previousSibling;
+                        while (prevNode && !description) {
+                            if (prevNode.nodeType === 3) {
+                                description = prevNode.textContent.trim();
+                            } else if (prevNode.nodeType === 1) {
+                                description = prevNode.textContent.trim();
+                            }
+                            prevNode = prevNode.previousSibling;
+                        }
+                    }
+                    
+                    // Hacer scraping de la página del episodio usando múltiples proxies
+                    try {
+                        let episodeHtml = null;
+                        
+                        // Probar múltiples proxies
+                        const proxies = [
+                            'https://proxy.cors.sh/',
+                            'https://corsproxy.io/?',
+                            'https://api.codetabs.com/v1/proxy?quest='
+                        ];
+                        
+                        for (const proxy of proxies) {
+                            try {
+                                const proxyUrl = proxy.includes('cors.sh') 
+                                    ? `${proxy}${episodeUrl}`
+                                    : `${proxy}${encodeURIComponent(episodeUrl)}`;
+                                
+                                const headers = {};
+                                if (proxy.includes('cors.sh')) {
+                                    headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
+                                }
+                                
+                                const response = await fetch(proxyUrl, { headers });
+                                
+                                if (response.ok) {
+                                    episodeHtml = await response.text();
+                                    break; // Salir del bucle si se obtiene respuesta
+                                }
+                            } catch (proxyError) {
+                                // Continuar con el siguiente proxy
+                                continue;
+                            }
+                        }
+                        
+                        // Si se obtuvo el HTML, buscar el audio
+                        if (episodeHtml) {
+                            const audioUrlRegex = /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi;
+                            const audioMatches = episodeHtml.match(audioUrlRegex);
+                            
+                            if (audioMatches && audioMatches.length > 0) {
+                                // Tomar el primer audio encontrado
+                                const audioUrl = audioMatches[0].replace(/"/g, '');
+                                const cleanUrl = audioUrl.split('?')[0];
+                                
+                                return {
+                                    type: 'audio',
+                                    src: cleanUrl,
+                                    title: title || 'Episodio',
+                                    description: description || '',
+                                    position: 0, // Se actualizará después
+                                    source: 'episode-scraping'
+                                };
+                            }
+                        }
+                    } catch (error) {
+                        // Silenciar errores para no romper la carga de otros episodios
+                    }
+                    
+                    return null;
+                });
+                
+                // Esperar a que todas las promesas se resuelvan (en paralelo)
+                const episodeResults = await Promise.allSettled(episodePromises);
+                
+                // Agregar los audios exitosos al array
+                episodeResults.forEach(result => {
+                    if (result.status === 'fulfilled' && result.value) {
+                        result.value.position = ++globalIndex;
+                        allAudios.push(result.value);
+                    }
+                });
+                
+                return allAudios;
+            }
+
+            detectYouTubeVideos(html, doc) {
+                const videos = [];
+                const seen = new Set();
+                
+                // Método 1: Buscar iframes de YouTube
+                const iframes = doc.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtu.be"]');
+                iframes.forEach(iframe => {
+                    const src = iframe.getAttribute('src') || '';
+                    
+                    // Extraer ID del video de youtube.com/embed/VIDEO_ID
+                    const embedMatch = src.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
+                    if (embedMatch) {
+                        const videoId = embedMatch[1];
+                        if (!seen.has(videoId)) {
+                            seen.add(videoId);
+                            videos.push({
+                                type: 'YouTube',
+                                id: videoId,
+                                embedUrl: `https://www.youtube.com/embed/${videoId}`
+                            });
+                        }
+                    }
+                    
+                    // Extraer ID de youtu.be/VIDEO_ID (URL corta)
+                    const shortMatch = src.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+                    if (shortMatch) {
+                        const videoId = shortMatch[1];
+                        if (!seen.has(videoId)) {
+                            seen.add(videoId);
+                            videos.push({
+                                type: 'YouTube',
+                                id: videoId,
+                                embedUrl: `https://www.youtube.com/embed/${videoId}`
+                            });
+                        }
+                    }
+                });
+                
+                // Método 2: Buscar URLs en el HTML usando regex
+                // youtube.com/watch?v=VIDEO_ID
+                const watchRegex = /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/gi;
+                let match;
+                while ((match = watchRegex.exec(html)) !== null) {
+                    const videoId = match[1];
+                    if (!seen.has(videoId)) {
+                        seen.add(videoId);
+                        videos.push({
+                            type: 'YouTube',
+                            id: videoId,
+                            embedUrl: `https://www.youtube.com/embed/${videoId}`
+                        });
+                    }
+                }
+                
+                // youtube.com/embed/VIDEO_ID
+                const embedRegex = /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/gi;
+                while ((match = embedRegex.exec(html)) !== null) {
+                    const videoId = match[1];
+                    if (!seen.has(videoId)) {
+                        seen.add(videoId);
+                        videos.push({
+                            type: 'YouTube',
+                            id: videoId,
+                            embedUrl: `https://www.youtube.com/embed/${videoId}`
+                        });
+                    }
+                }
+                
+                // youtu.be/VIDEO_ID (URL corta)
+                const shortRegex = /youtu\.be\/([a-zA-Z0-9_-]+)/gi;
+                while ((match = shortRegex.exec(html)) !== null) {
+                    const videoId = match[1];
+                    if (!seen.has(videoId)) {
+                        seen.add(videoId);
+                        videos.push({
+                            type: 'YouTube',
+                            id: videoId,
+                            embedUrl: `https://www.youtube.com/embed/${videoId}`
+                        });
+                    }
+                }
+                
+                return videos;
             }
 
             detectDailymotionVideos(html) {
@@ -4235,8 +4790,13 @@
                 const mp4Regex = /<(?:video|source)[^>]+src=["']([^"']+\.mp4[^"']*)["']/gi;
                 while ((match = mp4Regex.exec(html)) !== null) {
                     let videoUrl = match[1];
-                    if (videoUrl.startsWith('//')) videoUrl = 'https:' + videoUrl;
-                    if (videoUrl.startsWith('/')) continue;
+                    
+                    if (videoUrl.startsWith('//')) {
+                        videoUrl = 'https:' + videoUrl;
+                    }
+                    if (videoUrl.startsWith('/')) {
+                        continue;
+                    }
 
                     const normalizedUrl = normalizeVideoUrl(videoUrl);
 
@@ -4252,7 +4812,114 @@
                     }
                 }
 
-                return videos;
+                // Método 4: Buscar elementos <video> y <source> en el DOM
+                const videoElements = doc.querySelectorAll('video, source');
+                videoElements.forEach((el) => {
+                    const src = el.getAttribute('src') || '';
+                    if (src && src.includes('.mp4')) {
+                        let videoUrl = src;
+                        if (videoUrl.startsWith('//')) videoUrl = 'https:' + videoUrl;
+                        if (videoUrl.startsWith('/')) return;
+                        if (!videoUrl.startsWith('http')) return;
+
+                        const normalizedUrl = normalizeVideoUrl(videoUrl);
+                        if (!seen.has(normalizedUrl)) {
+                            seen.add(normalizedUrl);
+                            const filename = videoUrl.split('/').pop().split('?')[0];
+                            videos.push({
+                                type: 'MP4-DOM',
+                                id: filename,
+                                embedUrl: videoUrl,
+                                isDirect: true
+                            });
+                        }
+                    }
+                });
+
+                // Método 5: Buscar en JSON-LD (bloques <script type="application/ld+json">)
+                const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                jsonLdScripts.forEach((script) => {
+                    try {
+                        const jsonData = JSON.parse(script.textContent);
+                        
+                        // Buscar contentUrl, embedUrl, url en VideoObject
+                        const findVideos = (obj) => {
+                            if (!obj || typeof obj !== 'object') return;
+                            
+                            // Si es un VideoObject o tiene contentUrl
+                            if (obj['@type'] === 'VideoObject' || obj.contentUrl || obj.embedUrl) {
+                                const videoUrl = obj.contentUrl || obj.embedUrl || obj.url;
+                                if (videoUrl && typeof videoUrl === 'string' && videoUrl.includes('.mp4')) {
+                                    const normalizedUrl = normalizeVideoUrl(videoUrl);
+                                    if (!seen.has(normalizedUrl)) {
+                                        seen.add(normalizedUrl);
+                                        const filename = videoUrl.split('/').pop().split('?')[0];
+                                        videos.push({
+                                            type: 'MP4-JSON-LD',
+                                            id: filename,
+                                            embedUrl: videoUrl,
+                                            isDirect: true
+                                        });
+                                    }
+                                }
+                            }
+                            
+                            // Buscar recursivamente
+                            Object.values(obj).forEach(val => {
+                                if (typeof val === 'object') findVideos(val);
+                            });
+                        };
+                        
+                        findVideos(jsonData);
+                    } catch (e) {
+                        // Error silencioso al parsear JSON-LD
+                    }
+                });
+
+                // Método 6: Buscar URLs .mp4 en el HTML sin comillas (JSON, JavaScript, etc.)
+                const mp4UrlRegex = /https?:\/\/[^\s"'<>]+\.mp4(?:\?[^\s"'<>&]*)?/gi;
+                while ((match = mp4UrlRegex.exec(html)) !== null) {
+                    let videoUrl = match[0];
+                    
+                    // VALIDACIONES: Saltar URLs inválidas
+                    // 1. Que no contenga entidades HTML (&quot;, &amp;, etc.)
+                    if (videoUrl.includes('&quot;') || videoUrl.includes('&amp;') || videoUrl.includes('&lt;') || videoUrl.includes('&gt;')) {
+                        continue;
+                    }
+                    
+                    // 2. Que termine correctamente en .mp4 o .mp4?params
+                    if (!videoUrl.match(/\.mp4(\?[a-zA-Z0-9_=&-]*)?$/)) {
+                        continue;
+                    }
+                    
+                    // Limpiar caracteres extra al final
+                    videoUrl = videoUrl.replace(/[,;}\]]+$/, '');
+                    
+                    const normalizedUrl = normalizeVideoUrl(videoUrl);
+                    if (!seen.has(normalizedUrl)) {
+                        seen.add(normalizedUrl);
+                        const filename = videoUrl.split('/').pop().split('?')[0];
+                        videos.push({
+                            type: 'MP4-JSON',
+                            id: filename,
+                            embedUrl: videoUrl,
+                            isDirect: true
+                        });
+                    }
+                }
+
+                // Si hay videos duplicados (mismo archivo base), quedarse solo con el primero
+                const uniqueVideos = [];
+                const seenFiles = new Set();
+                for (const video of videos) {
+                    const baseFile = video.embedUrl.split('?')[0].split('/').pop();
+                    if (!seenFiles.has(baseFile)) {
+                        seenFiles.add(baseFile);
+                        uniqueVideos.push(video);
+                    }
+                }
+                
+                return uniqueVideos;
             }
 
             detectBlueskyVideos(html, doc) {
@@ -4815,10 +5482,13 @@
                     exclude: '.ad, .advertisement, .publicidad, .banner'
                 };
 
-                // PRIMERO: Detectar videos y TWEETS ANTES de eliminar cualquier elemento
+                // PRIMERO: Detectar audios (Cadena SER) y videos y TWEETS ANTES de eliminar cualquier elemento
+                const cadenaSerAudios = domain === 'cadenaser.com' ? await this.detectCadenaSERAudios(html, doc) : [];
+                
+                const youtubeVideos = this.detectYouTubeVideos(html, doc);
                 const dailymotionVideos = this.detectDailymotionVideos(html);
                 const brightcoveVideos = this.detectBrightcoveVideos(html, doc);
-                const elPaisVideos = domain === 'elpais.com' ? this.detectElPaisVideos(html, doc) : [];
+                const elPaisVideos = (domain === 'elpais.com' || domain === 'cadenaser.com') ? this.detectElPaisVideos(html, doc) : [];
                 const antena3Videos = domain === 'antena3.com' ? this.detectAntena3Videos(html, doc) : [];
                 const twitterVideos = this.detectTwitterVideos(html, doc, domain);
                 
@@ -4836,14 +5506,14 @@
                     }
                 }
 
-                const videos = [...elPaisVideos, ...antena3Videos, ...dailymotionVideos, ...brightcoveVideos, ...blueskyVideos];
+                const videos = [...youtubeVideos, ...elPaisVideos, ...antena3Videos, ...dailymotionVideos, ...brightcoveVideos, ...twitterVideos, ...blueskyVideos];
 
                 // SEGUNDO: Extraer imágenes, autor Y CONTENIDO ADICIONAL ANTES de eliminar elementos
                 const images = this.extractImages(doc, config, url);
                 const authorImage = this.extractAuthorImage(doc, domain, url);
                 
                 // Extraer datos adicionales (resúmenes, standfirst, etc.) ANTES de eliminar elementos
-                const { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews } = this.extractAdditionalContent(doc, domain, url);
+                const { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews, cadenaSerIntro, cadenaSerEpisodiosHeader } = this.extractAdditionalContent(doc, domain, url);
 
                 // Extraer título y autor ANTES de eliminar elementos
                 const title = this.extractTextContent(doc, config.title);
@@ -4878,7 +5548,7 @@
                     cHeaderToRemove.remove();
                 }
 
-                const { text, publishDate, updateDate } = this.extractContent(doc, config, domain, url);
+                const { text, publishDate, updateDate, cadenaSerMainText } = this.extractContent(doc, config, domain, url);
                 const links = this.extractLinks(doc, domain);
 
                 // Extraer resumen del meta description si está disponible
@@ -4904,9 +5574,13 @@
                     subtitleLinkText: subtitleLinkText,
                     relatedLinks: relatedLinks || [],
                     timelineNews: timelineNews || [],
+                    cadenaSerIntro: cadenaSerIntro || '',
+                    cadenaSerEpisodiosHeader: cadenaSerEpisodiosHeader || '',
+                    cadenaSerMainText: cadenaSerMainText || '',
                     images: images.slice(0, 5),
                     links: links.slice(0, 10),
                     videos: videos,
+                    audios: cadenaSerAudios,
                     tweets: twitterVideos,
                     stats: {
                         wordCount: wordCount,
@@ -5020,10 +5694,29 @@
                 }
 
                 // -----------------------------------------------------------------
+                // CADENA SER
+                // Busca el autor en .inf-fir > div > div > a > h4
+                // -----------------------------------------------------------------
+                if (domain === 'cadenaser.com') {
+                    const authorH4 = doc.querySelector('.inf-fir > div > div > a > h4');
+                    if (authorH4 && authorH4.textContent.trim()) {
+                        return this.cleanText(authorH4.textContent);
+                    }
+                }
+
+                // -----------------------------------------------------------------
                 // PERIÓDICOS GENÉRICOS O NO CONFIGURADOS
                 // Usa el selector de la configuración general
                 // -----------------------------------------------------------------
                 const authorEl = doc.querySelector(config.author);
+                
+                // DEBUG para catalunyapress
+                if (domain === 'catalunyapress.es') {
+                    console.log('👤 CatalunyaPress - Selector de autor:', config.author);
+                    console.log('👤 CatalunyaPress - Elemento encontrado:', authorEl);
+                    console.log('👤 CatalunyaPress - Texto:', authorEl ? authorEl.textContent : 'NULL');
+                }
+                
                 return authorEl ? this.cleanText(authorEl.textContent) : 'Autor no disponible';
             }
 
@@ -5071,6 +5764,26 @@
                 // -----------------------------------------------------------------
                 if (domain === 'es.ara.cat') {
                     const authorImageEl = doc.querySelector('.opening-actions__authors-image img, .opening-actions__authors-image picture img');
+                    if (authorImageEl) {
+                        let src = authorImageEl.src || 
+                                  authorImageEl.getAttribute('src') ||
+                                  authorImageEl.getAttribute('data-src') || 
+                                  authorImageEl.getAttribute('data-lazy-src');
+                        if (src && !src.includes('data:image') && src.length > 10) {
+                            if (src.startsWith('/')) {
+                                src = new URL(url).origin + src;
+                            }
+                            return src;
+                        }
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // CADENA SER
+                // Extrae la foto del autor desde .inf-fir > div > img
+                // -----------------------------------------------------------------
+                if (domain === 'cadenaser.com') {
+                    const authorImageEl = doc.querySelector('.inf-fir > div > img');
                     if (authorImageEl) {
                         let src = authorImageEl.src || 
                                   authorImageEl.getAttribute('src') ||
@@ -5236,6 +5949,7 @@
                 let text = '';
                 let publishDate = '';
                 let updateDate = '';
+                let cadenaSerMainText = '';
 
                 // -----------------------------------------------------------------
                 // ELDIARIO.ES
@@ -5390,14 +6104,10 @@
                         try {
                             const jsonData = JSON.parse(script.textContent);
                             if (jsonData.datePublished && !publishDate) {
-                                console.log('🔍 ARA datePublished original:', jsonData.datePublished);
                                 publishDate = this.formatDateFromISO(jsonData.datePublished);
-                                console.log('✅ ARA publishDate formateada:', publishDate);
                             }
                             if (jsonData.dateModified && !updateDate) {
-                                console.log('🔍 ARA dateModified original:', jsonData.dateModified);
                                 updateDate = this.formatDateFromISO(jsonData.dateModified);
-                                console.log('✅ ARA updateDate formateada:', updateDate);
                             }
                         } catch (e) {
                             // Ignorar errores de parsing
@@ -5410,9 +6120,7 @@
                         if (metaPublish) {
                             const dateValue = metaPublish.getAttribute('content') || metaPublish.getAttribute('datetime');
                             if (dateValue) {
-                                console.log('🔍 ARA meta publishDate:', dateValue);
                                 publishDate = this.formatDateFromISO(dateValue);
-                                console.log('✅ ARA publishDate desde meta:', publishDate);
                             }
                         }
                     }
@@ -5422,11 +6130,56 @@
                         if (metaModified) {
                             const dateValue = metaModified.getAttribute('content') || metaModified.getAttribute('datetime');
                             if (dateValue) {
-                                console.log('🔍 ARA meta updateDate:', dateValue);
                                 updateDate = this.formatDateFromISO(dateValue);
-                                console.log('✅ ARA updateDate desde meta:', updateDate);
                             }
                         }
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // CADENA SER
+                // Extrae fechas desde meta tags y .c-opc p (fecha de actualización)
+                // Estructura: header.h-pri > div.menu > div.c-opc > p
+                // -----------------------------------------------------------------
+                if (domain === 'cadenaser.com') {
+                    // Intentar extraer fecha de publicación desde meta tags o selectores
+                    publishDate = this.extractDateFromMeta(doc, [
+                        "meta[property='article:published_time']",
+                        "meta[name='article:published_time']",
+                        ".cnt-byline .c-dat-art time .a_ti",
+                        "time[datetime]"
+                    ]);
+                    
+                    // Si la fecha de publicación viene en formato texto, formatearla
+                    if (publishDate && publishDate.includes('Actualizado')) {
+                        const formatted = this.formatCadenaSERDate(publishDate);
+                        if (formatted) {
+                            publishDate = formatted;
+                        }
+                    }
+
+                    // Fecha de actualización desde header.h-pri .c-opc p
+                    if (!updateDate) {
+                        const updateElement = doc.querySelector('header.h-pri .c-opc p');
+                        if (updateElement && updateElement.textContent) {
+                            const updateText = this.cleanText(updateElement.textContent);
+                            if (updateText) {
+                                // Formatear la fecha al formato DD-MM-AAAA HH:MM
+                                updateDate = this.formatCadenaSERDate(updateText);
+                                // Si no se pudo formatear, usar el texto original
+                                if (!updateDate) {
+                                    updateDate = updateText;
+                                }
+                            }
+                        }
+                    }
+
+                    // Fallback a meta tags para fecha de actualización
+                    if (!updateDate) {
+                        updateDate = this.extractDateFromMeta(doc, [
+                            "meta[property='article:modified_time']",
+                            "meta[name='article:modified_time']"
+                        ]);
                     }
                 }
 
@@ -5525,6 +6278,81 @@
                             '.ara-opening-info', 'h2.subtitle', '.subtitle'
                         ];
                         elementsToRemove.push(...araRemove);
+                    }
+
+                    // -----------------------------------------------------------------
+                    // CADENA SER - Extraer texto principal ANTES de eliminarlo
+                    // Este texto se mostrará después de los videos en la modal
+                    // Incluye: p, h2, h3, h4, ul, ol, blockquote, etc.
+                    // -----------------------------------------------------------------
+                    if (domain === 'cadenaser.com') {
+                        const cntTxtElement = contentEl.querySelector('.cnt-txt');
+                        if (cntTxtElement) {
+                            // Extraer TODOS los elementos del texto, no solo párrafos
+                            const textElements = cntTxtElement.querySelectorAll('p, h2, h3, h4, h5, h6, ul, ol, blockquote');
+                            const htmlParts = Array.from(textElements).map(el => {
+                                const tagName = el.tagName.toLowerCase();
+                                
+                                // Agregar estilos inline para los títulos
+                                let style = '';
+                                if (tagName === 'h2') {
+                                    style = ' style="font-size: 1.8em; font-weight: 700; margin: 20px 0 10px 0; color: #1a1a1a;"';
+                                } else if (tagName === 'h3') {
+                                    style = ' style="font-size: 1.5em !important; font-weight: 700 !important; margin: 18px 0 10px 0 !important; color: #1a1a1a !important; line-height: 1.3 !important;"';
+                                } else if (tagName === 'h4') {
+                                    style = ' style="font-size: 1.3em; font-weight: 700; margin: 16px 0 10px 0; color: #1a1a1a;"';
+                                } else if (tagName === 'h5') {
+                                    style = ' style="font-size: 1.15em; font-weight: 700; margin: 14px 0 8px 0; color: #1a1a1a;"';
+                                } else if (tagName === 'h6') {
+                                    style = ' style="font-size: 1.05em; font-weight: 700; margin: 12px 0 8px 0; color: #1a1a1a;"';
+                                }
+                                
+                                // Procesar enlaces para que abran en la misma modal
+                                let htmlContent = el.innerHTML;
+                                htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([\s\S]*?)<\/a>/gi,
+                                    (match, beforeHref, url, afterHref, linkContent) => {
+                                        // Si es enlace externo o a redes sociales, dejarlo como está
+                                        if (url.includes('twitter.com') || url.includes('x.com') || 
+                                            url.includes('youtube.com') || url.includes('facebook.com') ||
+                                            url.includes('instagram.com') || url.startsWith('mailto:') || 
+                                            url.startsWith('tel:')) {
+                                            return match; // Mantener enlace original
+                                        }
+                                        
+                                        // Para enlaces internos, abrir en modal
+                                        const tempDiv = document.createElement('div');
+                                        tempDiv.innerHTML = linkContent;
+                                        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+                                        const safeText = plainText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeText}')">${linkContent}</a>`;
+                                    });
+                                
+                                // Preservar el HTML interno completo (incluyendo <b>, <strong>, <em>, etc.)
+                                return `<${tagName}${style}>${htmlContent}</${tagName}>`;
+                            });
+                            cadenaSerMainText = htmlParts.join('');
+                        }
+                    }
+                    
+                    // -----------------------------------------------------------------
+                    // CADENA SER - Elementos específicos a eliminar
+                    // Incluye: título (ya mostrado), texto intro (ya mostrado arriba), sidebar, podcasts relacionados
+                    // -----------------------------------------------------------------
+                    if (domain === 'cadenaser.com') {
+                        const cadenaSERRemove = [
+                            'h1',
+                            '.cnt-txt',
+                            '.c-d',
+                            'aside.upds',
+                            '.lst-pod',
+                            '.cnt-player-permanente',
+                            '.pp-popup',
+                            '.c-sab',
+                            '.pdc',
+                            '.rec',
+                            '.pd-re'
+                        ];
+                        elementsToRemove.push(...cadenaSERRemove);
                     }
 
                     // Aplicar eliminaciones
@@ -5630,6 +6458,11 @@
                     // ANTENA 3 - Selectores específicos
                     if (domain === 'antena3.com') {
                         contentSelector = 'p, h2.title-h2, h2, h3, h4, h5, blockquote, ul, ol';
+                    }
+
+                    // CADENA SER - Selectores específicos
+                    if (domain === 'cadenaser.com') {
+                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure';
                     }
 
                     const contentElements = contentEl.querySelectorAll(contentSelector);
@@ -5880,7 +6713,7 @@
                     }
                 }
 
-                return { text, publishDate, updateDate };
+                return { text, publishDate, updateDate, cadenaSerMainText };
             }
 
             extractDateFromMeta(doc, selectors) {
@@ -5904,6 +6737,15 @@
                 const domain = new URL(url).hostname.replace('www.', '');
                 const imageElements = doc.querySelectorAll(config.images);
 
+                // DEBUG para catalunyapress
+                if (domain === 'catalunyapress.es') {
+                    console.log('🖼️ CatalunyaPress - Selector de imágenes:', config.images);
+                    console.log('🖼️ CatalunyaPress - Imágenes encontradas:', imageElements.length);
+                    imageElements.forEach((img, idx) => {
+                        console.log(`   Imagen ${idx+1}:`, img.src || img.getAttribute('data-src') || 'NO SRC');
+                    });
+                }
+
                 imageElements.forEach((img, index) => {
                     let src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
 
@@ -5924,6 +6766,41 @@
                             if (firstUrl && firstUrl.length > 10) {
                                 src = firstUrl;
                             }
+                        }
+                    }
+
+                    // -----------------------------------------------------------------
+                    // CADENA SER - Excluir imágenes no deseadas
+                    // -----------------------------------------------------------------
+                    if (domain === 'cadenaser.com') {
+                        // Excluir imágenes dentro de .cnt-txt
+                        if (img.closest('.cnt-txt')) {
+                            return; // Saltar imágenes dentro de .cnt-txt
+                        }
+                        
+                        // Excluir imágenes dentro de aside.upds (lista de podcasts relacionados)
+                        if (img.closest('aside.upds')) {
+                            return; // Saltar imágenes de podcasts relacionados
+                        }
+                        
+                        // Excluir imágenes dentro de .lst-pod (lista de podcasts)
+                        if (img.closest('.lst-pod')) {
+                            return; // Saltar imágenes de lista de podcasts
+                        }
+                        
+                        // Excluir imágenes dentro de .c-d (columna derecha con contenido relacionado)
+                        if (img.closest('.c-d')) {
+                            return; // Saltar imágenes de contenido relacionado
+                        }
+                        
+                        // Excluir imágenes del reproductor permanente
+                        if (img.closest('.cnt-player-permanente') || img.closest('.pp-popup')) {
+                            return; // Saltar imágenes del reproductor permanente
+                        }
+                        
+                        // Excluir imágenes del sidebar y recomendaciones
+                        if (img.closest('.c-sab') || img.closest('.pdc') || img.closest('.rec') || img.closest('.pd-re')) {
+                            return; // Saltar imágenes de sidebar y recomendaciones
                         }
                     }
 
@@ -6034,6 +6911,19 @@
                             // Eliminar sufijos de tamaño en URLs de eldiario
                             src = src.replace(/_(small|medium|large|thumb)\.(jpg|jpeg|png|webp)/gi, '.$2');
                             src = src.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                        }
+
+                        // -----------------------------------------------------------------
+                        // CATALUNYAPRESS - Optimizar calidad de imagen
+                        // Elimina parámetro zc (zoom/crop) para obtener imagen original
+                        // -----------------------------------------------------------------
+                        if (domain === 'catalunyapress.es') {
+                            if (src.includes('?')) {
+                                const urlObj = new URL(src);
+                                // Eliminar parámetro zc (zoom/crop)
+                                urlObj.searchParams.delete('zc');
+                                src = urlObj.toString();
+                            }
                         }
 
                         let caption = img.getAttribute('title') || '';
@@ -6160,6 +7050,50 @@
                             }
                         }
 
+                        // -----------------------------------------------------------------
+                        // CADENA SER - Extracción de pie de foto
+                        // Busca figcaption dentro de .lead-art > .lb.d-none > div > figure
+                        // -----------------------------------------------------------------
+                        if (domain === 'cadenaser.com') {
+                            let container = img.parentElement;
+                            let attempts = 0;
+
+                            // Subir hasta 5 niveles buscando el contenedor figure
+                            while (container && attempts < 5) {
+                                if (container.tagName && container.tagName.toLowerCase() === 'figure') {
+                                    const figcaption = container.querySelector('figcaption');
+                                    if (figcaption) {
+                                        caption = this.cleanText(figcaption.textContent);
+                                    }
+                                    break;
+                                }
+                                container = container.parentElement;
+                                attempts++;
+                            }
+                        }
+
+                        // -----------------------------------------------------------------
+                        // CATALUNYAPRESS - Extracción de pie de foto
+                        // Busca figcaption dentro de figure.image
+                        // -----------------------------------------------------------------
+                        if (domain === 'catalunyapress.es') {
+                            let container = img.parentElement;
+                            let attempts = 0;
+
+                            // Subir hasta 5 niveles buscando el contenedor figure
+                            while (container && attempts < 5) {
+                                if (container.tagName && container.tagName.toLowerCase() === 'figure') {
+                                    const figcaption = container.querySelector('figcaption');
+                                    if (figcaption) {
+                                        caption = this.cleanText(figcaption.textContent);
+                                    }
+                                    break;
+                                }
+                                container = container.parentElement;
+                                attempts++;
+                            }
+                        }
+
                         images.push({
                             src: src,
                             alt: img.alt || '',
@@ -6227,6 +7161,14 @@
                                 });
                             }
                         }
+                    });
+                }
+
+                // DEBUG para catalunyapress
+                if (domain === 'catalunyapress.es') {
+                    console.log('📸 CatalunyaPress - Imágenes finales retornadas:', images.length);
+                    images.forEach((img, idx) => {
+                        console.log(`   Final ${idx+1}: ${img.src.substring(0, 80)}...`);
                     });
                 }
 
@@ -6468,7 +7410,49 @@
                     });
                 }
 
-                return { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews };
+                // -----------------------------------------------------------------
+                // CADENA SER
+                // Extrae texto descriptivo desde main.epi-pod .cnt-data-art .c-i .cnt-txt p
+                // Este texto se mostrará debajo del título (NO es resumen)
+                // -----------------------------------------------------------------
+                let cadenaSerIntro = '';
+                let cadenaSerEpisodiosHeader = '';
+                
+                if (domain === 'cadenaser.com') {
+                    // Extraer resumen desde main > article > header.art-header > h2
+                    const summaryElement = doc.querySelector('main > article > header.art-header > h2');
+                    if (summaryElement) {
+                        footerSummary = this.cleanText(summaryElement.textContent);
+                    }
+                    
+                    // Extraer texto introductorio de .cnt-txt
+                    const cntTxtElement = doc.querySelector('main.epi-pod .cnt-data-art .c-i .cnt-txt');
+                    
+                    if (cntTxtElement) {
+                        // Obtener todos los <p> dentro del contenedor
+                        const allParagraphs = cntTxtElement.querySelectorAll('p');
+                        
+                        if (allParagraphs.length > 0) {
+                            // Concatenar todos los párrafos que tengan texto
+                            const paragraphTexts = Array.from(allParagraphs)
+                                .map(p => this.cleanText(p.textContent))
+                                .filter(text => text.length > 0);
+                            
+                            cadenaSerIntro = paragraphTexts.join('\n\n');
+                        } else {
+                            // Si no hay <p>, tomar todo el texto del contenedor
+                            cadenaSerIntro = this.cleanText(cntTxtElement.textContent);
+                        }
+                    }
+                    
+                    // Extraer encabezado de "Episodios anteriores" (o similar)
+                    const episodiosHeaderElement = doc.querySelector('main.epi-pod .lst-epi.cnt-pdc-epds h3');
+                    if (episodiosHeaderElement) {
+                        cadenaSerEpisodiosHeader = this.cleanText(episodiosHeaderElement.textContent);
+                    }
+                }
+
+                return { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews, cadenaSerIntro, cadenaSerEpisodiosHeader };
             }
 
             getCurrentFormattedDate(hoursOffset = 0) {
@@ -6521,6 +7505,32 @@
                 
                 const [, year, month, day, hours, minutes] = match;
                 return `${day}-${month}-${year} ${hours}:${minutes}`;
+            }
+
+            formatCadenaSERDate(dateString) {
+                if (!dateString) return '';
+                // Formato entrada: "08 oct 2025 Actualizado 05:13"
+                // Formato salida: "08-10-2025 05:13"
+                
+                const monthMap = {
+                    'ene': '01', 'feb': '02', 'mar': '03', 'abr': '04',
+                    'may': '05', 'jun': '06', 'jul': '07', 'ago': '08',
+                    'sep': '09', 'oct': '10', 'nov': '11', 'dic': '12'
+                };
+                
+                // Pattern: DD mes AAAA Actualizado HH:MM
+                const match = dateString.match(/(\d{1,2})\s+([a-zñ]+)\s+(\d{4})\s+Actualizado\s+(\d{1,2}):(\d{2})/i);
+                if (!match) return '';
+                
+                const [, day, monthName, year, hours, minutes] = match;
+                const month = monthMap[monthName.toLowerCase()];
+                
+                if (!month) return '';
+                
+                const dayPadded = day.padStart(2, '0');
+                const hoursPadded = hours.padStart(2, '0');
+                
+                return `${dayPadded}-${month}-${year} ${hoursPadded}:${minutes}`;
             }
 
             displayModalContent(content) {
@@ -6576,8 +7586,14 @@
                 // Sección de resumen - priorizar según periódico
                 let summaryText = '';
 
+                // Para Cadena SER usar el footerSummary (h2 del header)
+                if (domain === 'cadenaser.com') {
+                    if (content.footerSummary && content.footerSummary.trim().length > 10) {
+                        summaryText = content.footerSummary;
+                    }
+                }
                 // Para es.ara.cat usar el footerSummary (h2.subtitle)
-                if (domain === 'es.ara.cat') {
+                else if (domain === 'es.ara.cat') {
                     if (content.footerSummary && content.footerSummary.trim().length > 10) {
                         summaryText = content.footerSummary;
                     }
@@ -6630,7 +7646,7 @@
                     html += '</div>';
                 }
 
-                // Videos (Dailymotion, Brightcove, El País MP4, Bluesky, etc.)
+                // Videos (Dailymotion, Brightcove, El País MP4, Bluesky, YouTube, etc.)
                 if (content.videos && content.videos.length > 0) {
                     // Si hay múltiples videos, añadir título de sección
                     if (content.videos.length > 1) {
@@ -6675,8 +7691,33 @@
                     });
                 }
 
-                // Imagen - NO mostrar para eldiario.es porque las imágenes ya están integradas en el contenido del texto
-                if (domain !== 'eldiario.es' && content.images && content.images.length > 0) {
+                // Imagen principal para Cadena SER - mostrar DESPUÉS de los videos (o después del resumen si no hay videos)
+                if (domain === 'cadenaser.com' && content.images && content.images.length > 0) {
+                    const firstImage = content.images[0];
+                    html += `<img src="${firstImage.src}" alt="${firstImage.alt}" class="modal-image" onerror="this.style.display='none'">`;
+
+                    // Mostrar pie de foto
+                    if (firstImage.caption || firstImage.captionAuthor || firstImage.alt) {
+                        let captionHTML = '';
+                        if (firstImage.caption && firstImage.captionAuthor) {
+                            captionHTML = `${firstImage.caption} <span style="font-style: normal; font-weight: 600;">${firstImage.captionAuthor}</span>`;
+                        } else if (firstImage.caption) {
+                            captionHTML = firstImage.caption;
+                        } else {
+                            captionHTML = firstImage.alt;
+                        }
+
+                        html += `<div class="modal-image-caption">${captionHTML}</div>`;
+                    }
+                }
+
+                // Texto principal para Cadena SER - mostrar DESPUÉS de los videos
+                if (domain === 'cadenaser.com' && content.cadenaSerMainText) {
+                    html += `<div class="modal-text" style="margin-top: 24px; margin-bottom: 24px;">${content.cadenaSerMainText}</div>`;
+                }
+
+                // Imagen - NO mostrar para eldiario.es ni cadenaser.com porque tienen lógica especial
+                if (domain !== 'eldiario.es' && domain !== 'cadenaser.com' && content.images && content.images.length > 0) {
                     const firstImage = content.images[0];
                     html += `<img src="${firstImage.src}" alt="${firstImage.alt}" class="modal-image" onerror="this.style.display='none'">`;
 
@@ -6697,12 +7738,59 @@
                     }
                 }
 
-                // Contenido principal
-                if (content.text) {
+                // Contenido principal (TEXTO PRIMERO) - NO mostrar para Cadena SER
+                if (content.text && domain !== 'cadenaser.com') {
                     // Mantener los enlaces originales del contenido del texto
                     html += `<div class="modal-text">${content.text}</div>`;
-                } else {
-                    html += '<p>No se pudo extraer el contenido completo del artículo.</p>';
+                }
+
+                // Audios (Cadena SER) - mostrar DESPUÉS del texto como solicitó el usuario
+                if (content.audios && content.audios.length > 0) {
+                    html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
+                    
+                    // Mostrar TODOS los audios encontrados
+                    content.audios.forEach((audio, index) => {
+                        // Después del primer audio, mostrar el header "Episodios anteriores" (si existe)
+                        if (index === 1 && domain === 'cadenaser.com' && content.cadenaSerEpisodiosHeader) {
+                            html += `<h3 style="font-size: 1.4em; color: #1a1a1a; margin: 30px 0 20px 0; font-weight: 700; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0;">
+                                ${content.cadenaSerEpisodiosHeader}
+                            </h3>`;
+                        }
+                        
+                        html += `<div class="modal-audio-player" style="margin-bottom: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">`;
+                        
+                        // Título del audio (si existe)
+                        if (audio.title) {
+                            html += `<h3 style="font-size: 1.3em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
+                                ${audio.title}
+                            </h3>`;
+                        }
+                        
+                        // Para el PRIMER audio, mostrar el texto introductorio de Cadena SER
+                        if (index === 0 && domain === 'cadenaser.com' && content.cadenaSerIntro) {
+                            html += `<p style="font-size: 0.95em; color: #555; line-height: 1.6; margin: 0 0 16px 0;">
+                                ${content.cadenaSerIntro}
+                            </p>`;
+                        }
+                        // Para el resto de audios, mostrar la descripción si existe
+                        else if (audio.description) {
+                            html += `<p style="font-size: 0.95em; color: #555; line-height: 1.6; margin: 0 0 16px 0;">
+                                ${audio.description}
+                            </p>`;
+                        }
+                        
+                        // Reproductor de audio (sin enlace de descarga)
+                        html += `
+                            <audio controls preload="metadata" style="width: 100%; max-width: 100%; outline: none; margin-top: 12px;">
+                                <source src="${audio.src}" type="audio/mpeg">
+                                <source src="${audio.src}" type="audio/mp4">
+                                <source src="${audio.src}" type="audio/ogg">
+                                Tu navegador no soporta la reproducción de audio.
+                            </audio>
+                        </div>`;
+                    });
+                    
+                    html += '</div>';
                 }
 
                 html += '</div>';
@@ -6894,7 +7982,6 @@
             }
 
             initializeInstagramEmbeds() {
-                console.log('📷 Inicializando embeds de Instagram...');
                 
                 // Eliminar scripts anteriores de Instagram para recargar
                 const oldScripts = document.querySelectorAll('script[src*="instagram.com/embed"]');
@@ -6905,11 +7992,9 @@
                 script.async = true;
                 script.src = 'https://www.instagram.com/embed.js';
                 script.onload = () => {
-                    console.log('✅ Script de Instagram cargado');
                     if (typeof window.instgrm !== 'undefined') {
                         // Procesar todos los embeds de Instagram
                         window.instgrm.Embeds.process();
-                        console.log('✅ Embeds de Instagram procesados');
                         
                         // Ajustar estilos después de un delay
                         setTimeout(() => {
@@ -7046,6 +8131,8 @@ PERIÓDICOS CONFIGURADOS (NO TOCAR !!)
 4. Antena 3 (antena3.com)
 5. El Mundo (elmundo.es)
 6. ARA (es.ara.cat)
+7. Cadena SER (cadenaser.com)
+8. CatalunyaPress (catalunyapress.es) (pendiente)
 
 
 OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido propio.
@@ -7076,10 +8163,12 @@ de cada periódico para facilitar las modificaciones futuras:
 4. EXTRACCIÓN DE CONTENIDO Y FECHAS (línea 3812)
    - Función: extractContent()
    - Fechas de publicación/actualización
-   - Lógica específica para: eldiario.es, elpais.com, abc.es, antena3.com, elmundo.es, es.ara.cat
+   - Lógica específica para: eldiario.es, elpais.com, abc.es, antena3.com, elmundo.es, es.ara.cat, cadenaser.com
    - elmundo.es: extrae desde .ue-c-article__bar-footer > .ue-c-article__publishdate > time > span
    - es.ara.cat: extrae desde JSON-LD (datePublished, dateModified) con formatDateFromISO() para mantener zona horaria, fallback a meta tags
+   - cadenaser.com: extrae fecha actualizada desde header.h-pri > div.menu > div.c-opc > p y la formatea con formatCadenaSERDate()
    - formatDateFromISO(): parsea fechas ISO 8601 sin conversión de zona horaria
+   - formatCadenaSERDate(): convierte formato "08 oct 2025 Actualizado 05:13" a "08-10-2025 05:13"
    - Eliminación de elementos específicos por periódico
    - Selectores de contenido específicos
 
@@ -7113,6 +8202,83 @@ de cada periódico para facilitar las modificaciones futuras:
    - Funciona para todos los periódicos (elmundo.es, etc.)
    - Lee respuestas como arrayBuffer y detecta charset declarado en HTML
    - Intenta UTF-8 primero, luego Windows-1252/ISO-8859-1 si es necesario
+
+9. FILTRO DE CONSOLA ROBUSTO (líneas 1957-2088)
+   - Filtro agresivo y persistente de mensajes en consola de depuración
+   - Suprime mensajes de: [NPAW, NPAW, youbora, gtag, analytics, PMUser, tritonnnn, gsi_logger, hls.js.map,
+     flv.js.map, certification tool, video analytics, ads analytics, mat v, C  O  R  E, lib loaded, rms_, fedcm, adapter, onFullConsent, DEMO
+   - Usa Object.defineProperty con configurable: false para evitar sobrescrituras
+   - Guarda referencias originales con .bind(console) de forma inmutable
+   - setInterval cada 100ms para re-aplicar el filtro si scripts externos lo sobrescriben
+   - Convierte primer argumento a string de forma robusta (string, object, otros)
+   - Sobrescribe console.log, console.warn, console.error, console.info y console.debug
+   - Previene contaminación de la consola con logs de scripts externos (NPAW/Youbora) de forma persistente
+
+10. MANEJO DE CLICKS EN NOTICIAS (líneas 3007-3062)
+   - handleNewsClick() - maneja clicks y toques en las noticias
+   - CTRL + clic (o CMD + clic en Mac): Abre la noticia SIEMPRE en nueva pestaña del navegador
+     · Ignora completamente el estado del switch "Ventana emergente"
+     · Detecta con e.ctrlKey || e.metaKey
+     · Usa window.open(url, '_blank') para apertura directa
+   - Clic normal: Comportamiento según switch de "Ventana emergente" (modal o nueva pestaña)
+   - Prevención de duplicados: mismo elemento en menos de 500ms
+   - Protección contra procesamiento simultáneo con flag isProcessing
+
+11. EXTRACCIÓN Y VISUALIZACIÓN DE AUDIOS (Cadena SER)
+   - siteConfigs['cadenaser.com'] (líneas 2585-2649):
+     · Selectores de título: 'main.epi-pod .cnt-data-art .c-i h1' (prioritario)
+     · Selectores de contenido: 'main.epi-pod .cnt-data-art .c-i' (prioritario)
+     · Selectores de autor: '.cnt-byline .c-dat-art .emi' y variantes
+   - extractContent() - Limpieza específica para Cadena SER (líneas 5825-5844):
+     · Elimina h1 (ya mostrado en título)
+     · Elimina .cnt-txt (texto intro ya se muestra por separado)
+     · Elimina sidebar (.c-d, aside.upds, .lst-pod)
+     · Elimina reproductor permanente (.cnt-player-permanente, .pp-popup)
+     · Elimina recomendaciones (.c-sab, .pdc, .rec, .pd-re)
+     · Selectores de contenido: 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure' (líneas 5951-5954)
+   - detectCadenaSERAudios() (líneas 4270-4439): EXTRACCIÓN COMPLETA DE AUDIOS
+     · MÉTODO 1: Busca elementos <audio> con atributos src y elementos <source>
+       - Extrae título del contenedor padre: h1-h6, figcaption, .title, .audio-title
+       - Extrae descripción: p, .description, .audio-description, .cnt-txt p
+     · MÉTODO 2: Regex para buscar URLs en HTML
+       - Formatos: .mp3, .m4a, .ogg, .wav, .aac, .flac
+       - Patrón: /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi
+       - Busca título en: main.epi-pod .cnt-data-art .c-i h1
+       - Busca descripción en: main.epi-pod .cnt-data-art .c-i .cnt-txt p
+     · MÉTODO 3: Enlaces a /audio/ (específico Cadena SER)
+       - Encuentra título en contenedor padre o texto del enlace
+       - Busca descripción en texto antes del enlace o contenedor padre
+       - Convierte URLs relativas a absolutas
+     · Previene duplicados por nombre de archivo usando Set
+     · Retorna array de objetos {type, src, title, description, position, source}
+     · Basado en el formato del Scraper Web.html para máxima cobertura
+   - extractAdditionalContent() (líneas 6760-6773): Extrae texto introductorio para cadenaser.com
+     · Selector: main.epi-pod .cnt-data-art .c-i .cnt-txt p
+     · Se guarda en cadenaSerIntro (NO en footerSummary)
+     · Se muestra debajo del título, NO en el resumen
+   - extractImages() (líneas 6220-6253): Excluye múltiples contenedores de imágenes para cadenaser.com
+     · Excluye imágenes dentro de .cnt-txt (texto descriptivo)
+     · Excluye imágenes dentro de aside.upds (podcasts relacionados)
+     · Excluye imágenes dentro de .lst-pod (lista de podcasts)
+     · Excluye imágenes dentro de .c-d (columna derecha con contenido relacionado)
+     · Excluye imágenes dentro de .cnt-player-permanente y .pp-popup (reproductor permanente)
+     · Excluye imágenes dentro de .c-sab, .pdc, .rec, .pd-re (sidebar y recomendaciones)
+     · Usa img.closest() para detectar y excluir cada contenedor
+   - extractArticleContent() (línea 5066): Llama a detectCadenaSERAudios(html, doc) solo para cadenaser.com
+   - displayModalContent():
+     · (líneas 7056-7095) Sección de información (periódico, autor, fechas)
+     · (líneas 7100-7102) NO muestra resumen para cadenaser.com
+     · (líneas 7223-7227) NO muestra texto principal (content.text) para cadenaser.com
+     · (líneas 7229-7269) Muestra los audios
+       · Orden Cadena SER: Título → Info → Audios (con cadenaSerIntro en el primer audio)
+       · Orden otros: Título → Info → Resumen → Texto principal → Audios
+       · Cada audio muestra:
+         1. Título del audio (h3, si existe)
+         2. PRIMER audio: cadenaSerIntro debajo del título (líneas 7245-7248)
+         3. Resto de audios: descripción propia (si existe)
+         4. Reproductor de audio nativo con controls (sin enlace de descarga)
+       · Contenedor con gradiente de fondo y borde
+       · Múltiples formatos: audio/mpeg, audio/mp4, audio/ogg
 
 CÓMO AGREGAR UN NUEVO PERIÓDICO:
 =================================
