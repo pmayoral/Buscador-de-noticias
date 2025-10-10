@@ -655,17 +655,19 @@
         }
 
         .modal-text h2, .modal-text h3 {
-            color: #1a202c;
-            margin: 25px 0 15px;
-            font-weight: 600;
+            color: #1a202c !important;
+            margin: 25px 0 15px !important;
+            font-weight: 600 !important;
         }
 
         .modal-text h2 {
-            font-size: 1.3em;
+            font-size: 1.3em !important;
+            line-height: 1.3 !important;
         }
 
         .modal-text h3 {
-            font-size: 1.15em;
+            font-size: 1.65em !important;
+            line-height: 1.3 !important;
         }
 
         .modal-text h2.article-text {
@@ -674,6 +676,88 @@
             color: #1a202c !important;
             margin: 30px 0 20px 0 !important;
             line-height: 1.3 !important;
+        }
+
+        /* Estilos para noticias secundarias de COPE.ES */
+        .modal-text .c-detail__box {
+            display: flex !important;
+            gap: 24px !important;
+            margin: 30px 0 !important;
+            padding: 24px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 12px !important;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+            align-items: flex-start !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .modal-text .c-detail__box > div:first-child {
+            flex: 1 1 60% !important;
+            min-width: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+        }
+
+        .modal-text .c-detail__box picture,
+        .modal-text .c-detail__box figure {
+            flex: 0 0 38% !important;
+            max-width: 38% !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: flex-start !important;
+        }
+
+        .modal-text .c-detail__box img {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 200px !important;
+            border-radius: 8px !important;
+            object-fit: cover !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .modal-text .c-detail__box h4,
+        .modal-text .c-detail__box .c-detail__box__title {
+            font-size: 1.15em !important;
+            font-weight: 700 !important;
+            margin: 0 0 12px 0 !important;
+            color: #1a202c !important;
+            line-height: 1.4 !important;
+        }
+
+        .modal-text .c-detail__box p {
+            font-size: 0.95em !important;
+            line-height: 1.6 !important;
+            color: #4b5563 !important;
+            margin: 0 !important;
+        }
+
+        .modal-text .c-detail__box a {
+            color: #2563eb !important;
+            text-decoration: none !important;
+        }
+
+        .modal-text .c-detail__box a:hover {
+            text-decoration: underline !important;
+        }
+
+        @media (max-width: 768px) {
+            .modal-text .c-detail__box {
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+
+            .modal-text .c-detail__box > div:first-child,
+            .modal-text .c-detail__box picture,
+            .modal-text .c-detail__box figure {
+                flex: none !important;
+                max-width: 100% !important;
+            }
+
+            .modal-text .c-detail__box img {
+                max-height: 250px !important;
+            }
         }
 
         .modal-links {
@@ -2471,6 +2555,8 @@
                     'eldiario.es': 'eldiario.es',
                     'lasexta': 'lasexta.com',
                     'antena3': 'antena3.com',
+                    'cadenaser': 'cadenaser.com',
+                    'cope': 'cope.es',
                     'rtve': 'rtve.es',
                     'europapress': 'europapress.es',
                     'efe': 'efe.com',
@@ -2508,6 +2594,7 @@
                     'laSexta': 'lasexta',
                     'Antena 3': 'antena3',
                     'Cadena SER': 'cadenaser',
+                    'Cope.es': 'cope',
                     'RTVE': 'rtve',
                     'Europa Press': 'europapress',
                     'EFE': 'efe',
@@ -2545,6 +2632,7 @@
                     'lasexta.com': 'laSexta',
                     'antena3.com': 'Antena 3',
                     'cadenaser.com': 'Cadena SER',
+                    'cope.es': 'Cope.es',
                     'rtve.es': 'RTVE',
                     'europapress.es': 'Europa Press',
                     'efe.com': 'EFE',
@@ -3001,6 +3089,87 @@
                             '.date'
                         ].join(', '),  // También se extraerá desde meta tags
                         exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .social-share, .opening-actions, .seo-links, .seo-links--top, .seo-links--bottom'
+                    },
+
+                    // -----------------------------------------------------------------
+                    // CATALUNYAPRESS
+                    // -----------------------------------------------------------------
+                    'catalunyapress.es': {
+                        title: 'h1, .title, #read_content h1',
+                        subtitle: '.article_subtitle, .title-subtitle-legend .article_subtitle',
+                        content: '#article_content, .article_content, article',
+                        author: '.author, .byline',
+                        images: [
+                            'article#read_content figure.image img',
+                            '#article_content figure.image img',
+                            '#article_content figure img',
+                            'figure.image img',
+                            '#article_content img',
+                            'article img',
+                            '.article_main img'
+                        ].join(', '),
+                        date: [
+                            '.article_date .CNewsDateUpdate',
+                            '.article_legend .article_date',
+                            '.CNewsDateUpdate',
+                            '.article_date',
+                            'time[datetime]'
+                        ].join(', '),
+                        exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .title-subtitle-legend, .article_subtitle'
+                    },
+
+                    // -----------------------------------------------------------------
+                    // COPE.ES
+                    // -----------------------------------------------------------------
+                    'cope.es': {
+                        title: [
+                            '.c-detail__title h1',
+                            '.c-detail h1',
+                            'h1',
+                            '.article-title'
+                        ].join(', '),
+                        subtitle: [
+                            '.c-detail-header > .c-detail__subtitle > h2',
+                            '.c-detail__subtitle > h2',
+                            '.c-detail__subtitle h2',
+                            '.c-detail__excerpt',
+                            '.c-detail__lead'
+                        ].join(', '),
+                        content: [
+                            '.c-detail-content',
+                            '.c-detail__body',
+                            'article .c-detail',
+                            '.article-content'
+                        ].join(', '),
+                        author: [
+                            '.c-detail__signature__author .c-detail__signature__name',
+                            '.c-detail__signature__name',
+                            '.c-detail__signature__author a',
+                            '.author',
+                            '.byline'
+                        ].join(', '),
+                        images: [
+                            'article.c-detail .c-detail__photo--full img',
+                            'article.c-detail .c-detail__photo__thumb img',
+                            'article.c-detail .c-player-detail-container picture img',
+                            'article.c-detail .c-player-detail-image__container img',
+                            'article.c-detail .c-detail__body figure img',
+                            'article.c-detail .c-detail-content img'
+                        ].join(', '),
+                        date: [
+                            '.c-detail__signature__info time',
+                            '.c-detail__signature time',
+                            'time[datetime]',
+                            '.date'
+                        ].join(', '),
+                        exclude: [
+                            '.ad', '.advertisement', '.publicidad', '.banner', 
+                            '.comments', '.social-share', '.related-articles',
+                            '.c-detail__ai',                    // IA generada
+                            '.c-detail__related',               // Artículos relacionados
+                            '.c-detail__tags',                  // Tags/etiquetas
+                            '.c-detail__body--border.c-detail__tags'  // Tags con borde
+                        ].join(', ')
                     }
                 };
 
@@ -4531,6 +4700,114 @@
                 return allAudios;
             }
 
+            async detectCopeAudios(html, doc) {
+                const allAudios = [];
+                const seenUrls = new Set();
+                let globalIndex = 0;
+                
+                // 1. Buscar elementos <audio> con atributos src y elementos <source>
+                const audioElements = Array.from(doc.querySelectorAll('audio'));
+                audioElements.forEach(audio => {
+                    const sources = audio.querySelectorAll('source');
+                    const srcAttr = audio.getAttribute('src');
+                    
+                    // Si tiene src directo
+                    if (srcAttr) {
+                        const fileName = srcAttr.split('/').pop().split('?')[0];
+                        if (!seenUrls.has(fileName)) {
+                            seenUrls.add(fileName);
+                            
+                            // Buscar título y descripción en el contenedor padre
+                            let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
+                            let description = '';
+                            
+                            const parent = audio.closest('figure, div, article, section, main');
+                            if (parent) {
+                                const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .c-detail__title, [class*="title"]');
+                                if (titleEl && !title) title = this.cleanText(titleEl.textContent);
+                                
+                                const descEl = parent.querySelector('p, .description, [class*="description"]');
+                                if (descEl) description = this.cleanText(descEl.textContent);
+                            }
+                            
+                            allAudios.push({
+                                type: 'audio',
+                                src: srcAttr,
+                                title: title || 'Audio sin título',
+                                description: description || '',
+                                position: ++globalIndex,
+                                source: 'audio-element'
+                            });
+                        }
+                    }
+                    
+                    // Si tiene elementos <source>
+                    sources.forEach(source => {
+                        const srcAttr = source.getAttribute('src');
+                        if (!srcAttr) return;
+                        
+                        const fileName = srcAttr.split('/').pop().split('?')[0];
+                        if (!seenUrls.has(fileName)) {
+                            seenUrls.add(fileName);
+                            
+                            let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
+                            let description = '';
+                            
+                            const parent = audio.closest('figure, div, article, section, main');
+                            if (parent) {
+                                const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .c-detail__title, [class*="title"]');
+                                if (titleEl && !title) title = this.cleanText(titleEl.textContent);
+                                
+                                const descEl = parent.querySelector('p, .description, [class*="description"]');
+                                if (descEl) description = this.cleanText(descEl.textContent);
+                            }
+                            
+                            allAudios.push({
+                                type: 'audio',
+                                src: srcAttr,
+                                title: title || 'Audio sin título',
+                                description: description || '',
+                                position: ++globalIndex,
+                                source: 'audio-source'
+                            });
+                        }
+                    });
+                });
+                
+                // 2. Buscar URLs de audio en el HTML usando expresiones regulares
+                const audioUrlRegex = /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi;
+                let match;
+                
+                while ((match = audioUrlRegex.exec(html)) !== null) {
+                    const audioUrl = match[1];
+                    const cleanUrl = audioUrl.split('"')[0];
+                    const fileName = cleanUrl.split('/').pop().split('?')[0];
+                    
+                    if (!seenUrls.has(fileName)) {
+                        seenUrls.add(fileName);
+                        
+                        // Intentar encontrar contexto para este audio
+                        let title = 'Audio de Cope.es';
+                        let description = '';
+                        
+                        // Buscar título en el artículo
+                        const mainTitle = doc.querySelector('.c-detail__title h1, .c-detail h1');
+                        if (mainTitle) title = this.cleanText(mainTitle.textContent);
+                        
+                        allAudios.push({
+                            type: 'audio',
+                            src: cleanUrl,
+                            title: title,
+                            description: description,
+                            position: ++globalIndex,
+                            source: 'html-regex'
+                        });
+                    }
+                }
+                
+                return allAudios;
+            }
+
             detectYouTubeVideos(html, doc) {
                 const videos = [];
                 const seen = new Set();
@@ -5131,6 +5408,12 @@
             }
 
             detectTwitterVideos(html, doc, domain) {
+                // Para cope.es, NO extraer tweets como elementos separados
+                // Los tweets se mostrarán inline en el texto
+                if (domain === 'cope.es') {
+                    return [];
+                }
+
                 const tweets = [];
                 const seen = new Set();
 
@@ -5482,8 +5765,9 @@
                     exclude: '.ad, .advertisement, .publicidad, .banner'
                 };
 
-                // PRIMERO: Detectar audios (Cadena SER) y videos y TWEETS ANTES de eliminar cualquier elemento
+                // PRIMERO: Detectar audios (Cadena SER y Cope.es) y videos y TWEETS ANTES de eliminar cualquier elemento
                 const cadenaSerAudios = domain === 'cadenaser.com' ? await this.detectCadenaSERAudios(html, doc) : [];
+                const copeAudios = domain === 'cope.es' ? await this.detectCopeAudios(html, doc) : [];
                 
                 const youtubeVideos = this.detectYouTubeVideos(html, doc);
                 const dailymotionVideos = this.detectDailymotionVideos(html);
@@ -5518,6 +5802,22 @@
                 // Extraer título y autor ANTES de eliminar elementos
                 const title = this.extractTextContent(doc, config.title);
                 const author = this.extractAuthor(doc, config, domain);
+                
+                // Extraer fechas de catalunyapress ANTES de eliminar .title-subtitle-legend
+                let catalunyaPressPublishDate = '';
+                let catalunyaPressUpdateDate = '';
+                if (domain === 'catalunyapress.es') {
+                    const dateElement = doc.querySelector('.article_legend .article_date .CNewsDateUpdate') ||
+                                       doc.querySelector('.article_date .CNewsDateUpdate') || 
+                                       doc.querySelector('.CNewsDateUpdate');
+                    console.log('📅 CatalunyaPress - Buscando fecha ANTES de eliminar elementos');
+                    console.log('📅 CatalunyaPress - Elemento encontrado:', dateElement);
+                    if (dateElement && dateElement.textContent) {
+                        catalunyaPressPublishDate = this.cleanText(dateElement.textContent);
+                        catalunyaPressUpdateDate = catalunyaPressPublishDate; // Usar la misma fecha
+                        console.log('📅 CatalunyaPress - Fecha extraída:', catalunyaPressPublishDate);
+                    }
+                }
 
                 // TERCERO: Ahora eliminar elementos excluidos (incluyendo contenedores de video)
                 if (config.exclude) {
@@ -5532,7 +5832,10 @@
                 }
 
                 // Eliminar elementos AMP de Twitter (El País y otros) después de extraer los datos
-                doc.querySelectorAll('amp-twitter, [data-tweetid], .a_em').forEach(el => el.remove());
+                // EXCEPCIÓN: NO eliminar para cope.es porque los tweets deben mostrarse inline
+                if (domain !== 'cope.es') {
+                    doc.querySelectorAll('amp-twitter, [data-tweetid], .a_em').forEach(el => el.remove());
+                }
 
                 // Eliminar elementos de noticias en directo (El Mundo y Antena 3) después de extraer los datos
                 if (domain === 'elmundo.es') {
@@ -5548,7 +5851,19 @@
                     cHeaderToRemove.remove();
                 }
 
-                const { text, publishDate, updateDate, cadenaSerMainText } = this.extractContent(doc, config, domain, url);
+                // Para cope.es, pasar la primera imagen para evitar duplicación
+                const firstImageSrc = (domain === 'cope.es' && images.length > 0) ? images[0].src : null;
+                let { text, publishDate, updateDate, cadenaSerMainText } = this.extractContent(doc, config, domain, url, firstImageSrc);
+                
+                // Para catalunyapress, usar las fechas extraídas ANTES de eliminar elementos
+                if (domain === 'catalunyapress.es' && catalunyaPressPublishDate) {
+                    publishDate = catalunyaPressPublishDate;
+                    updateDate = catalunyaPressUpdateDate;
+                    console.log('📅 CatalunyaPress - Usando fechas previamente extraídas');
+                    console.log('📅 CatalunyaPress - publishDate:', publishDate);
+                    console.log('📅 CatalunyaPress - updateDate:', updateDate);
+                }
+                
                 const links = this.extractLinks(doc, domain);
 
                 // Extraer resumen del meta description si está disponible
@@ -5580,7 +5895,7 @@
                     images: images.slice(0, 5),
                     links: links.slice(0, 10),
                     videos: videos,
-                    audios: cadenaSerAudios,
+                    audios: [...cadenaSerAudios, ...copeAudios],
                     tweets: twitterVideos,
                     stats: {
                         wordCount: wordCount,
@@ -5945,7 +6260,7 @@
             // =====================================================================
             // EXTRACCIÓN DE CONTENIDO Y FECHAS POR PERIÓDICO
             // =====================================================================
-            extractContent(doc, config, domain, url) {
+            extractContent(doc, config, domain, url, firstImageSrc = null) {
                 let text = '';
                 let publishDate = '';
                 let updateDate = '';
@@ -6183,6 +6498,57 @@
                     }
                 }
 
+                // -----------------------------------------------------------------
+                // COPE.ES
+                // Extrae fechas desde el elemento time dentro de .c-detail__signature__info
+                // Estructura: .c-detail__signature__info > span > time
+                // -----------------------------------------------------------------
+                if (domain === 'cope.es') {
+                    // Intentar extraer fecha desde el elemento time
+                    const timeElement = doc.querySelector('.c-detail__signature__info time');
+                    if (timeElement) {
+                        // Extraer el atributo datetime si existe
+                        const datetime = timeElement.getAttribute('datetime');
+                        if (datetime) {
+                            publishDate = this.formatDateFromISO(datetime);
+                        } else {
+                            // Si no hay datetime, usar el textContent
+                            const timeText = this.cleanText(timeElement.textContent);
+                            if (timeText) {
+                                publishDate = timeText;
+                            }
+                        }
+                    }
+
+                    // Fallback a meta tags
+                    if (!publishDate) {
+                        publishDate = this.extractDateFromMeta(doc, [
+                            "meta[property='article:published_time']",
+                            "meta[name='article:published_time']",
+                            "time[datetime]"
+                        ]);
+                    }
+
+                    // Fecha de actualización desde meta tags
+                    if (!updateDate) {
+                        updateDate = this.extractDateFromMeta(doc, [
+                            "meta[property='article:modified_time']",
+                            "meta[name='article:modified_time']"
+                        ]);
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // CATALUNYAPRESS
+                // Las fechas ya se extrajeron ANTES de eliminar elementos
+                // (ver líneas anteriores donde se extrae catalunyaPressPublishDate)
+                // -----------------------------------------------------------------
+                if (domain === 'catalunyapress.es') {
+                    console.log('📅 CatalunyaPress - Configurando fechas previamente extraídas');
+                    // Las fechas ya están disponibles en las variables locales
+                    // que se pasarán al return de esta función
+                }
+
                 // Para El País, buscar específicamente el contenedor a_c clearfix
                 let contentEl;
                 if (domain === 'elpais.com') {
@@ -6310,13 +6676,24 @@
                                 // Procesar enlaces para que abran en la misma modal
                                 let htmlContent = el.innerHTML;
                                 htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([\s\S]*?)<\/a>/gi,
-                                    (match, beforeHref, url, afterHref, linkContent) => {
+                                    (match, beforeHref, linkUrl, afterHref, linkContent) => {
                                         // Si es enlace externo o a redes sociales, dejarlo como está
-                                        if (url.includes('twitter.com') || url.includes('x.com') || 
-                                            url.includes('youtube.com') || url.includes('facebook.com') ||
-                                            url.includes('instagram.com') || url.startsWith('mailto:') || 
-                                            url.startsWith('tel:')) {
+                                        if (linkUrl.includes('twitter.com') || linkUrl.includes('x.com') || 
+                                            linkUrl.includes('youtube.com') || linkUrl.includes('facebook.com') ||
+                                            linkUrl.includes('instagram.com') || linkUrl.startsWith('mailto:') || 
+                                            linkUrl.startsWith('tel:')) {
                                             return match; // Mantener enlace original
+                                        }
+                                        
+                                        // Convertir URLs relativas a absolutas
+                                        let absoluteUrl = linkUrl;
+                                        if (linkUrl.startsWith('/')) {
+                                            const urlObj = new URL(url);
+                                            absoluteUrl = urlObj.origin + linkUrl;
+                                        } else if (!linkUrl.startsWith('http')) {
+                                            const urlObj = new URL(url);
+                                            const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+                                            absoluteUrl = urlObj.origin + basePath + linkUrl;
                                         }
                                         
                                         // Para enlaces internos, abrir en modal
@@ -6324,7 +6701,7 @@
                                         tempDiv.innerHTML = linkContent;
                                         const plainText = tempDiv.textContent || tempDiv.innerText || '';
                                         const safeText = plainText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeText}')">${linkContent}</a>`;
+                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${absoluteUrl}', '${safeText}')">${linkContent}</a>`;
                                     });
                                 
                                 // Preservar el HTML interno completo (incluyendo <b>, <strong>, <em>, etc.)
@@ -6363,13 +6740,16 @@
                     // PROCESAR KNOW-MORE ANTES de extraer párrafos individuales
                     let fullHTML = contentEl.innerHTML;
 
+                    // Capturar la URL del artículo para usarla en las conversiones
+                    const articleUrl = url;
+
                     // Convertir elementos know-more en formato de 2 columnas
                     fullHTML = fullHTML.replace(
                         /<aside\s+class="know-more know-more--with-image"[^>]*>[\s\S]*?<\/aside>/gi,
                         (match) => {
                             // Extraer URL
                             const urlMatch = match.match(/href\s*=\s*["']([^"']+)["']/i);
-                            const url = urlMatch ? urlMatch[1] : '';
+                            let knowMoreUrl = urlMatch ? urlMatch[1] : '';
 
                             // Extraer título
                             const titleMatch = match.match(/<p\s+class="know-more__title"[^>]*>([^<]+)<\/p>/i);
@@ -6379,13 +6759,23 @@
                             const pictureMatch = match.match(/<picture\s+class="know-more__img"[^>]*>([\s\S]*?)<\/picture>/i);
                             const pictureContent = pictureMatch ? pictureMatch[1] : '';
 
-                            if (!url || !title) {
+                            if (!knowMoreUrl || !title) {
                                 return match;
                             }
 
                             // Verificar que la URL sea válida
-                            if (url.length < 10 || (!url.startsWith('http') && !url.startsWith('/'))) {
+                            if (knowMoreUrl.length < 10 || (!knowMoreUrl.startsWith('http') && !knowMoreUrl.startsWith('/'))) {
                                 return match;
+                            }
+
+                            // Convertir URLs relativas a absolutas
+                            if (knowMoreUrl.startsWith('/')) {
+                                const urlObj = new URL(articleUrl);
+                                knowMoreUrl = urlObj.origin + knowMoreUrl;
+                            } else if (!knowMoreUrl.startsWith('http')) {
+                                const urlObj = new URL(articleUrl);
+                                const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+                                knowMoreUrl = urlObj.origin + basePath + knowMoreUrl;
                             }
 
                             // Extraer imagen - buscar data-src primero, luego src
@@ -6416,7 +6806,7 @@
                             return `
                                 <div class="know-more-container">
                                     <div class="know-more-text">
-                                        <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeTitle}')" class="know-more-title">${title}</a>
+                                        <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${knowMoreUrl}', '${safeTitle}')" class="know-more-title">${title}</a>
                                     </div>
                                     <div class="know-more-image">
                                         ${imgTag}
@@ -6465,11 +6855,45 @@
                         contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure';
                     }
 
+                    // COPE.ES - Guardar texto de figcaptions y luego eliminarlas
+                    const figcaptionMap = new Map();
+                    if (domain === 'cope.es') {
+                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure, .c-detail__box';
+                        
+                        // Eliminar elementos no deseados específicos de cope.es
+                        const copeExclude = [
+                            '.c-detail__ai',           // Contenido generado por IA
+                            '.c-detail__related',      // Artículos relacionados
+                            '.c-detail__tags',         // Tags
+                            '.c-detail__body--border.c-detail__tags'  // Tags con borde
+                        ];
+                        
+                        copeExclude.forEach(selector => {
+                            contentEl.querySelectorAll(selector).forEach(el => el.remove());
+                        });
+                        
+                        // Guardar el texto de cada figcaption asociado a su figura
+                        const figures = contentEl.querySelectorAll('figure');
+                        figures.forEach((figure, index) => {
+                            const figcaption = figure.querySelector('figcaption');
+                            if (figcaption) {
+                                figcaptionMap.set(figure, figcaption.textContent.trim());
+                                // Eliminar inmediatamente para evitar duplicación
+                                figcaption.remove();
+                            }
+                        });
+                    }
+
                     const contentElements = contentEl.querySelectorAll(contentSelector);
                     const textParts = [];
 
                     contentElements.forEach(el => {
                         const tagName = el.tagName.toLowerCase();
+
+                        // Excluir figcaption individuales (ya se procesan dentro de figure)
+                        if (tagName === 'figcaption') {
+                            return; // Saltar este elemento
+                        }
 
                         // Las figuras se procesan sin importar el texto
                         if (tagName === 'figure') {
@@ -6478,11 +6902,11 @@
                                 return; // Saltar esta figura (es la imagen del autor)
                             }
 
-                            // Procesar figuras con imágenes (El País y eldiario.es)
+                            // Procesar figuras con imágenes (El País, eldiario.es, cope.es)
                             let imgEl = el.querySelector('img, amp-img');
 
-                            // Si no hay img directamente, buscar en picture > source o picture > img
-                            if (!imgEl && domain === 'eldiario.es') {
+                            // Si no hay img directamente, buscar en picture > img
+                            if (!imgEl && (domain === 'eldiario.es' || domain === 'cope.es')) {
                                 const picture = el.querySelector('picture');
                                 if (picture) {
                                     imgEl = picture.querySelector('img');
@@ -6492,8 +6916,8 @@
                             if (imgEl) {
                                 let imgSrc = null;
 
-                                // Para eldiario.es, priorizar source srcset del picture
-                                if (domain === 'eldiario.es') {
+                                // Para eldiario.es y cope.es, priorizar source srcset del picture
+                                if (domain === 'eldiario.es' || domain === 'cope.es') {
                                     const picture = imgEl.closest('picture');
                                     if (picture) {
                                         const sources = picture.querySelectorAll('source');
@@ -6547,11 +6971,50 @@
                                         imgSrc = urlObj.toString();
                                     }
 
+                                    // Optimizar URL de cope.es para MÁXIMA CALIDAD (imagen original)
+                                    if (domain === 'cope.es') {
+                                        if (imgSrc.includes('?')) {
+                                            const urlObj = new URL(imgSrc);
+                                            // Eliminar TODOS los parámetros para obtener imagen original
+                                            urlObj.searchParams.delete('width');
+                                            urlObj.searchParams.delete('height');
+                                            urlObj.searchParams.delete('w');
+                                            urlObj.searchParams.delete('h');
+                                            urlObj.searchParams.delete('resize');
+                                            urlObj.searchParams.delete('quality');
+                                            urlObj.searchParams.delete('crop');
+                                            urlObj.searchParams.delete('fit');
+                                            urlObj.searchParams.delete('format');
+                                            urlObj.searchParams.delete('auto');
+                                            urlObj.searchParams.delete('cs');
+                                            urlObj.searchParams.delete('dpr');
+                                            // NO establecer ningún parámetro - imagen original sin modificar
+                                            imgSrc = urlObj.toString();
+                                        }
+                                        // Eliminar sufijos de tamaño en el nombre del archivo
+                                        imgSrc = imgSrc.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                                        imgSrc = imgSrc.replace(/\/\d+x\d+\//g, '/');
+                                        // Eliminar sufijos de ancho (ej: _400.jpg, _800.jpg)
+                                        imgSrc = imgSrc.replace(/_\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                                    }
+
                                     // Extraer pie de foto
-                                    const figcaptionEl = el.querySelector('figcaption');
                                     let captionHTML = '';
-                                    if (figcaptionEl) {
-                                        captionHTML = `<div class="modal-image-caption">${figcaptionEl.textContent.trim()}</div>`;
+                                    
+                                    // Para cope.es, usar el Map precargado
+                                    if (domain === 'cope.es' && figcaptionMap.has(el)) {
+                                        const captionText = figcaptionMap.get(el);
+                                        if (captionText) {
+                                            captionHTML = `<div class="modal-image-caption">${captionText}</div>`;
+                                        }
+                                    } else {
+                                        // Para otros periódicos, buscar normalmente
+                                        const figcaptionEl = el.querySelector('figcaption');
+                                        if (figcaptionEl) {
+                                            captionHTML = `<div class="modal-image-caption">${figcaptionEl.textContent.trim()}</div>`;
+                                            // Eliminar el figcaption del DOM para evitar que se procese como texto duplicado
+                                            figcaptionEl.remove();
+                                        }
                                     }
 
                                     textParts.push(`<img src="${imgSrc}" class="modal-image" style="max-width: 100%; height: auto; margin: 20px 0; border-radius: 8px;" onerror="this.style.display='none'">${captionHTML}`);
@@ -6583,14 +7046,26 @@
                             // Para Antena 3 y otros periódicos: procesar enlaces para que abran en modal
                             // SOLO si la URL no apunta a un recurso externo de Twitter, YouTube, etc.
                             if (domain !== 'eldiario.es') {
+                                const articleUrl = url; // Capturar URL del artículo
                                 htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([\s\S]*?)<\/a>/gi,
-                                    (match, beforeHref, url, afterHref, linkContent) => {
+                                    (match, beforeHref, linkUrl, afterHref, linkContent) => {
                                         // Si es enlace externo o a redes sociales, dejarlo como está
-                                        if (url.includes('twitter.com') || url.includes('x.com') || 
-                                            url.includes('youtube.com') || url.includes('facebook.com') ||
-                                            url.includes('instagram.com') || url.startsWith('mailto:') || 
-                                            url.startsWith('tel:')) {
+                                        if (linkUrl.includes('twitter.com') || linkUrl.includes('x.com') || 
+                                            linkUrl.includes('youtube.com') || linkUrl.includes('facebook.com') ||
+                                            linkUrl.includes('instagram.com') || linkUrl.startsWith('mailto:') || 
+                                            linkUrl.startsWith('tel:')) {
                                             return match; // Mantener enlace original
+                                        }
+                                        
+                                        // Convertir URLs relativas a absolutas
+                                        let absoluteUrl = linkUrl;
+                                        if (linkUrl.startsWith('/')) {
+                                            const urlObj = new URL(articleUrl);
+                                            absoluteUrl = urlObj.origin + linkUrl;
+                                        } else if (!linkUrl.startsWith('http')) {
+                                            const urlObj = new URL(articleUrl);
+                                            const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+                                            absoluteUrl = urlObj.origin + basePath + linkUrl;
                                         }
                                         
                                         // Para enlaces internos, abrir en modal
@@ -6599,17 +7074,68 @@
                                         const plainText = tempDiv.textContent || tempDiv.innerText || '';
                                         const safeText = plainText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                                         // IMPORTANTE: Preservar linkContent con TODO su HTML interno
-                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeText}')">${linkContent}</a>`;
+                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${absoluteUrl}', '${safeText}')">${linkContent}</a>`;
                                     });
                             }
 
                             if (tagName === 'div' && el.classList.contains('know-more-container')) {
                                 // Los know-more-container se añaden tal como están
                                 textParts.push(el.outerHTML);
+                            } else if (tagName === 'div' && el.classList.contains('c-detail__box')) {
+                                // Los c-detail__box de cope.es (noticias secundarias) - optimizar imágenes y añadir
+                                if (domain === 'cope.es') {
+                                    // Clonar el elemento para no modificar el original
+                                    const boxClone = el.cloneNode(true);
+                                    
+                                    // Optimizar todas las imágenes dentro del box
+                                    const imgs = boxClone.querySelectorAll('img');
+                                    imgs.forEach(img => {
+                                        let src = img.getAttribute('src') || img.getAttribute('data-src');
+                                        if (src) {
+                                            // Convertir a URL absoluta
+                                            if (src.startsWith('/')) {
+                                                src = new URL(url).origin + src;
+                                            }
+                                            
+                                            // Optimizar calidad (eliminar todos los parámetros)
+                                            if (src.includes('?')) {
+                                                const urlObj = new URL(src);
+                                                urlObj.searchParams.delete('width');
+                                                urlObj.searchParams.delete('height');
+                                                urlObj.searchParams.delete('w');
+                                                urlObj.searchParams.delete('h');
+                                                urlObj.searchParams.delete('resize');
+                                                urlObj.searchParams.delete('quality');
+                                                urlObj.searchParams.delete('crop');
+                                                urlObj.searchParams.delete('fit');
+                                                urlObj.searchParams.delete('format');
+                                                urlObj.searchParams.delete('auto');
+                                                urlObj.searchParams.delete('cs');
+                                                urlObj.searchParams.delete('dpr');
+                                                src = urlObj.toString();
+                                            }
+                                            
+                                            // Eliminar sufijos de tamaño
+                                            src = src.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                                            src = src.replace(/\/\d+x\d+\//g, '/');
+                                            src = src.replace(/_\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                                            
+                                            img.src = src;
+                                        }
+                                    });
+                                    
+                                    textParts.push(boxClone.outerHTML);
+                                } else {
+                                    textParts.push(el.outerHTML);
+                                }
                             } else if (tagName.startsWith('h')) {
                                 // Para Antena 3: h2 con clase title-h2 en negrita y más grande
                                 if (domain === 'antena3.com' && tagName === 'h2' && el.classList.contains('title-h2')) {
                                     textParts.push(`<h2 style="font-weight: 700 !important; font-size: 1.5em !important; margin: 25px 0 15px 0 !important; color: #333 !important;">${htmlContent}</h2>`);
+                                }
+                                // Para Cope.es: h3 en negrita y más grande
+                                else if (domain === 'cope.es' && tagName === 'h3') {
+                                    textParts.push(`<h3 style="font-weight: 700 !important; font-size: 1.4em !important; margin: 25px 0 15px 0 !important; color: #2d3748 !important; line-height: 1.4 !important;">${htmlContent}</h3>`);
                                 } else {
                                     // Preservar las clases de los elementos h
                                     const className = el.className ? ` class="${el.className}"` : '';
@@ -6641,6 +7167,71 @@
                                             </blockquote>
                                         </div>
                                     `);
+                                }
+                                // Para COPE.ES: detectar blockquotes de Twitter/X y darles formato embebido inline
+                                else if (domain === 'cope.es' && (el.classList.contains('twitter-tweet') || el.classList.contains('twitter'))) {
+                                    // Buscar el enlace al tweet dentro del blockquote
+                                    const links = el.querySelectorAll('a[href*="twitter.com"], a[href*="x.com"]');
+                                    const tweetLink = links[links.length - 1]; // Tomar el último enlace
+                                    
+                                    if (tweetLink) {
+                                        const href = tweetLink.href;
+                                        const tweetMatch = href.match(/(?:twitter\.com|x\.com)\/([^\/\?]+)\/status\/(\d+)/i);
+                                        
+                                        if (tweetMatch) {
+                                            const tweetId = tweetMatch[1];
+                                            const embedUrl = `https://platform.twitter.com/embed/Tweet.html?id=${tweetMatch[2]}&theme=light&lang=es`;
+                                            
+                                            textParts.push(`
+                                                <div class="modal-tweet-card" style="
+                                                    background: #fff;
+                                                    border: 1px solid #e1e8ed;
+                                                    border-radius: 16px;
+                                                    padding: 16px;
+                                                    margin: 20px 0;
+                                                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                                                    transition: var(--transition);
+                                                " onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+                                                    <div class="tweet-embed-container" style="
+                                                        width: 100%;
+                                                        min-height: 600px;
+                                                        border-radius: 12px;
+                                                        overflow: hidden;
+                                                        background: #f7f9fa;
+                                                    ">
+                                                        <iframe
+                                                            src="${embedUrl}"
+                                                            style="width: 100%; min-height: 600px; border: none; border-radius: 12px;"
+                                                            allowfullscreen
+                                                            allow="autoplay; fullscreen; encrypted-media">
+                                                        </iframe>
+                                                    </div>
+                                                    <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+                                                        <a href="${href}" target="_blank" style="
+                                                            color: #1DA1F2;
+                                                            text-decoration: none;
+                                                            font-size: 0.9em;
+                                                            font-weight: 500;
+                                                            display: inline-flex;
+                                                            align-items: center;
+                                                            gap: 4px;
+                                                            padding: 8px 12px;
+                                                            border-radius: 20px;
+                                                            transition: all 0.2s ease;
+                                                        " onmouseover="this.style.backgroundColor='#e8f5fe'" onmouseout="this.style.backgroundColor='transparent'">
+                                                            🔗 Ver en Twitter/X
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            `);
+                                        } else {
+                                            // Si no se puede parsear el ID, mostrar blockquote normal
+                                            textParts.push(`<blockquote>${htmlContent}</blockquote>`);
+                                        }
+                                    } else {
+                                        // Si no hay enlace, mostrar blockquote normal
+                                        textParts.push(`<blockquote>${htmlContent}</blockquote>`);
+                                    }
                                 } else {
                                     // Blockquote normal
                                     textParts.push(`<blockquote>${htmlContent}</blockquote>`);
@@ -6666,10 +7257,23 @@
                             if (cleanText.length > 20) {
                                 let htmlContent = p.innerHTML; // Preservar HTML incluyendo enlaces
 
+                                // Capturar URL del artículo para conversiones
+                                const fallbackArticleUrl = url;
+                                
                                 // Convertir elementos know-more en formato de 2 columnas
                                 htmlContent = htmlContent.replace(
                                     /<aside\s+class="know-more[^"]*"[^>]*>[\s\S]*?<a\s+[^>]*href\s*=\s*["']([^"']+)["'][^>]*>[\s\S]*?<p\s+class="know-more__title"[^>]*>([^<]+)<\/p>[\s\S]*?<picture\s+class="know-more__img"[^>]*>([\s\S]*?)<\/picture>[\s\S]*?<\/a>[\s\S]*?<\/aside>/gi,
-                                    (match, url, title, pictureContent) => {
+                                    (match, knowMoreUrl, title, pictureContent) => {
+                                        // Convertir URLs relativas a absolutas
+                                        if (knowMoreUrl.startsWith('/')) {
+                                            const urlObj = new URL(fallbackArticleUrl);
+                                            knowMoreUrl = urlObj.origin + knowMoreUrl;
+                                        } else if (!knowMoreUrl.startsWith('http')) {
+                                            const urlObj = new URL(fallbackArticleUrl);
+                                            const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+                                            knowMoreUrl = urlObj.origin + basePath + knowMoreUrl;
+                                        }
+                                        
                                         // Extraer la imagen del contenido de picture - buscar img tag
                                         let imgTag = '';
                                         const imgMatch = pictureContent.match(/<img[^>]+>/i);
@@ -6688,7 +7292,7 @@
                                         return `
                                             <div class="know-more-container">
                                                 <div class="know-more-text">
-                                                    <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeTitle}')" class="know-more-title">${title}</a>
+                                                    <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${knowMoreUrl}', '${safeTitle}')" class="know-more-title">${title}</a>
                                                 </div>
                                                 <div class="know-more-image">
                                                     ${imgTag}
@@ -6700,10 +7304,21 @@
 
                                 // Convertir enlaces normales para que se abran en la modal
                                 htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([^<]+)<\/a>/gi,
-                                    (match, beforeHref, url, afterHref, linkText) => {
+                                    (match, beforeHref, linkUrl, afterHref, linkText) => {
+                                        // Convertir URLs relativas a absolutas
+                                        let absoluteUrl = linkUrl;
+                                        if (linkUrl.startsWith('/')) {
+                                            const urlObj = new URL(fallbackArticleUrl);
+                                            absoluteUrl = urlObj.origin + linkUrl;
+                                        } else if (!linkUrl.startsWith('http')) {
+                                            const urlObj = new URL(fallbackArticleUrl);
+                                            const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+                                            absoluteUrl = urlObj.origin + basePath + linkUrl;
+                                        }
+                                        
                                         // Escapar comillas simples en el texto del enlace
                                         const safeText = linkText.replace(/'/g, "\\'");
-                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${url}', '${safeText}')">${linkText}</a>`;
+                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${absoluteUrl}', '${safeText}')">${linkText}</a>`;
                                     });
 
                                 textParts.push(`<p>${htmlContent}</p>`);
@@ -6742,12 +7357,38 @@
                     console.log('🖼️ CatalunyaPress - Selector de imágenes:', config.images);
                     console.log('🖼️ CatalunyaPress - Imágenes encontradas:', imageElements.length);
                     imageElements.forEach((img, idx) => {
-                        console.log(`   Imagen ${idx+1}:`, img.src || img.getAttribute('data-src') || 'NO SRC');
+                        console.log(`   Imagen ${idx+1}:`);
+                        console.log('     - src:', img.src);
+                        console.log('     - data-src:', img.getAttribute('data-src'));
+                        console.log('     - data-lazy-src:', img.getAttribute('data-lazy-src'));
+                        console.log('     - srcset:', img.getAttribute('srcset'));
+                        console.log('     - Todos los atributos:', img.attributes);
+                        console.log('     - Parent:', img.parentElement.tagName, img.parentElement.className);
                     });
                 }
 
                 imageElements.forEach((img, index) => {
-                    let src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+                    // -----------------------------------------------------------------
+                    // COPE.ES - Filtrar imágenes dentro del header/navegación PRIMERO
+                    // -----------------------------------------------------------------
+                    if (domain === 'cope.es') {
+                        const isInHeader = img.closest('.c-header');
+                        const isInNav = img.closest('.c-nav');
+                        
+                        // Excluir si está dentro del header o navegación
+                        if (isInHeader || isInNav) {
+                            return; // Saltar esta imagen
+                        }
+                    }
+
+                    // Primero intentar obtener el atributo src ANTES de que el navegador lo convierta
+                    let src = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+                    
+                    // Si getAttribute('src') devuelve una URL relativa o el img.src tiene file:///, usar getAttribute
+                    // De lo contrario, usar img.src (que ya es absoluto)
+                    if (!src || src.length < 10) {
+                        src = img.src;
+                    }
 
                     // Para elementos amp-img, extraer src de sus atributos específicos
                     if (img.tagName.toLowerCase() === 'amp-img') {
@@ -6765,6 +7406,18 @@
                             const firstUrl = srcset.split(',')[0].trim().split(' ')[0];
                             if (firstUrl && firstUrl.length > 10) {
                                 src = firstUrl;
+                            }
+                        }
+                    }
+                    
+                    // Corregir URLs que el navegador convirtió a file:// incorrectamente
+                    if (src && src.startsWith('file:///')) {
+                        // Extraer la parte después de file:///X:/ (donde X es la letra de unidad)
+                        const match = src.match(/file:\/\/\/[A-Z]:(.+)/i);
+                        if (match) {
+                            src = match[1]; // Esto nos da algo como "/images/showid2/7590691?w=1200&zc=4"
+                            if (domain === 'catalunyapress.es') {
+                                console.log('     ✅ Corregido file:// a:', src);
                             }
                         }
                     }
@@ -6844,6 +7497,9 @@
                     if (src && !src.includes('data:image') && src.length > 10) {
                         if (src.startsWith('/')) {
                             src = new URL(url).origin + src;
+                            if (domain === 'catalunyapress.es') {
+                                console.log('     ✅ Convertido a URL absoluta:', src);
+                            }
                         }
 
                         // -----------------------------------------------------------------
@@ -6924,6 +7580,36 @@
                                 urlObj.searchParams.delete('zc');
                                 src = urlObj.toString();
                             }
+                        }
+
+                        // -----------------------------------------------------------------
+                        // COPE.ES - Optimizar calidad de imagen (MÁXIMA CALIDAD)
+                        // Elimina TODOS los parámetros para obtener la imagen original
+                        // -----------------------------------------------------------------
+                        if (domain === 'cope.es') {
+                            if (src.includes('?')) {
+                                const urlObj = new URL(src);
+                                // Eliminar TODOS los parámetros para obtener imagen original
+                                urlObj.searchParams.delete('width');
+                                urlObj.searchParams.delete('height');
+                                urlObj.searchParams.delete('w');
+                                urlObj.searchParams.delete('h');
+                                urlObj.searchParams.delete('resize');
+                                urlObj.searchParams.delete('quality');
+                                urlObj.searchParams.delete('crop');
+                                urlObj.searchParams.delete('fit');
+                                urlObj.searchParams.delete('format');
+                                urlObj.searchParams.delete('auto');
+                                urlObj.searchParams.delete('cs');
+                                urlObj.searchParams.delete('dpr');
+                                // NO establecer ningún parámetro - imagen original sin modificar
+                                src = urlObj.toString();
+                            }
+                            // Eliminar sufijos de tamaño en el nombre del archivo
+                            src = src.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                            src = src.replace(/\/\d+x\d+\//g, '/');
+                            // Eliminar sufijos de ancho (ej: _400.jpg, _800.jpg)
+                            src = src.replace(/_\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
                         }
 
                         let caption = img.getAttribute('title') || '';
@@ -7100,6 +7786,10 @@
                             caption: caption,
                             captionAuthor: captionAuthor
                         });
+                        
+                        if (domain === 'catalunyapress.es') {
+                            console.log('     ✅ Imagen añadida al array:', src.substring(0, 80) + '...');
+                        }
                     }
                 });
 
@@ -7313,6 +8003,32 @@
                 }
 
                 // -----------------------------------------------------------------
+                // CATALUNYAPRESS
+                // Extrae el subtítulo como resumen desde .article_subtitle
+                // -----------------------------------------------------------------
+                if (domain === 'catalunyapress.es') {
+                    const subtitleEl = doc.querySelector('.title-subtitle-legend .article_subtitle, .article_subtitle');
+                    if (subtitleEl && subtitleEl.textContent.trim()) {
+                        footerSummary = this.cleanText(subtitleEl.textContent);
+                    }
+                }
+
+                // -----------------------------------------------------------------
+                // COPE.ES
+                // Extrae el subtítulo como resumen desde .c-detail__subtitle h2
+                // Estructura: article.c-detail > div.c-detail-header > div.c-detail__subtitle > h2
+                // -----------------------------------------------------------------
+                if (domain === 'cope.es') {
+                    const subtitleEl = doc.querySelector('.c-detail-header > .c-detail__subtitle > h2') ||
+                                      doc.querySelector('.c-detail__subtitle > h2') ||
+                                      doc.querySelector('.c-detail__subtitle h2');
+                    
+                    if (subtitleEl && subtitleEl.textContent.trim()) {
+                        footerSummary = this.cleanText(subtitleEl.textContent);
+                    }
+                }
+
+                // -----------------------------------------------------------------
                 // ABC
                 // Extrae el primer subtítulo (sin enlace) como resumen
                 // y el segundo subtítulo con enlace clickable desde .voc-subtitle a
@@ -7476,6 +8192,7 @@
                         if (domain === 'elmundo.es') return 'El Mundo';
                         if (domain === 'abc.es') return 'ABC';
                         if (domain === '20minutos.es') return '20 Minutos';
+                        if (domain === 'cope.es') return 'Cope.es';
                         return domain;
                     } catch (e) {
                         return 'Periódico no disponible';
@@ -7594,6 +8311,12 @@
                 }
                 // Para es.ara.cat usar el footerSummary (h2.subtitle)
                 else if (domain === 'es.ara.cat') {
+                    if (content.footerSummary && content.footerSummary.trim().length > 10) {
+                        summaryText = content.footerSummary;
+                    }
+                }
+                // Para cope.es usar el footerSummary (h2 del subtitle)
+                else if (domain === 'cope.es') {
                     if (content.footerSummary && content.footerSummary.trim().length > 10) {
                         summaryText = content.footerSummary;
                     }
