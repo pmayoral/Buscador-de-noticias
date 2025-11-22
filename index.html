@@ -5019,14 +5019,40 @@
                 const seenUrls = new Set();
                 let globalIndex = 0;
                 
+                const blacklist = [
+                    'adswizz', 'doubleclick', 'googlesyndication', 'analytics', 
+                    'tracking', 'pixel', 'blank.mp3', 'silence.mp3', 
+                    'intro', 'outro', 'bumper', 'promo', 'advert',
+                    'triton', 'liveradio', 'directo', 'stream', 
+                    'omny', 'user_uploads', 'audio_vacio', 'cdn.agitar.xyz',
+                    'fragment', 'chunk', 'manifest', '2083'
+                ];
+
+                const isBlacklisted = (url) => {
+                    const lowerUrl = url.toLowerCase();
+                    return blacklist.some(term => lowerUrl.includes(term));
+                };
+
+                // Helper para validar contexto: El audio debe estar dentro del artículo o ser muy relevante
+                const isValidContext = (element) => {
+                    if (!element) return false;
+                    const container = element.closest('article, .c-detail, .c-player-container, .article-content');
+                    // Si está en header/footer/sidebar explícito, ignorar
+                    if (element.closest('header, footer, .sidebar, .menu, .nav, .recirculation')) return false;
+                    return !!container;
+                };
+
                 // 1. Buscar elementos <audio> con atributos src y elementos <source>
                 const audioElements = Array.from(doc.querySelectorAll('audio'));
                 audioElements.forEach(audio => {
+                    // Validar contexto del elemento audio
+                    if (!isValidContext(audio)) return;
+
                     const sources = audio.querySelectorAll('source');
                     const srcAttr = audio.getAttribute('src');
                     
                     // Si tiene src directo
-                    if (srcAttr) {
+                    if (srcAttr && !isBlacklisted(srcAttr)) {
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
@@ -5058,7 +5084,7 @@
                     // Si tiene elementos <source>
                     sources.forEach(source => {
                         const srcAttr = source.getAttribute('src');
-                        if (!srcAttr) return;
+                        if (!srcAttr || isBlacklisted(srcAttr)) return;
                         
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
@@ -5089,22 +5115,24 @@
                 });
                 
                 // 2. Buscar URLs de audio en el HTML usando expresiones regulares
-                const audioUrlRegex = /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi;
+                // Incluye: mp3, m4a, ogg, wav, aac, flac
+                const audioUrlRegex = /(https?:\/\/[^"'\s<>]+\.(?:mp3|m4a|ogg|wav|aac|flac)(?:\?[^"'\s<>]*)?)/gi;
                 let match;
                 
                 while ((match = audioUrlRegex.exec(html)) !== null) {
                     const audioUrl = match[1];
-                    const cleanUrl = audioUrl.split('"')[0];
+                    const cleanUrl = audioUrl.replace(/["']$/, '');
+                    
+                    if (cleanUrl.length < 10 || cleanUrl.includes('schema.org') || isBlacklisted(cleanUrl)) continue;
+                    
                     const fileName = cleanUrl.split('/').pop().split('?')[0];
                     
                     if (!seenUrls.has(fileName)) {
                         seenUrls.add(fileName);
                         
-                        // Intentar encontrar contexto para este audio
                         let title = 'Audio de Cope.es';
                         let description = '';
                         
-                        // Buscar título en el artículo
                         const mainTitle = doc.querySelector('.c-detail__title h1, .c-detail h1');
                         if (mainTitle) title = this.cleanText(mainTitle.textContent);
                         
@@ -5118,8 +5146,198 @@
                         });
                     }
                 }
+
+                // 3. Buscar enlaces directos a archivos de audio (a href="...mp3")
+                const audioLinks = Array.from(doc.querySelectorAll('a[href*=".mp3"], a[href*=".m4a"], a[href*=".ogg"]'));
+                audioLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (!href) return;
+                    
+                    let audioUrl = href;
+                    if (href.startsWith('/')) {
+                        audioUrl = 'https://www.cope.es' + href;
+                    } else if (!href.startsWith('http')) {
+                        return;
+                    }
+                    
+                    if (isBlacklisted(audioUrl)) return;
+                    
+                    const fileName = audioUrl.split('/').pop().split('?')[0];
+                    if (!seenUrls.has(fileName)) {
+                        seenUrls.add(fileName);
+                        
+                        let title = link.textContent.trim() || link.getAttribute('title') || 'Audio relacionado';
+                        if (title.length < 3) {
+                             const mainTitle = doc.querySelector('.c-detail__title h1, .c-detail h1');
+                             if (mainTitle) title = this.cleanText(mainTitle.textContent);
+                        }
+
+                        allAudios.push({
+                            type: 'audio',
+                            src: audioUrl,
+                            title: title,
+                            description: 'Enlace de audio',
+                            position: ++globalIndex,
+                            source: 'anchor-link'
+                        });
+                    }
+                });
+
+                // 4. Buscar en JSON-LD (AudioObject) - PRIORIDAD ALTA
+                const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                jsonLdScripts.forEach(script => {
+                    try {
+                        const json = JSON.parse(script.textContent);
+                        const processEntity = (entity) => {
+                            if (!entity) return;
+                            
+                            if (entity['@type'] === 'AudioObject' && (entity.contentUrl || entity.url)) {
+                                const audioUrl = entity.contentUrl || entity.url;
+                                
+                                if (isBlacklisted(audioUrl)) return;
+                                
+                                const cleanUrl = audioUrl.split('?')[0];
+                                const fileName = cleanUrl.split('/').pop();
+                                
+                                if (!seenUrls.has(fileName)) {
+                                    seenUrls.add(fileName);
+                                    
+                                    // Añadir al PRINCIPIO del array porque JSON-LD suele ser el más fiable
+                                    allAudios.unshift({
+                                        type: 'audio',
+                                        src: audioUrl,
+                                        title: entity.name || entity.description || 'Audio principal',
+                                        description: entity.description || '',
+                                        position: 0, // Prioridad máxima
+                                        source: 'json-ld',
+                                        isMain: true
+                                    });
+                                }
+                            }
+                            
+                            Object.keys(entity).forEach(key => {
+                                if (typeof entity[key] === 'object') processEntity(entity[key]);
+                            });
+                        };
+                        
+                        if (Array.isArray(json)) {
+                            json.forEach(processEntity);
+                        } else {
+                            processEntity(json);
+                        }
+                    } catch (e) {}
+                });
+
+                // 5. Buscar reproductores específicos de COPE (.c-player, data-file, data-src) - PRIORIDAD ALTA
+                const players = doc.querySelectorAll('.c-player, [data-file], [data-src*=".mp3"], [data-audio]');
+                players.forEach(player => {
+                    const src = player.getAttribute('data-file') || player.getAttribute('data-src') || player.getAttribute('data-audio');
+                    if (src && (src.includes('.mp3') || src.includes('.m4a') || src.includes('.ogg'))) {
+                        if (isBlacklisted(src)) return;
+                        
+                        const cleanUrl = src.split('?')[0];
+                        const fileName = cleanUrl.split('/').pop();
+                        
+                        if (!seenUrls.has(fileName)) {
+                            seenUrls.add(fileName);
+                            
+                            let title = player.getAttribute('data-title') || '';
+                            if (!title) {
+                                const parent = player.closest('article, .c-detail, .c-player-container');
+                                if (parent) {
+                                    const titleEl = parent.querySelector('h1, h2, h3, .title, .c-player__title');
+                                    if (titleEl) title = this.cleanText(titleEl.textContent);
+                                }
+                            }
+                            
+                            // Añadir al principio si parece ser el reproductor principal
+                            const isMainPlayer = player.classList.contains('c-player--main') || player.closest('.c-detail__media');
+                            
+                            const audioObj = {
+                                type: 'audio',
+                                src: src,
+                                title: title || 'Audio de Cope.es',
+                                description: 'Audio detectado en reproductor',
+                                position: isMainPlayer ? 0 : ++globalIndex,
+                                source: 'cope-player-attributes',
+                                isMain: isMainPlayer
+                            };
+                            
+                            if (isMainPlayer) {
+                                allAudios.unshift(audioObj);
+                            } else {
+                                allAudios.push(audioObj);
+                            }
+                        }
+                    }
+                });
+
+                // 6. Buscar en scripts JS inline variables de configuración de audio
+                const scripts = doc.querySelectorAll('script:not([src])');
+                scripts.forEach(script => {
+                    const content = script.textContent;
+                    if (content.includes('.mp3') || content.includes('.m4a')) {
+                        const jsUrlRegex = /(?:file|src|url)["']?\s*:\s*["']([^"']+\.(?:mp3|m4a|ogg))["']/gi;
+                        let match;
+                        while ((match = jsUrlRegex.exec(content)) !== null) {
+                            const audioUrl = match[1];
+                            if (audioUrl.includes('http') || audioUrl.startsWith('/')) {
+                                let finalUrl = audioUrl;
+                                if (finalUrl.startsWith('//')) finalUrl = 'https:' + finalUrl;
+                                else if (finalUrl.startsWith('/')) finalUrl = 'https://www.cope.es' + finalUrl;
+                                
+                                if (isBlacklisted(finalUrl)) continue;
+                                
+                                const fileName = finalUrl.split('/').pop().split('?')[0];
+                                if (!seenUrls.has(fileName)) {
+                                    seenUrls.add(fileName);
+                                    allAudios.push({
+                                        type: 'audio',
+                                        src: finalUrl,
+                                        title: 'Audio detectado en script',
+                                        description: '',
+                                        position: ++globalIndex,
+                                        source: 'inline-script-var'
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
                 
-                return allAudios;
+                // Filtrado final: Estrategia de selección estricta
+                
+                // 1. Si tenemos audios marcados como "isMain" (JSON-LD o Player Principal), nos quedamos SOLO con esos
+                const mainAudios = allAudios.filter(a => a.isMain);
+                if (mainAudios.length > 0) {
+                    // Si hay más de uno "principal", tomamos el primero (normalmente JSON-LD tiene mejor calidad)
+                    return [mainAudios[0]];
+                }
+
+                // 2. Si hay audios con título específico (que no sea el genérico "Audio de Cope.es" o "Audio sin título")
+                // Priorizar aquellos que tengan un título descriptivo
+                const descriptivelyTitled = allAudios.filter(a => 
+                    a.title && 
+                    !a.title.includes('Audio de Cope.es') && 
+                    !a.title.includes('Audio sin título') &&
+                    !a.title.includes('Enlace de audio') &&
+                    !a.title.includes('Audio detectado')
+                );
+
+                if (descriptivelyTitled.length > 0) {
+                    // Ordenar por posición original y devolver el primero
+                    descriptivelyTitled.sort((a, b) => a.position - b.position);
+                    return [descriptivelyTitled[0]];
+                }
+
+                // 3. Fallback: Si no hay audios principales ni con título descriptivo,
+                // tomamos el primero encontrado (menor posición) y limitamos estrictamente a 1
+                if (allAudios.length > 0) {
+                    allAudios.sort((a, b) => a.position - b.position);
+                    return [allAudios[0]];
+                }
+                
+                return [];
             }
 
             async detectABCAudios(html, doc) {
@@ -8996,26 +9214,25 @@
                     }
                 }
 
-                // Audios de COPE - YA SE PROCESAN INLINE en el contenido (línea 7420-7446)
-                // No mostrarlos aquí para evitar duplicación
-                // Los audios ya aparecen en su posición original dentro del texto
-                if (false && domain === 'cope.es' && content.audios && content.audios.length > 0) {
-                    // DESACTIVADO: Los audios ya se muestran inline en el contenido
+                // Audios de COPE - MOSTRAR AL FINAL si no se han mostrado antes
+                // Eliminamos el flag false para que se ejecute
+                if (domain === 'cope.es' && content.audios && content.audios.length > 0) {
                     html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
+                    html += `<h4 style="font-size: 1.2em; color: #1a1a1a; margin: 0 0 15px 0; font-weight: 700;">🔊 Audios detectados (${content.audios.length})</h4>`;
                     
                     content.audios.forEach((audio, index) => {
                         html += `<div class="modal-audio-player" style="margin-bottom: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">`;
                         
                         // Título del audio
                         if (audio.title) {
-                            html += `<h3 style="font-size: 1.3em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
-                                🔊 ${audio.title}
+                            html += `<h3 style="font-size: 1.1em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
+                                ${audio.title}
                             </h3>`;
                         }
                         
                         // Descripción del audio
                         if (audio.description) {
-                            html += `<p style="font-size: 0.95em; color: #555; line-height: 1.6; margin: 0 0 16px 0;">
+                            html += `<p style="font-size: 0.9em; color: #555; line-height: 1.5; margin: 0 0 16px 0;">
                                 ${audio.description}
                             </p>`;
                         }
