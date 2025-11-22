@@ -17,7 +17,8 @@
             --secondary-gradient: linear-gradient(135deg, #4ecdc4, #44a08d);
             --white-transparent: rgba(255, 255, 255, 0.95);
             --shadow-light: 0 20px 40px rgba(0,0,0,0.1);
-            --border-light: 1px solid rgba(255, 255, 255, 0.2);            --radius: 20px;
+            --border-light: 1px solid rgba(255, 255, 255, 0.2);
+            --radius: 20px;
         }
 
         * {
@@ -666,8 +667,8 @@
         }
 
         .modal-text h3 {
-            font-size: 1.65em !important;
-            line-height: 1.3 !important;
+            font-size: 1.4em !important;
+            line-height: 1.4 !important;
         }
 
         .modal-text h2.article-text {
@@ -740,6 +741,37 @@
 
         .modal-text .c-detail__box a:hover {
             text-decoration: underline !important;
+        }
+ 
+        /* Estilos específicos para .c-detail__summary de COPE.ES */
+        .modal-text .c-detail__box .c-detail__summary {
+            width: 100% !important;
+        }
+ 
+        .modal-text .c-detail__box .c-detail__summary h4,
+        .modal-text .c-detail__box .c-detail__summary__title,
+        .modal-text .c-detail__box h4.c-detail__summary__title {
+            font-size: 1.2em !important;
+            font-weight: 700 !important;
+            margin: 0 0 12px 0 !important;
+            color: #667eea !important;
+            line-height: 1.4 !important;
+            padding-bottom: 8px !important;
+            border-bottom: 2px solid #667eea !important;
+        }
+ 
+        .modal-text .c-detail__box .c-detail__summary p {
+            font-size: 0.95em !important;
+            line-height: 1.7 !important;
+            color: #2d3748 !important;
+            margin: 12px 0 0 0 !important;
+        }
+ 
+        /* Estilo especial para c-detail__box--noborder */
+        .modal-text .c-detail__box.c-detail__box--noborder {
+            border: none !important;
+            background: #f0f4ff !important;
+            border-left: 4px solid #667eea !important;
         }
 
         @media (max-width: 768px) {
@@ -2038,13 +2070,13 @@
     </div>
 
     <script type="text/javascript">
-        // ===== FILTRO DE CONSOLA =====
-        // Suprimir mensajes de scripts externos (NPAW/Youbora, etc.)
-        // Este filtro debe ejecutarse ANTES que cualquier otro script
-        (function() {
-            'use strict';
-            
-            // Palabras clave a filtrar
+        // ===== REFACTORIZACIÓN: ESTRUCTURA MODULAR =====
+
+        /**
+         * Módulo de Utilidades de Consola
+         * Encapsula la lógica de filtrado de logs
+         */
+        const ConsoleManager = (() => {
             const filterKeywords = [
                 'NPAW', 'npaw', '[NPAW', '[npaw',
                 'youbora', 'Youbora', 'YOUBORA',
@@ -2059,11 +2091,9 @@
                 'rms_', 'RMS_', 'FedCM', 'fedcm',
                 'Adapter', 'adapter', 'onFullConsent', 'DEMO'
             ];
-            
-            // Función para verificar si debe filtrarse
+
             const shouldFilter = (args) => {
                 if (!args || args.length === 0) return false;
-                // Convertir primer argumento a string
                 const firstArg = args[0];
                 let message = '';
                 
@@ -2072,7 +2102,7 @@
                 } else if (firstArg && typeof firstArg === 'object') {
                     try {
                         message = JSON.stringify(firstArg);
-                    } catch(e) {
+                    } catch {
                         message = String(firstArg);
                     }
                 } else {
@@ -2081,199 +2111,185 @@
                 
                 return filterKeywords.some(keyword => message.includes(keyword));
             };
-            
-            // Guardar referencias originales de forma inmutable
-            const _originalLog = console.log.bind(console);
-            const _originalWarn = console.warn.bind(console);
-            const _originalError = console.error.bind(console);
-            const _originalInfo = console.info ? console.info.bind(console) : _originalLog;
-            const _originalDebug = console.debug ? console.debug.bind(console) : _originalLog;
-            
-            // Crear wrappers que no se pueden sobrescribir
-            const logWrapper = function(...args) {
-                if (!shouldFilter(args)) {
-                    _originalLog(...args);
+
+            return {
+                init: () => {
+                    const _originalLog = console.log.bind(console);
+                    const _originalWarn = console.warn.bind(console);
+                    const _originalError = console.error.bind(console);
+                    const _originalInfo = console.info ? console.info.bind(console) : _originalLog;
+                    const _originalDebug = console.debug ? console.debug.bind(console) : _originalLog;
+
+                    const createWrapper = (originalFn) => function(...args) {
+                        if (!shouldFilter(args)) originalFn(...args);
+                    };
+
+                    const logWrapper = createWrapper(_originalLog);
+                    const warnWrapper = createWrapper(_originalWarn);
+                    const errorWrapper = createWrapper(_originalError);
+                    const infoWrapper = createWrapper(_originalInfo);
+                    const debugWrapper = createWrapper(_originalDebug);
+
+                    try {
+                        ['log', 'warn', 'error', 'info', 'debug'].forEach((method, i) => {
+                            const wrapper = [logWrapper, warnWrapper, errorWrapper, infoWrapper, debugWrapper][i];
+                            Object.defineProperty(console, method, {
+                                value: wrapper, writable: true, enumerable: true, configurable: false
+                            });
+                        });
+                    } catch(e) {
+                        console.log = logWrapper;
+                        console.warn = warnWrapper;
+                        console.error = errorWrapper;
+                        console.info = infoWrapper;
+                        console.debug = debugWrapper;
+                    }
+
+                    setInterval(() => {
+                        if (console.log !== logWrapper) console.log = logWrapper;
+                        if (console.warn !== warnWrapper) console.warn = warnWrapper;
+                        if (console.error !== errorWrapper) console.error = errorWrapper;
+                        if (console.info !== infoWrapper) console.info = infoWrapper;
+                        if (console.debug !== debugWrapper) console.debug = debugWrapper;
+                    }, 100);
                 }
             };
-            
-            const warnWrapper = function(...args) {
-                if (!shouldFilter(args)) {
-                    _originalWarn(...args);
-                }
-            };
-            
-            const errorWrapper = function(...args) {
-                if (!shouldFilter(args)) {
-                    _originalError(...args);
-                }
-            };
-            
-            const infoWrapper = function(...args) {
-                if (!shouldFilter(args)) {
-                    _originalInfo(...args);
-                }
-            };
-            
-            const debugWrapper = function(...args) {
-                if (!shouldFilter(args)) {
-                    _originalDebug(...args);
-                }
-            };
-            
-            // Sobrescribir console con defineProperty para hacerlo no configurable
-            try {
-                Object.defineProperty(console, 'log', {
-                    value: logWrapper,
-                    writable: true,
-                    enumerable: true,
-                    configurable: false
-                });
-                Object.defineProperty(console, 'warn', {
-                    value: warnWrapper,
-                    writable: true,
-                    enumerable: true,
-                    configurable: false
-                });
-                Object.defineProperty(console, 'error', {
-                    value: errorWrapper,
-                    writable: true,
-                    enumerable: true,
-                    configurable: false
-                });
-                Object.defineProperty(console, 'info', {
-                    value: infoWrapper,
-                    writable: true,
-                    enumerable: true,
-                    configurable: false
-                });
-                Object.defineProperty(console, 'debug', {
-                    value: debugWrapper,
-                    writable: true,
-                    enumerable: true,
-                    configurable: false
-                });
-            } catch(e) {
-                // Si falla defineProperty, usar asignación directa
-                console.log = logWrapper;
-                console.warn = warnWrapper;
-                console.error = errorWrapper;
-                console.info = infoWrapper;
-                console.debug = debugWrapper;
-            }
-            
-            // Re-aplicar el filtro periódicamente por si scripts externos intentan sobrescribirlo
-            setInterval(() => {
-                if (console.log !== logWrapper) console.log = logWrapper;
-                if (console.warn !== warnWrapper) console.warn = warnWrapper;
-                if (console.error !== errorWrapper) console.error = errorWrapper;
-                if (console.info !== infoWrapper) console.info = infoWrapper;
-                if (console.debug !== debugWrapper) console.debug = debugWrapper;
-            }, 100);
         })();
 
+        ConsoleManager.init();
+
         // ===== BASE DE DATOS DE PERIÓDICOS =====
-        // Cargar la base de datos desde el archivo Periodicos espana.html
-        let periodicosDB = null;
-        
-        // Función para cargar la base de datos de forma síncrona
-        function cargarBaseDatos() {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', 'Periodicos espana.html', false);  // Síncrono
-            try {
-                xhr.send(null);
-                if (xhr.status === 200) {
-                    const html = xhr.responseText;
-                    const scriptMatch = html.match(/const periodicos = ({[\s\S]*?});[\s\S]*?\/\/ Función para renderizar/);
-                    if (scriptMatch) {
-                        periodicosDB = eval('(' + scriptMatch[1] + ')');
+        // Módulo encapsulado para gestión de datos
+        const NewspaperDB = {
+            data: null,
+            load: function() {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'Periodicos espana.html', false);  // Síncrono
+                try {
+                    xhr.send(null);
+                    if (xhr.status === 200) {
+                        const html = xhr.responseText;
+                        const scriptMatch = html.match(/const periodicos = ({[\s\S]*?});[\s\S]*?\/\/ Función para renderizar/);
+                        if (scriptMatch) {
+                            // Nota: eval es necesario aquí según la estructura del archivo fuente original
+                            this.data = eval('(' + scriptMatch[1] + ')');
+                        } else {
+                            console.error('❌ No se encontró la base de datos en el archivo');
+                            this.data = {};
+                        }
                     } else {
-                        console.error('❌ No se encontró la base de datos en el archivo');
-                        periodicosDB = {};
+                        console.error('❌ Error al cargar archivo. Status:', xhr.status);
+                        this.data = {};
                     }
-                } else {
-                    console.error('❌ Error al cargar archivo. Status:', xhr.status);
-                    periodicosDB = {};
+                } catch (e) {
+                    // Silenciar el error si es por protocolo file:// (esperado en desarrollo local)
+                    if (e.name === 'NetworkError' && window.location.protocol === 'file:') {
+                        console.warn('⚠️ Base de datos de periódicos no disponible (modo archivo local)');
+                    } else {
+                        console.error('❌ Error al cargar base de datos:', e.message || e);
+                    }
+                    this.data = {};
                 }
-            } catch (e) {
-                // Silenciar el error si es por protocolo file:// (esperado en desarrollo local)
-                if (e.name === 'NetworkError' && window.location.protocol === 'file:') {
-                    console.warn('⚠️ Base de datos de periódicos no disponible (modo archivo local)');
-                } else {
-                    console.error('❌ Error al cargar base de datos:', e.message || e);
+            },
+            get: function(name) {
+                if (!this.data || Object.keys(this.data).length === 0) this.load();
+                let periodico = this.data[name];
+                if (!periodico) {
+                    const key = Object.keys(this.data).find(k => 
+                        this.data[k].nombre === name || 
+                        this.data[k].nombre.toLowerCase() === name.toLowerCase()
+                    );
+                    if (key) periodico = this.data[key];
                 }
-                periodicosDB = {};
+                return periodico;
             }
-        }
+        };
         
         // Cargar la base de datos al inicio
-        cargarBaseDatos();
+        NewspaperDB.load();
+        // Mantener referencia global para compatibilidad si es necesario, aunque intentaremos usar NewspaperDB
+        let periodicosDB = NewspaperDB.data; 
 
         // ===== DETECCIÓN DE DISPOSITIVO Y NAVEGADOR =====
-        function esMovil() {
-            var userAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            var pantallaPequeña = window.innerWidth <= 768;
-            var tieneTouch = 'ontouchstart' in window;
-            return userAgent || (pantallaPequeña && tieneTouch);
-        }
+        const DeviceManager = {
+            isMobile: () => {
+                const userAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const smallScreen = window.innerWidth <= 768;
+                const hasTouch = 'ontouchstart' in window;
+                return userAgent || (smallScreen && hasTouch);
+            },
+            getOS: () => {
+                const ua = navigator.userAgent.toLowerCase();
+                const uaOriginal = navigator.userAgent;
+                
+                if (ua.includes('android')) return 'Android';
+                if (ua.includes('iphone') || ua.includes('ipad')) return 'iOS';
+                
+                if (ua.includes('win')) {
+                    let ver = 'Windows';
+                    if (ua.includes('windows nt 10.0')) {
+                        if (navigator.userAgentData && navigator.userAgentData.platformVersion) {
+                            const major = parseInt(navigator.userAgentData.platformVersion.split('.')[0]);
+                            ver = major >= 13 ? 'Windows 11' : 'Windows 10';
+                        } else {
+                            ver = 'Windows 10/11';
+                        }
+                    } else if (ua.includes('windows nt 6.3')) ver = 'Windows 8.1';
+                    else if (ua.includes('windows nt 6.2')) ver = 'Windows 8';
+                    else if (ua.includes('windows nt 6.1')) ver = 'Windows 7';
+                    else if (ua.includes('windows nt 6.0')) ver = 'Windows Vista';
+                    else if (ua.includes('windows nt 5.1') || ua.includes('windows nt 5.2')) ver = 'Windows XP';
+                    
+                    if (ua.includes('win64') || ua.includes('wow64') || uaOriginal.includes('x64')) ver += ' (64-bit)';
+                    else if (ua.includes('win32')) ver += ' (32-bit)';
+                    return ver;
+                }
+                
+                if (ua.includes('mac')) return 'MacOS';
+                if (ua.includes('linux')) return 'Linux';
+                
+                return 'Desconocido';
+            },
+            getBrowser: () => {
+                const ua = navigator.userAgent;
+                if (ua.includes('Jkfk')) return 'Soul Browser';
+                if (ua.includes('Brave') || ua.includes('brave')) return 'Brave';
+                if (ua.includes('SamsungBrowser')) return 'Samsung Internet';
+                if (ua.includes('UCBrowser') || ua.includes('UCWeb')) return 'UC Browser';
+                if (ua.includes('Vivaldi')) return 'Vivaldi';
+                if (ua.includes('Edg')) return 'Edge';
+                if (ua.includes('Opera') || ua.includes('OPR')) return 'Opera';
+                
+                if (ua.includes('Firefox')) return 'Firefox';
+                if (ua.includes('Chrome')) return 'Chrome';
+                if (ua.includes('Safari')) return 'Safari';
+                if (ua.includes('Trident')) return 'Internet Explorer';
+                
+                return 'Navegador basado en Chromium';
+            },
+            getInfo: function() {
+                return {
+                    sistema: this.getOS(),
+                    navegador: this.getBrowser(),
+                    tipoDispositivo: this.isMobile() ? 'Móvil' : 'Ordenador',
+                    resolucion: Math.round(window.screen.width * window.devicePixelRatio) + ' x ' + Math.round(window.screen.height * window.devicePixelRatio),
+                    idioma: navigator.language
+                };
+            }
+        };
 
-        function detectarSistemaOperativo() {
-            var userAgent = navigator.userAgent.toLowerCase();
-            
-            // Android y iOS deben ir primero porque también pueden contener "linux" o "mac"
-            if (userAgent.includes('android')) return 'Android';
-            if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'iOS';
-            if (userAgent.includes('win')) return 'Windows';
-            if (userAgent.includes('mac')) return 'MacOS';
-            if (userAgent.includes('linux')) return 'Linux';
-            
-            return 'Desconocido';
-        }
-
-        function detectarNavegador() {
-            var userAgent = navigator.userAgent;
-            
-            // Navegadores específicos primero (antes de Chrome, ya que usan Chromium)
-            if (userAgent.includes('Jkfk')) return 'Soul Browser';
-            if (userAgent.includes('Brave') || userAgent.includes('brave')) return 'Brave';
-            if (userAgent.includes('SamsungBrowser')) return 'Samsung Internet';
-            if (userAgent.includes('UCBrowser') || userAgent.includes('UCWeb')) return 'UC Browser';
-            if (userAgent.includes('Vivaldi')) return 'Vivaldi';
-            if (userAgent.includes('Edg')) return 'Edge';
-            if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
-            
-            // Navegadores principales
-            if (userAgent.includes('Firefox')) return 'Firefox';
-            if (userAgent.includes('Chrome')) return 'Chrome';
-            if (userAgent.includes('Safari')) return 'Safari';
-            if (userAgent.includes('Trident')) return 'Internet Explorer';
-            
-            return 'Navegador basado en Chromium';
-        }
-
-        function obtenerInfoDispositivo() {
-            var sistema = detectarSistemaOperativo();
-            var navegador = detectarNavegador();
-            var tipoDispositivo = esMovil() ? 'Móvil' : 'Ordenador';
-            var resolucion = window.screen.width + ' x ' + window.screen.height;
-            var idioma = navigator.language;
-            
-            return {
-                sistema: sistema,
-                navegador: navegador,
-                tipoDispositivo: tipoDispositivo,
-                resolucion: resolucion,
-                idioma: idioma
-            };
-        }
+        // Mantener funciones globales para compatibilidad
+        function esMovil() { return DeviceManager.isMobile(); }
+        function detectarSistemaOperativo() { return DeviceManager.getOS(); }
+        function detectarNavegador() { return DeviceManager.getBrowser(); }
+        function obtenerInfoDispositivo() { return DeviceManager.getInfo(); }
 
         // Función para abrir la información del periódico en modal
         function openNewspaperInfo(newspaperName, event) {
-            // Evitar que se propague el evento al item padre
             if (event) {
                 event.stopPropagation();
                 event.preventDefault();
             }
-            
             showNewspaperModal(newspaperName);
         }
 
@@ -2293,25 +2309,8 @@
             document.body.style.overflow = 'hidden';
             
             try {
-                // Verificar que la base de datos esté cargada
-                if (!periodicosDB || Object.keys(periodicosDB).length === 0) {
-                    // Intentar cargar de nuevo
-                    cargarBaseDatos();
-                }
-                
-                // Buscar el periódico (primero por clave directa, luego por nombre)
-                let periodico = periodicosDB[newspaperName];
-                
-                // Si no se encuentra, buscar por nombre
-                if (!periodico) {
-                    const key = Object.keys(periodicosDB).find(k => 
-                        periodicosDB[k].nombre === newspaperName || 
-                        periodicosDB[k].nombre.toLowerCase() === newspaperName.toLowerCase()
-                    );
-                    if (key) {
-                        periodico = periodicosDB[key];
-                    }
-                }
+                // Usar NewspaperDB
+                const periodico = NewspaperDB.get(newspaperName);
                 
                 if (!periodico) {
                     modalTitle.textContent = 'Periódico no encontrado';
@@ -2410,6 +2409,18 @@
         function mostrarInfoDispositivo() {
             var info = obtenerInfoDispositivo();
             
+            // Crear backdrop (fondo oscuro)
+            var backdrop = document.createElement('div');
+            backdrop.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 99998;
+            `;
+            
             // Crear un div flotante con la información
             var infoDiv = document.createElement('div');
             infoDiv.style.cssText = `
@@ -2456,17 +2467,36 @@
                 >Cerrar</button>
             `;
             
+            // Función para cerrar el modal
+            function cerrarModal() {
+                backdrop.remove();
+                infoDiv.remove();
+            }
+            
+            // Añadir elementos al DOM
+            document.body.appendChild(backdrop);
             document.body.appendChild(infoDiv);
             
-            // Cerrar al hacer clic en el botón
-            document.getElementById('closeInfoBtn').addEventListener('click', function() {
-                infoDiv.remove();
-            });
+            // Cerrar al hacer clic en el botón (usando setTimeout para asegurar que el DOM está listo)
+            setTimeout(function() {
+                var closeBtn = document.getElementById('closeInfoBtn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', cerrarModal);
+                }
+            }, 0);
+            
+            // Cerrar al hacer clic en el backdrop
+            backdrop.addEventListener('click', cerrarModal);
             
             // Auto-seleccionar el textarea al hacer clic
-            infoDiv.querySelector('textarea').addEventListener('click', function() {
-                this.select();
-            });
+            setTimeout(function() {
+                var textarea = infoDiv.querySelector('textarea');
+                if (textarea) {
+                    textarea.addEventListener('click', function() {
+                        this.select();
+                    });
+                }
+            }, 0);
         }
         // ===== FIN DETECCIÓN =====
 
@@ -2474,8 +2504,8 @@
 
         // ===== CONSTANTES DE CONFIGURACIÓN =====
         static TIMEOUTS = {
-            MOBILE_FETCH: 20000,
-            DESKTOP_FETCH: 10000,
+            MOBILE_FETCH: 25000,
+            DESKTOP_FETCH: 20000,
             BLUESKY_API: 10000
         };
 
@@ -2527,6 +2557,7 @@
                 };
 
                 this.currentQuery = '';
+                this.isSearching = false;
                 this.allNews = [];
                 this.newsCounts = {};
                 this.modalHistory = [];
@@ -2534,10 +2565,13 @@
                 this.currentSubtitle = '';
 
                 this.proxies = [
+                    'https://api.codetabs.com/v1/proxy?quest=',
                     'https://api.allorigins.win/raw?url=',
                     'https://corsproxy.io/?',
-                    'https://api.codetabs.com/v1/proxy?quest=',
-                    'https://cors-anywhere.herokuapp.com/'
+                    'https://proxy.cors.sh/',
+                    'https://thingproxy.freeboard.io/fetch/',
+                    'https://cors-proxy.htmldriven.com/?url=',
+                    'https://yacdn.org/proxy/'
                 ];
 
                 this.newspaperToDomain = {
@@ -3206,6 +3240,57 @@
                 this.elements.modalClose.addEventListener('click', () => this.closeModal());
                 this.elements.modalBack.addEventListener('click', () => this.goBack());
 
+                // Delegación de eventos para enlaces dentro del modal body
+                this.elements.modalBody.addEventListener('click', (e) => {
+                    const link = e.target.closest('a');
+                    if (!link) return;
+
+                    const href = link.getAttribute('href');
+
+                    // Saltar enlaces vacíos o de ancla
+                    if (!href || href === '#') {
+                        return;
+                    }
+
+                    // Saltar solo enlaces explícitamente externos (mailto, tel)
+                    if (href.startsWith('mailto:') || href.startsWith('tel:')) {
+                        return;
+                    }
+
+                    // Prevenir navegación por defecto para TODOS los demás enlaces
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Convertir URLs relativas a absolutas
+                    let absoluteUrl = href;
+                    const currentUrl = this.elements.modalOriginalLink.href;
+
+                    if (href.startsWith('/') && currentUrl && currentUrl !== '#') {
+                        try {
+                            const urlObj = new URL(currentUrl);
+                            absoluteUrl = urlObj.origin + href;
+                        } catch (err) {
+                            console.error('Error procesando URL relativa:', err);
+                            return;
+                        }
+                    } else if (!href.startsWith('http') && !href.startsWith('//') && currentUrl && currentUrl !== '#') {
+                        try {
+                            const urlObj = new URL(currentUrl);
+                            const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+                            absoluteUrl = urlObj.origin + basePath + href;
+                        } catch (err) {
+                            console.error('Error procesando URL relativa:', err);
+                            return;
+                        }
+                    }
+
+                    // Obtener el texto del enlace
+                    const linkText = (link.textContent || link.innerText || '').trim();
+
+                    // Cargar el contenido en el modal
+                    this.loadModalContent(absoluteUrl, linkText);
+                });
+
                 // Delegación de eventos para modal triggers (prevenir duplicación en móvil)
                 let isProcessing = false;
                 let lastClickedElement = null;
@@ -3453,6 +3538,8 @@
             }
 
             async search() {
+                if (this.isSearching) return;
+                
                 let query = this.elements.searchInput.value.trim();
                 
                 // Si no hay término de búsqueda, usar "a" para obtener noticias del día
@@ -3460,6 +3547,7 @@
                     query = 'a';
                 }
 
+                this.isSearching = true;
                 this.currentQuery = query;
                 this.allNews = [];
 
@@ -3493,60 +3581,170 @@
                     this.showError();
                 } finally {
                     this.showLoading(false);
+                    this.isSearching = false;
                 }
             }
 
             async searchWithDifferentProxies(query) {
-                const allResults = [];
                 const maxCount = parseInt(this.elements.countSelect.value);
                 const numResults = maxCount + 20;
                 const selectedValue = this.elements.sourcesSelect.value;
 
-                let googleNewsUrl = this.buildGoogleNewsUrl(query, selectedValue, numResults);
+                let allNews = [];
+                let startIndex = 0;
+                let attemptCount = 0;
+                const maxAttempts = 20; // Máximo 20 intentos para evitar bucles infinitos
 
+                // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
+                while (allNews.length < maxCount && attemptCount < maxAttempts) {
+                    attemptCount++;
+                    
+                    let googleNewsUrl = this.buildGoogleNewsUrl(query, selectedValue, numResults);
+                    
+                    // Añadir parámetro &start=XX si no es la primera búsqueda
+                    if (startIndex > 0) {
+                        googleNewsUrl += `&start=${startIndex}`;
+                    }
+                    
+                    console.log(`🔍 Búsqueda #${attemptCount} - URL:`, googleNewsUrl);
 
-                for (let i = 0; i < this.proxies.length; i++) {
-                    const proxy = this.proxies[i];
-                    try {
-                        
-                        const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
-                        
-                        // Timeout adaptativo: 10 segundos en ordenador, 20 en móvil
-                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                        const timeout = isMobile ? NewsSearcher.TIMEOUTS.MOBILE_FETCH : NewsSearcher.TIMEOUTS.DESKTOP_FETCH;
+                    // Consultar todos los proxies en paralelo - devolver el primero que responda exitosamente
+                    const isMobile = DeviceManager.isMobile();
+                    const timeout = isMobile ? NewsSearcher.TIMEOUTS.MOBILE_FETCH : NewsSearcher.TIMEOUTS.DESKTOP_FETCH;
+                    
+                    console.log(`⏱️ Timeout configurado: ${timeout}ms (${isMobile ? 'Móvil' : 'Desktop'})`);
+                    console.log(`📡 Probando ${this.proxies.length} proxies en paralelo...`);
+
+                    const controllers = [];
+                    const proxyPromises = this.proxies.map(async (proxy) => {
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), timeout);
+                        controllers.push(controller);
+                        const proxyName = proxy.split('/')[2] || proxy;
                         
-                        const response = await fetch(proxyUrl, {
-                            signal: controller.signal,
-                            headers: {
+                        try {
+                            const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
+                            const timeoutId = setTimeout(() => controller.abort(), timeout);
+                            
+                            console.log(`🔄 Intentando proxy: ${proxyName}`);
+                            
+                            const headers = {
                                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                                'Accept-Language': 'es-ES,es;q=0.9'
+                                'Accept-Language': 'es-ES,es;q=0.9',
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                                'Referer': 'https://www.google.com/'
+                            };
+                            
+                            // Añadir API key si es proxy.cors.sh
+                            if (proxy.includes('proxy.cors.sh')) {
+                                headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
                             }
+                            
+                            const response = await fetch(proxyUrl, {
+                                signal: controller.signal,
+                                headers: headers
+                            });
+                            
+                            clearTimeout(timeoutId);
+
+                            if (response.ok) {
+                                const htmlContent = await response.text();
+                                const news = this.parseGoogleNewsResults(htmlContent);
+
+                                if (news.length > 0) {
+                                    console.log(`✅ Proxy exitoso: ${proxyName} - ${news.length} noticias`);
+                                    return { success: true, news, proxy };
+                                } else {
+                                    console.log(`⚠️ Proxy ${proxyName} respondió OK pero sin noticias`);
+                                }
+                            } else {
+                                console.log(`❌ Proxy ${proxyName} falló: HTTP ${response.status}`);
+                            }
+                            return { success: false, proxy };
+                        } catch (error) {
+                            if (error.name === 'AbortError') {
+                                console.log(`⏱️ Proxy ${proxyName} timeout después de ${timeout}ms`);
+                                return { success: false, proxy, aborted: true };
+                            }
+                            console.log(`❌ Proxy ${proxyName} error: ${error.message}`);
+                            return { success: false, proxy };
+                        }
+                    });
+
+                    // Esperar al primer resultado exitoso usando Promise.race correctamente
+                    let foundResults = false;
+                    
+                    try {
+                        // Crear una promesa que se resuelve con el primer resultado exitoso
+                        const firstSuccessfulResult = await new Promise((resolve, reject) => {
+                            let completed = 0;
+                            let hasResolved = false;
+                            
+                            proxyPromises.forEach(promise => {
+                                promise.then(result => {
+                                    completed++;
+                                    
+                                    if (!hasResolved && result.success && result.news.length > 0) {
+                                        hasResolved = true;
+                                        // Cancelar todas las peticiones restantes
+                                        controllers.forEach(ctrl => ctrl.abort());
+                                        resolve(result);
+                                    } else if (completed === proxyPromises.length && !hasResolved) {
+                                        reject(new Error('No hay proxies exitosos'));
+                                    }
+                                }).catch(() => {
+                                    completed++;
+                                    if (completed === proxyPromises.length && !hasResolved) {
+                                        reject(new Error('Todos los proxies fallaron'));
+                                    }
+                                });
+                            });
                         });
                         
-                        clearTimeout(timeoutId);
-
-
-                        if (response.ok) {
-                            const htmlContent = await response.text();
-                            
-                            const news = this.parseGoogleNewsResults(htmlContent);
-
-                            if (news.length > 0) {
-                                allResults.push(...news);
-                                break;
-                            } else {
-                            }
+                        if (attemptCount === 1) {
+                            console.log(`✅ Proxy exitoso: ${firstSuccessfulResult.proxy}`);
                         }
+                        console.log(`📰 Noticias extraídas en búsqueda #${attemptCount}: ${firstSuccessfulResult.news.length}`);
+                        
+                        // Añadir noticias evitando duplicados por URL
+                        const existingUrls = new Set(allNews.map(n => n.link));
+                        const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
+                        allNews.push(...newNews);
+                        
+                        console.log(`📊 Total acumulado: ${allNews.length} de ${maxCount} solicitadas`);
+                        
+                        // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
+                        if (newNews.length === 0) {
+                            console.log('⚠️ No hay más noticias disponibles en Google');
+                            return allNews;
+                        }
+                        
+                        // Actualizar el índice de inicio para la próxima búsqueda
+                        startIndex = allNews.length;
+                        foundResults = true;
+                        
                     } catch (error) {
-                        if (i === this.proxies.length - 1) {
+                        // Ningún proxy devolvió resultados exitosos
+                        foundResults = false;
+                    }
+
+                    // Si ningún proxy devolvió resultados, terminar
+                    if (!foundResults) {
+                        controllers.forEach(ctrl => ctrl.abort());
+                        
+                        if (allNews.length === 0) {
+                            console.log('❌ No se pudieron extraer noticias de ningún proxy');
+                        } else {
+                            console.log('⚠️ No se pudieron obtener más noticias de los proxies');
                         }
-                        continue;
+                        break;
                     }
                 }
 
-                return allResults;
+                if (allNews.length < maxCount) {
+                    console.log(`⚠️ Solo se pudieron obtener ${allNews.length} de ${maxCount} noticias solicitadas`);
+                }
+
+                return allNews;
             }
 
             buildGoogleNewsUrl(query, selectedValue, numResults) {
@@ -3618,13 +3816,20 @@
                        `lr=lang_es&` +
                        `ie=UTF-8&` +
                        `oe=UTF-8&` +
+                       `tbs=sbd:1&` +
                        `num=${numResults}`;
             }
 
             buildProxyUrl(proxy, url) {
-                if (proxy.includes('corsproxy.io') || proxy.includes('api.codetabs.com')) {
+                // Proxies que necesitan la URL codificada
+                if (proxy.includes('corsproxy.io') || 
+                    proxy.includes('api.codetabs.com') ||
+                    proxy.includes('proxy.cors.sh') ||
+                    proxy.includes('allorigins.win') ||
+                    proxy.includes('htmldriven.com')) {
                     return proxy + encodeURIComponent(url);
                 }
+                // Resto de proxies usan la URL directamente
                 return proxy + url;
             }
 
@@ -3633,19 +3838,32 @@
                 const doc = parser.parseFromString(html, 'text/html');
                 const news = [];
 
+                // Debug: verificar si el HTML contiene contenido de Google
+                const htmlLength = html.length;
+                const hasGoogleContent = html.includes('google') || html.includes('Search');
+                console.log(`📄 HTML recibido: ${htmlLength} caracteres, ¿Contiene Google? ${hasGoogleContent ? '✅' : '❌'}`);
+
                 const possibleSelectors = ['.g', '.mnr-c', '.SoaBEf', '.xrnccd', 'div[data-hveid]', '.dbsr > div', '.Gx5Zad'];
 
                 for (const selector of possibleSelectors) {
                     const newsItems = doc.querySelectorAll(selector);
-
+                    
                     if (newsItems.length > 0) {
+                        console.log(`🔍 Selector "${selector}" encontró ${newsItems.length} elementos`);
                         newsItems.forEach(item => {
                             const newsItem = this.extractNewsItemData(item);
                             if (newsItem) news.push(newsItem);
                         });
 
-                        if (news.length > 0) break;
+                        if (news.length > 0) {
+                            console.log(`✅ Parseadas ${news.length} noticias con selector "${selector}"`);
+                            break;
+                        }
                     }
+                }
+                
+                if (news.length === 0) {
+                    console.log(`❌ No se encontraron noticias con ningún selector. HTML inicio: ${html.substring(0, 500)}`);
                 }
 
                 return news;
@@ -3657,34 +3875,32 @@
                     const titleElement = this.findFirstElement(item, titleSelectors);
                     const linkElement = item.querySelector('a');
 
-                    if (titleElement && linkElement) {
-                        const title = this.cleanText(titleElement.textContent);
-                        let link = linkElement.href;
+                    if (!titleElement || !linkElement) return null;
 
-                        if (link.includes('/url?q=')) {
-                            const urlParams = new URLSearchParams(link.split('?')[1]);
-                            link = urlParams.get('q') || link;
-                        }
+                    const title = this.cleanText(titleElement.textContent);
+                    let link = linkElement.href;
 
-                        const hostname = this.extractHostname(link);
-
-                        if (title && hostname) {
-                            const dateElement = this.findDateElement(item);
-                            const snippetElement = this.findSnippetElement(item);
-                            const finalSubtitle = this.extractSubtitle(snippetElement);
-
-                            return {
-                                title: title,
-                                subtitle: finalSubtitle,
-                                link: link,
-                                date: dateElement ? this.parseDate(this.cleanText(dateElement.textContent)) : 'Fecha no disponible',
-                                author: this.inferAuthorFromHost(hostname)
-                            };
-                        }
+                    if (link.includes('/url?q=')) {
+                        const urlParams = new URLSearchParams(link.split('?')[1]);
+                        link = urlParams.get('q') || link;
                     }
-                } catch (e) {
-                    // Ignorar errores de parsing
-                }
+
+                    const hostname = this.extractHostname(link);
+
+                    if (!title || !hostname) return null;
+
+                    const dateElement = this.findDateElement(item);
+                    const snippetElement = this.findSnippetElement(item);
+                    const finalSubtitle = this.extractSubtitle(snippetElement);
+
+                    return {
+                        title: title,
+                        subtitle: finalSubtitle,
+                        link: link,
+                        date: dateElement ? this.parseDate(this.cleanText(dateElement.textContent)) : 'Fecha no disponible',
+                        author: this.inferAuthorFromHost(hostname)
+                    };
+                } catch (e) {}
                 return null;
             }
 
@@ -3733,9 +3949,8 @@
             extractHostname(url) {
                 try {
                     return new URL(url).hostname.replace(/^www\./, '');
-                } catch {
-                    return '';
-                }
+                } catch {}
+                return '';
             }
 
             isDateText(text) {
@@ -3754,9 +3969,6 @@
                 const now = new Date();
                 const originalDate = dateStr;
 
-                // Log para depuración
-                if (Math.random() < 0.1) {  // Solo 10% para no saturar
-                }
 
                 // Minutos - Español
                 if (dateStr.includes('minuto')) {
@@ -3950,15 +4162,9 @@
             }
 
             displayNews(news) {
-                
-                // Estadística de subtítulos
-                const withSubtitle = news.filter(n => n.subtitle && n.subtitle.trim()).length;
-                
                 this.elements.resultsContainer.innerHTML = '';
 
                 news.forEach((item, index) => {
-                    if (index < 3) {  // Log solo las primeras 3 noticias
-                    }
                     
                     const isPopupMode = this.elements.readingModeSwitch.checked;
                     const linkHTML = isPopupMode ?
@@ -3985,11 +4191,6 @@
                     `;
 
                     this.elements.resultsContainer.appendChild(newsElement);
-                    
-                    // Verificar subtítulo en DOM (solo primeras 3)
-                    if (index < 3 && item.subtitle) {
-                        // Comentado: logs de depuración de subtítulos
-                    }
                 });
             }
 
@@ -4064,6 +4265,8 @@
             }
 
             async searchByNewspaper(domain, newspaperName) {
+                if (this.isSearching) return;
+
                 let query = this.elements.searchInput.value.trim();
 
                 // Si no hay término de búsqueda, usar "a" para obtener noticias recientes
@@ -4071,6 +4274,7 @@
                     query = 'a';
                 }
 
+                this.isSearching = true;
                 this.currentQuery = query;
                 this.allNews = [];
 
@@ -4080,53 +4284,161 @@
                 try {
                     const maxCount = parseInt(this.elements.countSelect.value);
                     const numResults = maxCount + 20;
-
-                    // Construir URL con site:dominio
                     const isDefaultSearch = (query === 'a');
-                    const googleNewsUrl = isDefaultSearch ?
-                        `https://www.google.com/search?` +
-                        `q=site:${domain}+${encodeURIComponent(query)}&` +
-                        `tbm=nws&` +
-                        `hl=es&` +
-                        `gl=es&` +
-                        `lr=lang_es&` +
-                        `ie=UTF-8&` +
-                        `oe=UTF-8&` +
-                        `num=${numResults}&` +
-                        `qdr=h&` +
-                        `tbs=sbd:1` :
-                        `https://www.google.com/search?` +
-                        `q=site:${domain}+${encodeURIComponent(query)}&` +
-                        `tbm=nws&` +
-                        `tbs=qdr:w&` +
-                        `hl=es&` +
-                        `gl=es&` +
-                        `lr=lang_es&` +
-                        `ie=UTF-8&` +
-                        `oe=UTF-8&` +
-                        `num=${numResults}`;
 
                     let allResults = [];
+                    let startIndex = 0;
+                    let attemptCount = 0;
+                    const maxAttempts = 20;
 
-                    // Usar solo api.codetabs.com
-                    const preferredProxies = ['https://api.codetabs.com/v1/proxy?quest=', 'https://corsproxy.io/?'];
+                    // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
+                    while (allResults.length < maxCount && attemptCount < maxAttempts) {
+                        attemptCount++;
 
-                    for (const proxy of preferredProxies) {
-                        try {
-                            const proxyUrl = proxy + encodeURIComponent(googleNewsUrl);
-                            const response = await fetch(proxyUrl);
+                        // Construir URL con site:dominio
+                        let googleNewsUrl = isDefaultSearch ?
+                            `https://www.google.com/search?` +
+                            `q=site:${domain}+${encodeURIComponent(query)}&` +
+                            `tbm=nws&` +
+                            `hl=es&` +
+                            `gl=es&` +
+                            `lr=lang_es&` +
+                            `ie=UTF-8&` +
+                            `oe=UTF-8&` +
+                            `num=${numResults}&` +
+                            `qdr=h&` +
+                            `tbs=sbd:1` :
+                            `https://www.google.com/search?` +
+                            `q=site:${domain}+${encodeURIComponent(query)}&` +
+                            `tbm=nws&` +
+                            `tbs=qdr:w&` +
+                            `hl=es&` +
+                            `gl=es&` +
+                            `lr=lang_es&` +
+                            `ie=UTF-8&` +
+                            `oe=UTF-8&` +
+                            `num=${numResults}`;
 
-                            if (response.ok) {
-                                const htmlContent = await response.text();
-                                const news = this.parseGoogleNewsResults(htmlContent);
+                        // Añadir parámetro &start=XX si no es la primera búsqueda
+                        if (startIndex > 0) {
+                            googleNewsUrl += `&start=${startIndex}`;
+                        }
 
-                                if (news.length > 0) {
-                                    allResults.push(...news);
-                                    break;
+                        console.log(`🔍 Búsqueda #${attemptCount} (${newspaperName}) - URL:`, googleNewsUrl);
+
+                        // Consultar todos los proxies en paralelo con Promise.race optimizado
+                        const preferredProxies = this.proxies;
+
+                        // Crear promesas con abort controllers para cancelar las peticiones restantes
+                        const controllers = [];
+                        const proxyPromises = preferredProxies.map(async (proxy) => {
+                            const controller = new AbortController();
+                            controllers.push(controller);
+                            
+                            try {
+                                const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
+                                
+                                const headers = {
+                                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                    'Accept-Language': 'es-ES,es;q=0.9',
+                                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                                    'Referer': 'https://www.google.com/'
+                                };
+                                
+                                // Añadir API key si es proxy.cors.sh
+                                if (proxy.includes('proxy.cors.sh')) {
+                                    headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
                                 }
+                                
+                                const response = await fetch(proxyUrl, { 
+                                    signal: controller.signal,
+                                    headers: headers
+                                });
+
+                                if (response.ok) {
+                                    const htmlContent = await response.text();
+                                    const news = this.parseGoogleNewsResults(htmlContent);
+
+                                    if (news.length > 0) {
+                                        return { success: true, news, proxy };
+                                    }
+                                }
+                                return { success: false, proxy };
+                            } catch (error) {
+                                if (error.name === 'AbortError') {
+                                    return { success: false, proxy, aborted: true };
+                                }
+                                return { success: false, proxy };
                             }
+                        });
+
+                        // Esperar al primer resultado exitoso usando Promise.race correctamente
+                        let foundResults = false;
+                        
+                        try {
+                            // Crear una promesa que se resuelve con el primer resultado exitoso
+                            const firstSuccessfulResult = await new Promise((resolve, reject) => {
+                                let completed = 0;
+                                let hasResolved = false;
+                                
+                                proxyPromises.forEach(promise => {
+                                    promise.then(result => {
+                                        completed++;
+                                        
+                                        if (!hasResolved && result.success && result.news.length > 0) {
+                                            hasResolved = true;
+                                            // Cancelar todas las peticiones restantes
+                                            controllers.forEach(ctrl => ctrl.abort());
+                                            resolve(result);
+                                        } else if (completed === proxyPromises.length && !hasResolved) {
+                                            reject(new Error('No hay proxies exitosos'));
+                                        }
+                                    }).catch(() => {
+                                        completed++;
+                                        if (completed === proxyPromises.length && !hasResolved) {
+                                            reject(new Error('Todos los proxies fallaron'));
+                                        }
+                                    });
+                                });
+                            });
+                            
+                            if (attemptCount === 1) {
+                                console.log(`✅ Proxy exitoso (${newspaperName}): ${firstSuccessfulResult.proxy}`);
+                            }
+                            console.log(`📰 Noticias extraídas en búsqueda #${attemptCount}: ${firstSuccessfulResult.news.length}`);
+                            
+                            // Añadir noticias evitando duplicados por URL
+                            const existingUrls = new Set(allResults.map(n => n.link));
+                            const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
+                            allResults.push(...newNews);
+                            
+                            console.log(`📊 Total acumulado: ${allResults.length} de ${maxCount} solicitadas`);
+                            
+                            // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
+                            if (newNews.length === 0) {
+                                console.log('⚠️ No hay más noticias disponibles en Google');
+                                foundResults = false;
+                            } else {
+                                // Actualizar el índice de inicio para la próxima búsqueda
+                                startIndex = allResults.length;
+                                foundResults = true;
+                            }
+                            
                         } catch (error) {
-                            continue;
+                            // Ningún proxy devolvió resultados exitosos
+                            foundResults = false;
+                        }
+
+                        // Si ningún proxy devolvió resultados, terminar
+                        if (!foundResults) {
+                            controllers.forEach(ctrl => ctrl.abort());
+                            
+                            if (allResults.length === 0) {
+                                console.log(`❌ No se pudieron extraer noticias de ningún proxy (${newspaperName})`);
+                            } else {
+                                console.log('⚠️ No se pudieron obtener más noticias de los proxies');
+                            }
+                            break;
                         }
                     }
 
@@ -4134,6 +4446,10 @@
                         this.showNoResults();
                         this.resetDropdownOptions();
                         return;
+                    }
+
+                    if (allResults.length < maxCount) {
+                        console.log(`⚠️ Solo se pudieron obtener ${allResults.length} de ${maxCount} noticias solicitadas (${newspaperName})`);
                     }
 
                     // Filtrar por texto de búsqueda
@@ -4164,6 +4480,7 @@
                     this.showError();
                 } finally {
                     this.showLoading(false);
+                    this.isSearching = false;
                 }
             }
 
@@ -4344,7 +4661,6 @@
                             const response = await fetch(proxyUrl);
 
                             if (response.ok) {
-                                
                                 // Leer como buffer para detectar la codificación correcta
                                 const buffer = await response.arrayBuffer();
                                 const bytes = new Uint8Array(buffer);
@@ -4395,7 +4711,6 @@
                             content = result.content;
                         }
                     } catch (error) {
-                        
                         // Si ambos fallan, probar los proxies de respaldo secuencialmente
                         const proxiesRespaldo = [
                             'https://api.codetabs.com/v1/proxy?quest=',
@@ -4408,7 +4723,6 @@
                                 const response = await fetch(proxyUrl);
 
                                 if (response.ok) {
-                                    
                                     const buffer = await response.arrayBuffer();
                                     const bytes = new Uint8Array(buffer);
                                     let decoder = new TextDecoder('utf-8', { fatal: true });
@@ -4808,9 +5122,144 @@
                 return allAudios;
             }
 
-            detectYouTubeVideos(html, doc) {
+            async detectABCAudios(html, doc) {
+                const allAudios = [];
+                const seenUrls = new Set();
+                let globalIndex = 0;
+                
+                // 1. Buscar contenedores con data-audio-src (formato específico de ABC para audificación de noticias)
+                const audioContainers = doc.querySelectorAll('[data-audio-src], .voc-c-container--aud-p-news[data-audio-src]');
+                
+                audioContainers.forEach(container => {
+                    const audioSrc = container.getAttribute('data-audio-src');
+                    if (!audioSrc) return;
+                    
+                    const fileName = audioSrc.split('/').pop().split('?')[0];
+                    if (!seenUrls.has(fileName)) {
+                        seenUrls.add(fileName);
+                        
+                        // Buscar título del artículo
+                        let title = '';
+                        const mainTitle = doc.querySelector('h1, .voc-title, [class*="title"]');
+                        if (mainTitle) title = this.cleanText(mainTitle.textContent);
+                        
+                        allAudios.push({
+                            type: 'audio',
+                            src: audioSrc,
+                            title: title || 'Audio de la noticia',
+                            description: 'Escucha la noticia',
+                            position: ++globalIndex,
+                            source: 'abc-data-audio-src'
+                        });
+                    }
+                });
+                
+                // 2. Buscar elementos <audio> con atributos src y elementos <source>
+                const audioElements = Array.from(doc.querySelectorAll('audio'));
+                audioElements.forEach(audio => {
+                    const sources = audio.querySelectorAll('source');
+                    const srcAttr = audio.getAttribute('src');
+                    
+                    // Si tiene src directo
+                    if (srcAttr) {
+                        const fileName = srcAttr.split('/').pop().split('?')[0];
+                        if (!seenUrls.has(fileName)) {
+                            seenUrls.add(fileName);
+                            
+                            let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
+                            let description = '';
+                            
+                            const parent = audio.closest('figure, div, article, section, main');
+                            if (parent) {
+                                const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, [class*="title"]');
+                                if (titleEl && !title) title = this.cleanText(titleEl.textContent);
+                                
+                                const descEl = parent.querySelector('p, .description, [class*="description"]');
+                                if (descEl) description = this.cleanText(descEl.textContent);
+                            }
+                            
+                            allAudios.push({
+                                type: 'audio',
+                                src: srcAttr,
+                                title: title || 'Audio sin título',
+                                description: description || '',
+                                position: ++globalIndex,
+                                source: 'audio-element'
+                            });
+                        }
+                    }
+                    
+                    // Si tiene elementos <source>
+                    sources.forEach(source => {
+                        const srcAttr = source.getAttribute('src');
+                        if (!srcAttr) return;
+                        
+                        const fileName = srcAttr.split('/').pop().split('?')[0];
+                        if (!seenUrls.has(fileName)) {
+                            seenUrls.add(fileName);
+                            
+                            let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
+                            let description = '';
+                            
+                            const parent = audio.closest('figure, div, article, section, main');
+                            if (parent) {
+                                const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, [class*="title"]');
+                                if (titleEl && !title) title = this.cleanText(titleEl.textContent);
+                                
+                                const descEl = parent.querySelector('p, .description, [class*="description"]');
+                                if (descEl) description = this.cleanText(descEl.textContent);
+                            }
+                            
+                            allAudios.push({
+                                type: 'audio',
+                                src: srcAttr,
+                                title: title || 'Audio sin título',
+                                description: description || '',
+                                position: ++globalIndex,
+                                source: 'audio-source'
+                            });
+                        }
+                    });
+                });
+                
+                // 3. Buscar URLs de audio en el HTML usando expresiones regulares (específicamente de abcstatics.com)
+                const audioUrlRegex = /"(https?:\/\/[^"]*abcstatics\.com[^"]*\.(?:mp3|m4a|ogg|wav|aac|flac)[^"]*)"/gi;
+                let match;
+                
+                while ((match = audioUrlRegex.exec(html)) !== null) {
+                    const audioUrl = match[1];
+                    const cleanUrl = audioUrl.split('"')[0];
+                    const fileName = cleanUrl.split('/').pop().split('?')[0];
+                    
+                    if (!seenUrls.has(fileName)) {
+                        seenUrls.add(fileName);
+                        
+                        let title = '';
+                        const mainTitle = doc.querySelector('h1, .voc-title, [class*="title"]');
+                        if (mainTitle) title = this.cleanText(mainTitle.textContent);
+                        
+                        allAudios.push({
+                            type: 'audio',
+                            src: cleanUrl,
+                            title: title || 'Audio de ABC',
+                            description: '',
+                            position: ++globalIndex,
+                            source: 'html-regex'
+                        });
+                    }
+                }
+                
+                return allAudios;
+            }
+
+            detectYouTubeVideos(html, doc, domain = '') {
                 const videos = [];
                 const seen = new Set();
+                
+                // Para ABC.es NO detectar videos de YouTube porque están en contenedores que se eliminan
+                if (domain === 'abc.es') {
+                    return videos;
+                }
                 
                 // Método 1: Buscar iframes de YouTube
                 const iframes = doc.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtu.be"]');
@@ -4893,9 +5342,14 @@
                 return videos;
             }
 
-            detectDailymotionVideos(html) {
+            detectDailymotionVideos(html, domain = '') {
                 const videos = [];
                 const seen = new Set();
+                
+                // Para ABC.es NO detectar videos de Dailymotion porque están en contenedores que se eliminan
+                if (domain === 'abc.es') {
+                    return videos;
+                }
                 
                 // Patrón 1: data-video-id="..."
                 const dataVideoIdRegex = /data-video-id=["']([^"']+)["']/gi;
@@ -5148,9 +5602,7 @@
                         };
                         
                         findVideos(jsonData);
-                    } catch (e) {
-                        // Error silencioso al parsear JSON-LD
-                    }
+                    } catch (e) {}
                 });
 
                 // Método 6: Buscar URLs .mp4 en el HTML sin comillas (JSON, JavaScript, etc.)
@@ -5408,9 +5860,9 @@
             }
 
             detectTwitterVideos(html, doc, domain) {
-                // Para cope.es, NO extraer tweets como elementos separados
+                // Para cope.es y abc.es, NO extraer tweets como elementos separados
                 // Los tweets se mostrarán inline en el texto
-                if (domain === 'cope.es') {
+                if (domain === 'cope.es' || domain === 'abc.es') {
                     return [];
                 }
 
@@ -5642,9 +6094,14 @@
                 return instagrams;
             }
 
-            detectBrightcoveVideos(html, doc) {
+            detectBrightcoveVideos(html, doc, domain = '') {
                 const videos = [];
                 const seen = new Set();
+
+                // Para ABC.es NO detectar videos de Brightcove porque están en contenedores que se eliminan
+                if (domain === 'abc.es') {
+                    return videos;
+                }
 
                 // Método 1: Detectar desde data-attributes (ABC.es usa data-account, data-player, data-video-id)
                 const elementsMethod1 = doc.querySelectorAll('[data-account][data-player][data-video-id]');
@@ -5765,13 +6222,14 @@
                     exclude: '.ad, .advertisement, .publicidad, .banner'
                 };
 
-                // PRIMERO: Detectar audios (Cadena SER y Cope.es) y videos y TWEETS ANTES de eliminar cualquier elemento
+                // PRIMERO: Detectar audios (Cadena SER, Cope.es y ABC) y videos y TWEETS ANTES de eliminar cualquier elemento
                 const cadenaSerAudios = domain === 'cadenaser.com' ? await this.detectCadenaSERAudios(html, doc) : [];
                 const copeAudios = domain === 'cope.es' ? await this.detectCopeAudios(html, doc) : [];
+                const abcAudios = domain === 'abc.es' ? await this.detectABCAudios(html, doc) : [];
                 
-                const youtubeVideos = this.detectYouTubeVideos(html, doc);
-                const dailymotionVideos = this.detectDailymotionVideos(html);
-                const brightcoveVideos = this.detectBrightcoveVideos(html, doc);
+                const youtubeVideos = this.detectYouTubeVideos(html, doc, domain);
+                const dailymotionVideos = this.detectDailymotionVideos(html, domain);
+                const brightcoveVideos = this.detectBrightcoveVideos(html, doc, domain);
                 const elPaisVideos = (domain === 'elpais.com' || domain === 'cadenaser.com') ? this.detectElPaisVideos(html, doc) : [];
                 const antena3Videos = domain === 'antena3.com' ? this.detectAntena3Videos(html, doc) : [];
                 const twitterVideos = this.detectTwitterVideos(html, doc, domain);
@@ -5779,14 +6237,16 @@
                 // Instagram embeds: NO los detectamos como objetos separados
                 // Los dejamos inline en el texto para que se muestren en su posición original
 
-                // Detectar posts de Bluesky embebidos
-                const blueskyPosts = this.detectBlueskyVideos(html, doc);
+                // Detectar posts de Bluesky embebidos (NO para ABC)
                 let blueskyVideos = [];
-                if (blueskyPosts.length > 0) {
-                    try {
-                        blueskyVideos = await this.fetchBlueskyVideos(blueskyPosts);
-                    } catch (error) {
-                        // Si hay error al obtener videos de Bluesky, continuar sin ellos
+                if (domain !== 'abc.es') {
+                    const blueskyPosts = this.detectBlueskyVideos(html, doc);
+                    if (blueskyPosts.length > 0) {
+                        try {
+                            blueskyVideos = await this.fetchBlueskyVideos(blueskyPosts);
+                        } catch (error) {
+                            // Si hay error al obtener videos de Bluesky, continuar sin ellos
+                        }
                     }
                 }
 
@@ -5810,12 +6270,9 @@
                     const dateElement = doc.querySelector('.article_legend .article_date .CNewsDateUpdate') ||
                                        doc.querySelector('.article_date .CNewsDateUpdate') || 
                                        doc.querySelector('.CNewsDateUpdate');
-                    console.log('📅 CatalunyaPress - Buscando fecha ANTES de eliminar elementos');
-                    console.log('📅 CatalunyaPress - Elemento encontrado:', dateElement);
                     if (dateElement && dateElement.textContent) {
                         catalunyaPressPublishDate = this.cleanText(dateElement.textContent);
-                        catalunyaPressUpdateDate = catalunyaPressPublishDate; // Usar la misma fecha
-                        console.log('📅 CatalunyaPress - Fecha extraída:', catalunyaPressPublishDate);
+                        catalunyaPressUpdateDate = catalunyaPressPublishDate;
                     }
                 }
 
@@ -5828,12 +6285,12 @@
                 if (domain === 'abc.es') {
                     doc.querySelectorAll('.video, .nibara-element').forEach(el => el.remove());
                     
-                    // NO eliminar blockquotes de Instagram - deben quedarse en el texto para mostrarse inline
+                    // NO eliminar blockquotes de Instagram, TikTok ni Twitter - deben quedarse en el texto para mostrarse inline
                 }
 
                 // Eliminar elementos AMP de Twitter (El País y otros) después de extraer los datos
-                // EXCEPCIÓN: NO eliminar para cope.es porque los tweets deben mostrarse inline
-                if (domain !== 'cope.es') {
+                // EXCEPCIÓN: NO eliminar para cope.es y abc.es porque los tweets deben mostrarse inline
+                if (domain !== 'cope.es' && domain !== 'abc.es') {
                     doc.querySelectorAll('amp-twitter, [data-tweetid], .a_em').forEach(el => el.remove());
                 }
 
@@ -5859,9 +6316,6 @@
                 if (domain === 'catalunyapress.es' && catalunyaPressPublishDate) {
                     publishDate = catalunyaPressPublishDate;
                     updateDate = catalunyaPressUpdateDate;
-                    console.log('📅 CatalunyaPress - Usando fechas previamente extraídas');
-                    console.log('📅 CatalunyaPress - publishDate:', publishDate);
-                    console.log('📅 CatalunyaPress - updateDate:', updateDate);
                 }
                 
                 const links = this.extractLinks(doc, domain);
@@ -5895,7 +6349,7 @@
                     images: images.slice(0, 5),
                     links: links.slice(0, 10),
                     videos: videos,
-                    audios: [...cadenaSerAudios, ...copeAudios],
+                    audios: [...abcAudios, ...cadenaSerAudios, ...copeAudios],
                     tweets: twitterVideos,
                     stats: {
                         wordCount: wordCount,
@@ -6840,9 +7294,9 @@
                             'figure.ni-figure, figure.news-image, figure';
                     }
 
-                    // ABC - Selectores específicos (incluyendo blockquotes de Instagram)
+                    // ABC - Selectores específicos (incluyendo blockquotes de Instagram, TikTok y Twitter)
                     if (domain === 'abc.es') {
-                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, blockquote.instagram-media, ul, ol, .voc-p, .voc-title, .voc-subtitle';
+                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, blockquote.instagram-media, blockquote.tiktok-embed, blockquote.twitter-tweet, ul, ol, .voc-p, .voc-title, .voc-subtitle';
                     }
 
                     // ANTENA 3 - Selectores específicos
@@ -6858,7 +7312,7 @@
                     // COPE.ES - Guardar texto de figcaptions y luego eliminarlas
                     const figcaptionMap = new Map();
                     if (domain === 'cope.es') {
-                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure, .c-detail__box';
+                        contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure, .c-detail__box, audio, iframe';
                         
                         // Eliminar elementos no deseados específicos de cope.es
                         const copeExclude = [
@@ -6895,11 +7349,66 @@
                             return; // Saltar este elemento
                         }
 
+                        // Procesar elementos <audio> inline (COPE)
+                        if (tagName === 'audio' && domain === 'cope.es') {
+                            const sources = el.querySelectorAll('source');
+                            const srcAttr = el.getAttribute('src') || (sources.length > 0 ? sources[0].getAttribute('src') : '');
+                            
+                            if (srcAttr) {
+                                // Buscar título en el contenedor padre
+                                let title = el.getAttribute('title') || el.getAttribute('aria-label') || '';
+                                const parent = el.closest('figure, div, article, section');
+                                if (parent && !title) {
+                                    const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title');
+                                    if (titleEl) title = this.cleanText(titleEl.textContent);
+                                }
+                                
+                                // Insertar reproductor de audio inline
+                                textParts.push(`
+                                    <div class="modal-audio-player" style="margin: 20px 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">
+                                        ${title ? `<h3 style="font-size: 1.3em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">🔊 ${title}</h3>` : ''}
+                                        <audio controls preload="metadata" style="width: 100%; max-width: 100%; outline: none;">
+                                            <source src="${srcAttr}" type="audio/mpeg">
+                                            <source src="${srcAttr}" type="audio/mp4">
+                                            <source src="${srcAttr}" type="audio/ogg">
+                                            Tu navegador no soporta la reproducción de audio.
+                                        </audio>
+                                    </div>
+                                `);
+                            }
+                            return; // Saltar al siguiente elemento
+                        }
+
+                        // Procesar iframes de YouTube inline (COPE)
+                        if (tagName === 'iframe' && domain === 'cope.es') {
+                            const src = el.getAttribute('src') || el.getAttribute('data-src') || '';
+                            
+                            // Verificar si es un iframe de YouTube
+                            if (src.includes('youtube.com') || src.includes('youtu.be')) {
+                                // Copiar el iframe y añadir el estilo responsive manteniendo todos los atributos originales
+                                const iframe = el.cloneNode(true);
+                                iframe.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%;';
+                                
+                                // Envolver en contenedor responsive
+                                textParts.push(`
+                                    <div class="modal-video-player" style="margin: 20px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                        ${iframe.outerHTML}
+                                    </div>
+                                `);
+                            }
+                            return; // Saltar al siguiente elemento
+                        }
+
                         // Las figuras se procesan sin importar el texto
                         if (tagName === 'figure') {
                             // EXCLUIR figuras de autor (El País usa .a_md_i para imagen del autor)
                             if (domain === 'elpais.com' && el.classList.contains('a_md_i')) {
                                 return; // Saltar esta figura (es la imagen del autor)
+                            }
+                            
+                            // EXCLUIR figuras de portada de COPE (ya se muestran arriba)
+                            if (domain === 'cope.es' && el.classList.contains('c-detail__photo--full')) {
+                                return; // Saltar esta figura (es la imagen de portada)
                             }
 
                             // Procesar figuras con imágenes (El País, eldiario.es, cope.es)
@@ -6998,6 +7507,25 @@
                                         imgSrc = imgSrc.replace(/_\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
                                     }
 
+                                    // Para cope.es, evitar duplicar la imagen de portada
+                                    if (domain === 'cope.es' && firstImageSrc) {
+                                        // Normalizar ambas URLs para comparación (eliminar parámetros y fragmentos)
+                                        const normalizeUrl = (url) => {
+                                            try {
+                                                const urlObj = new URL(url);
+                                                // Retornar solo la parte de origen + pathname (sin parámetros ni fragmentos)
+                                                return urlObj.origin + urlObj.pathname;
+                                            } catch (e) {
+                                                return url;
+                                            }
+                                        };
+                                        
+                                        if (normalizeUrl(imgSrc) === normalizeUrl(firstImageSrc)) {
+                                            // Saltar esta imagen (es la de portada que ya se muestra arriba)
+                                            return;
+                                        }
+                                    }
+
                                     // Extraer pie de foto
                                     let captionHTML = '';
                                     
@@ -7025,8 +7553,10 @@
 
                         // Para el resto de elementos, verificar longitud de texto
                         // IMPORTANTE: Usar textContent solo para validar longitud, NO para extraer contenido
+                        // EXCEPCIÓN: Los encabezados (h1-h6) siempre se incluyen sin filtro de longitud
                         const textLength = (el.textContent || '').trim().length;
-                        if (textLength > 15) {
+                        const isHeading = tagName.startsWith('h') && tagName.length === 2; // h1, h2, h3, h4, h5, h6
+                        if (textLength > 15 || isHeading) {
                             // ANTENA 3 - Filtrar párrafos de promoción de WhatsApp y Atresplayer
                             if (domain === 'antena3.com') {
                                 const textContent = (el.textContent || '').trim();
@@ -7043,99 +7573,26 @@
                             // PRESERVAR TODO EL HTML interno: negritas (<strong>, <b>), cursivas (<em>, <i>), etc.
                             let htmlContent = el.innerHTML;
 
-                            // Para Antena 3 y otros periódicos: procesar enlaces para que abran en modal
-                            // SOLO si la URL no apunta a un recurso externo de Twitter, YouTube, etc.
-                            if (domain !== 'eldiario.es') {
-                                const articleUrl = url; // Capturar URL del artículo
-                                htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([\s\S]*?)<\/a>/gi,
-                                    (match, beforeHref, linkUrl, afterHref, linkContent) => {
-                                        // Si es enlace externo o a redes sociales, dejarlo como está
-                                        if (linkUrl.includes('twitter.com') || linkUrl.includes('x.com') || 
-                                            linkUrl.includes('youtube.com') || linkUrl.includes('facebook.com') ||
-                                            linkUrl.includes('instagram.com') || linkUrl.startsWith('mailto:') || 
-                                            linkUrl.startsWith('tel:')) {
-                                            return match; // Mantener enlace original
-                                        }
-                                        
-                                        // Convertir URLs relativas a absolutas
-                                        let absoluteUrl = linkUrl;
-                                        if (linkUrl.startsWith('/')) {
-                                            const urlObj = new URL(articleUrl);
-                                            absoluteUrl = urlObj.origin + linkUrl;
-                                        } else if (!linkUrl.startsWith('http')) {
-                                            const urlObj = new URL(articleUrl);
-                                            const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
-                                            absoluteUrl = urlObj.origin + basePath + linkUrl;
-                                        }
-                                        
-                                        // Para enlaces internos, abrir en modal
-                                        const tempDiv = document.createElement('div');
-                                        tempDiv.innerHTML = linkContent;
-                                        const plainText = tempDiv.textContent || tempDiv.innerText || '';
-                                        const safeText = plainText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                                        // IMPORTANTE: Preservar linkContent con TODO su HTML interno
-                                        return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${absoluteUrl}', '${safeText}')">${linkContent}</a>`;
-                                    });
-                            }
-
                             if (tagName === 'div' && el.classList.contains('know-more-container')) {
                                 // Los know-more-container se añaden tal como están
                                 textParts.push(el.outerHTML);
                             } else if (tagName === 'div' && el.classList.contains('c-detail__box')) {
-                                // Los c-detail__box de cope.es (noticias secundarias) - optimizar imágenes y añadir
-                                if (domain === 'cope.es') {
-                                    // Clonar el elemento para no modificar el original
-                                    const boxClone = el.cloneNode(true);
-                                    
-                                    // Optimizar todas las imágenes dentro del box
-                                    const imgs = boxClone.querySelectorAll('img');
-                                    imgs.forEach(img => {
-                                        let src = img.getAttribute('src') || img.getAttribute('data-src');
-                                        if (src) {
-                                            // Convertir a URL absoluta
-                                            if (src.startsWith('/')) {
-                                                src = new URL(url).origin + src;
-                                            }
-                                            
-                                            // Optimizar calidad (eliminar todos los parámetros)
-                                            if (src.includes('?')) {
-                                                const urlObj = new URL(src);
-                                                urlObj.searchParams.delete('width');
-                                                urlObj.searchParams.delete('height');
-                                                urlObj.searchParams.delete('w');
-                                                urlObj.searchParams.delete('h');
-                                                urlObj.searchParams.delete('resize');
-                                                urlObj.searchParams.delete('quality');
-                                                urlObj.searchParams.delete('crop');
-                                                urlObj.searchParams.delete('fit');
-                                                urlObj.searchParams.delete('format');
-                                                urlObj.searchParams.delete('auto');
-                                                urlObj.searchParams.delete('cs');
-                                                urlObj.searchParams.delete('dpr');
-                                                src = urlObj.toString();
-                                            }
-                                            
-                                            // Eliminar sufijos de tamaño
-                                            src = src.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
-                                            src = src.replace(/\/\d+x\d+\//g, '/');
-                                            src = src.replace(/_\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
-                                            
-                                            img.src = src;
-                                        }
-                                    });
-                                    
-                                    textParts.push(boxClone.outerHTML);
-                                } else {
-                                    textParts.push(el.outerHTML);
-                                }
+                                // Los c-detail__box de cope.es (noticias secundarias) - preservar todas las clases
+                                const className = el.className || 'c-detail__box';
+                                textParts.push(`<div class="${className}">${htmlContent}</div>`);
                             } else if (tagName.startsWith('h')) {
                                 // Para Antena 3: h2 con clase title-h2 en negrita y más grande
                                 if (domain === 'antena3.com' && tagName === 'h2' && el.classList.contains('title-h2')) {
                                     textParts.push(`<h2 style="font-weight: 700 !important; font-size: 1.5em !important; margin: 25px 0 15px 0 !important; color: #333 !important;">${htmlContent}</h2>`);
                                 }
-                                // Para Cope.es: h3 en negrita y más grande
-                                else if (domain === 'cope.es' && tagName === 'h3') {
-                                    textParts.push(`<h3 style="font-weight: 700 !important; font-size: 1.4em !important; margin: 25px 0 15px 0 !important; color: #2d3748 !important; line-height: 1.4 !important;">${htmlContent}</h3>`);
+                                // Para Cope.es: h3 y h4 con estilo morado especial (estilo consistente)
+                                // EXCEPCIÓN: No procesar h3/h4 que están dentro de .c-detail__box (ya se procesan como parte del bloque)
+                                else if (domain === 'cope.es' && (tagName === 'h3' || tagName === 'h4')) {
+                                    const isInsideDetailBox = el.closest('.c-detail__box');
+                                    if (!isInsideDetailBox) {
+                                        textParts.push(`<${tagName} style="font-weight: 700 !important; font-size: 1.2em !important; margin: 25px 0 12px 0 !important; color: #667eea !important; line-height: 1.4 !important; padding-bottom: 8px !important; border-bottom: 2px solid #667eea !important;">${htmlContent}</${tagName}>`);
+                                    }
+                                    // Si está dentro de .c-detail__box, se omite (ya se incluye en el bloque completo)
                                 } else {
                                     // Preservar las clases de los elementos h
                                     const className = el.className ? ` class="${el.className}"` : '';
@@ -7168,8 +7625,34 @@
                                         </div>
                                     `);
                                 }
-                                // Para COPE.ES: detectar blockquotes de Twitter/X y darles formato embebido inline
-                                else if (domain === 'cope.es' && (el.classList.contains('twitter-tweet') || el.classList.contains('twitter'))) {
+                                // Para ABC: detectar blockquotes de TikTok y darles formato embebido
+                                else if (domain === 'abc.es' && el.classList.contains('tiktok-embed')) {
+                                    const cite = el.getAttribute('cite') || '';
+                                    const dataVideoId = el.getAttribute('data-video-id') || '';
+                                    
+                                    textParts.push(`
+                                        <div class="modal-tiktok-card" style="
+                                            background: #000;
+                                            border: 1px solid #e1e8ed;
+                                            border-radius: 16px;
+                                            padding: 20px;
+                                            margin: 20px 0;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: flex-start;
+                                            min-height: 700px;
+                                        ">
+                                            <blockquote class="tiktok-embed" 
+                                                cite="${cite}"
+                                                data-video-id="${dataVideoId}"
+                                                style="max-width: 605px; min-width: 325px; margin: 0 auto;">
+                                                ${el.innerHTML}
+                                            </blockquote>
+                                        </div>
+                                    `);
+                                }
+                                // Para COPE.ES y ABC: detectar blockquotes de Twitter/X y darles formato embebido inline
+                                else if ((domain === 'cope.es' || domain === 'abc.es') && (el.classList.contains('twitter-tweet') || el.classList.contains('twitter'))) {
                                     // Buscar el enlace al tweet dentro del blockquote
                                     const links = el.querySelectorAll('a[href*="twitter.com"], a[href*="x.com"]');
                                     const tweetLink = links[links.length - 1]; // Tomar el último enlace
@@ -7194,16 +7677,16 @@
                                                 " onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
                                                     <div class="tweet-embed-container" style="
                                                         width: 100%;
-                                                        min-height: 600px;
                                                         border-radius: 12px;
-                                                        overflow: hidden;
+                                                        overflow: visible;
                                                         background: #f7f9fa;
                                                     ">
                                                         <iframe
                                                             src="${embedUrl}"
-                                                            style="width: 100%; min-height: 600px; border: none; border-radius: 12px;"
+                                                            style="width: 100%; height: 800px; border: none; border-radius: 12px;"
                                                             allowfullscreen
-                                                            allow="autoplay; fullscreen; encrypted-media">
+                                                            allow="autoplay; fullscreen; encrypted-media"
+                                                            scrolling="no">
                                                         </iframe>
                                                     </div>
                                                     <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between;">
@@ -8016,6 +8499,7 @@
                 // -----------------------------------------------------------------
                 // COPE.ES
                 // Extrae el subtítulo como resumen desde .c-detail__subtitle h2
+                // Y el posttitle desde .c-detail__posttitle (texto después del audio)
                 // Estructura: article.c-detail > div.c-detail-header > div.c-detail__subtitle > h2
                 // -----------------------------------------------------------------
                 if (domain === 'cope.es') {
@@ -8025,6 +8509,17 @@
                     
                     if (subtitleEl && subtitleEl.textContent.trim()) {
                         footerSummary = this.cleanText(subtitleEl.textContent);
+                    }
+                    
+                    // Extraer el posttitle (texto después del audio)
+                    const posttitleEl = doc.querySelector('.c-detail-header-group .c-detail__posttitle, .c-detail__posttitle');
+                    if (posttitleEl && posttitleEl.textContent.trim()) {
+                        // Guardar en una nueva propiedad
+                        relatedLinks.push({
+                            type: 'posttitle',
+                            text: this.cleanText(posttitleEl.textContent),
+                            url: ''
+                        });
                     }
                 }
 
@@ -8369,15 +8864,55 @@
                     html += '</div>';
                 }
 
+                // Audios de ABC - mostrar AL PRINCIPIO (antes de videos y texto)
+                if (domain === 'abc.es' && content.audios && content.audios.length > 0) {
+                    html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
+                    
+                    content.audios.forEach((audio, index) => {
+                        html += `<div class="modal-audio-player" style="margin-bottom: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">`;
+                        
+                        // Título del audio
+                        if (audio.title) {
+                            html += `<h3 style="font-size: 1.3em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
+                                🔊 ${audio.title}
+                            </h3>`;
+                        }
+                        
+                        // Descripción del audio
+                        if (audio.description) {
+                            html += `<p style="font-size: 0.95em; color: #555; line-height: 1.6; margin: 0 0 16px 0;">
+                                ${audio.description}
+                            </p>`;
+                        }
+                        
+                        // Reproductor de audio
+                        html += `
+                            <audio controls preload="metadata" style="width: 100%; max-width: 100%; outline: none; margin-top: 12px;">
+                                <source src="${audio.src}" type="audio/mpeg">
+                                <source src="${audio.src}" type="audio/mp4">
+                                <source src="${audio.src}" type="audio/ogg">
+                                Tu navegador no soporta la reproducción de audio.
+                            </audio>
+                        </div>`;
+                    });
+                    
+                    html += '</div>';
+                }
+
                 // Videos (Dailymotion, Brightcove, El País MP4, Bluesky, YouTube, etc.)
-                if (content.videos && content.videos.length > 0) {
+                // Para COPE, los videos de YouTube ya se procesan inline (línea 7449-7474)
+                const videosToShow = (domain === 'cope.es' && content.videos) 
+                    ? content.videos.filter(v => v.type !== 'YouTube') 
+                    : (content.videos || []);
+                
+                if (videosToShow && videosToShow.length > 0) {
                     // Si hay múltiples videos, añadir título de sección
-                    if (content.videos.length > 1) {
-                        html += `<h4 style="font-size: 1.2em; color: #333; margin: 20px 0 10px 0;">📹 Videos (${content.videos.length})</h4>`;
+                    if (videosToShow.length > 1) {
+                        html += `<h4 style="font-size: 1.2em; color: #333; margin: 20px 0 10px 0;">📹 Videos (${videosToShow.length})</h4>`;
                     }
 
                     // Mostrar TODOS los videos
-                    content.videos.forEach((video, index) => {
+                    videosToShow.forEach((video, index) => {
                         html += '<div class="modal-video-player" style="margin-bottom: 20px;">';
 
                         // Si es video directo (MP4/HLS), usar <video> tag
@@ -8461,14 +8996,65 @@
                     }
                 }
 
+                // Audios de COPE - YA SE PROCESAN INLINE en el contenido (línea 7420-7446)
+                // No mostrarlos aquí para evitar duplicación
+                // Los audios ya aparecen en su posición original dentro del texto
+                if (false && domain === 'cope.es' && content.audios && content.audios.length > 0) {
+                    // DESACTIVADO: Los audios ya se muestran inline en el contenido
+                    html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
+                    
+                    content.audios.forEach((audio, index) => {
+                        html += `<div class="modal-audio-player" style="margin-bottom: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">`;
+                        
+                        // Título del audio
+                        if (audio.title) {
+                            html += `<h3 style="font-size: 1.3em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
+                                🔊 ${audio.title}
+                            </h3>`;
+                        }
+                        
+                        // Descripción del audio
+                        if (audio.description) {
+                            html += `<p style="font-size: 0.95em; color: #555; line-height: 1.6; margin: 0 0 16px 0;">
+                                ${audio.description}
+                            </p>`;
+                        }
+                        
+                        // Reproductor de audio
+                        html += `
+                            <audio controls preload="metadata" style="width: 100%; max-width: 100%; outline: none; margin-top: 12px;">
+                                <source src="${audio.src}" type="audio/mpeg">
+                                <source src="${audio.src}" type="audio/mp4">
+                                <source src="${audio.src}" type="audio/ogg">
+                                Tu navegador no soporta la reproducción de audio.
+                            </audio>
+                        </div>`;
+                    });
+                    
+                    html += '</div>';
+                }
+                
+                // Mostrar el posttitle de COPE al inicio (si existe)
+                if (domain === 'cope.es' && content.relatedLinks && content.relatedLinks.length > 0) {
+                    const posttitle = content.relatedLinks.find(link => link.type === 'posttitle');
+                    if (posttitle && posttitle.text) {
+                        html += `<div style="margin: 24px 0; padding: 16px; background: #f8f9fa; border-left: 4px solid #667eea; border-radius: 8px;">
+                            <p style="font-size: 1.05em; line-height: 1.6; margin: 0; color: #2d3748;">
+                                ${posttitle.text}
+                            </p>
+                        </div>`;
+                    }
+                }
+
                 // Contenido principal (TEXTO PRIMERO) - NO mostrar para Cadena SER
                 if (content.text && domain !== 'cadenaser.com') {
                     // Mantener los enlaces originales del contenido del texto
                     html += `<div class="modal-text">${content.text}</div>`;
                 }
 
-                // Audios (Cadena SER) - mostrar DESPUÉS del texto como solicitó el usuario
-                if (content.audios && content.audios.length > 0) {
+                // Audios (Cadena SER solamente) - mostrar DESPUÉS del texto
+                // ABC se muestra al principio, COPE se muestra antes/inline en el texto
+                if (domain === 'cadenaser.com' && content.audios && content.audios.length > 0) {
                     html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
                     
                     // Mostrar TODOS los audios encontrados
@@ -8598,10 +9184,15 @@
 
                 // Inicializar videos HLS después de insertar el HTML
                 this.initializeHlsVideos();
-                
+
                 // Inicializar embeds de Instagram (procesa todos los blockquotes de Instagram inline)
                 // Esto es especialmente importante para ABC que tiene Instagram embeds en el texto
                 this.initializeInstagramEmbeds();
+
+                // Inicializar embeds de TikTok (procesa todos los blockquotes de TikTok inline)
+                // Esto es especialmente importante para ABC que tiene TikTok embeds en el texto
+                this.initializeTikTokEmbeds();
+
             }
 
             initializeHlsVideos() {
@@ -8705,8 +9296,6 @@
             }
 
             initializeInstagramEmbeds() {
-                
-                // Eliminar scripts anteriores de Instagram para recargar
                 const oldScripts = document.querySelectorAll('script[src*="instagram.com/embed"]');
                 oldScripts.forEach(s => s.remove());
                 
@@ -8737,8 +9326,33 @@
                         }, 1000);
                     }
                 };
+                script.onerror = () => {};
+                document.body.appendChild(script);
+            }
+
+            initializeTikTokEmbeds() {
+                // Eliminar scripts antiguos de TikTok si existen
+                const oldScripts = document.querySelectorAll('script[src*="tiktok.com/embed"]');
+                oldScripts.forEach(s => s.remove());
+                
+                // Cargar script de TikTok
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.tiktok.com/embed.js';
+                script.onload = () => {
+                    // TikTok procesa automáticamente los blockquotes con clase tiktok-embed
+                    // Ajustar estilos después de un delay para asegurar que se cargó
+                    setTimeout(() => {
+                        const blockquotes = document.querySelectorAll('.tiktok-embed');
+                        blockquotes.forEach(blockquote => {
+                            blockquote.style.maxWidth = '605px';
+                            blockquote.style.minWidth = '325px';
+                            blockquote.style.margin = '0 auto';
+                        });
+                    }, 1000);
+                };
                 script.onerror = () => {
-                    console.error('❌ Error al cargar script de Instagram');
+                    console.error('Error al cargar el script de TikTok');
                 };
                 document.body.appendChild(script);
             }
@@ -8766,7 +9380,7 @@
                 }
             });
 
-            // Event listener para mensajes de Instagram que ajustan la altura del iframe
+            // Event listener para mensajes de Instagram y Twitter que ajustan la altura del iframe
             window.addEventListener('message', function(event) {
                 // Instagram envía mensajes con información de altura
                 if (event.origin === 'https://www.instagram.com') {
@@ -8779,6 +9393,31 @@
                                 // Aplicar la altura que Instagram nos envía
                                 iframe.style.height = data.details.height + 'px';
                             });
+                        }
+                    } catch (e) {
+                        // Ignorar errores de parsing
+                    }
+                }
+                
+                // Twitter/X envía mensajes con información de altura
+                if (event.origin === 'https://platform.twitter.com') {
+                    try {
+                        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                        
+                        // Twitter usa diferentes formatos de mensaje
+                        if (data && data['twttr.embed']) {
+                            const embedData = data['twttr.embed'];
+                            if (embedData.method === 'twttr.private.resize' && embedData.params && embedData.params[0]) {
+                                const height = embedData.params[0].height;
+                                const tweetId = embedData.params[0].id;
+                                
+                                // Buscar el iframe correspondiente
+                                const iframes = document.querySelectorAll('iframe[src*="platform.twitter.com"]');
+                                iframes.forEach(iframe => {
+                                    // Aplicar la altura que Twitter nos envía
+                                    iframe.style.height = height + 'px';
+                                });
+                            }
                         }
                     } catch (e) {
                         // Ignorar errores de parsing
@@ -8848,171 +9487,21 @@ TOTAL: 49 periódicos
 
 PERIÓDICOS CONFIGURADOS (NO TOCAR !!)
 ====================================
-1. Eldiario.es (eldiario.es)
-2. El País (elpais.com)
-3. ABC (abc.es)
-4. Antena 3 (antena3.com)
-5. El Mundo (elmundo.es)
-6. ARA (es.ara.cat)
-7. Cadena SER (cadenaser.com)
-8. CatalunyaPress (catalunyapress.es) (pendiente)
+1. ABC (abc.es)
+2. ARA (es.ara.cat)
+3. Antena 3 (antena3.com)
+4. Cadena SER (cadenaser.com)
+5. CatalunyaPress (catalunyapress.es) (pendiente)
+6. COPE (cope.es)    ===> EN PROCESO
+
+
+X. Eldiario.es (eldiario.es)
+X. El País (elpais.com)
+X. El Mundo (elmundo.es)
 
 
 OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido propio.
 
 
-
-ÍNDICE DE CONFIGURACIONES POR PERIÓDICO
-========================================
-A continuación se indica dónde encontrar las configuraciones específicas
-de cada periódico para facilitar las modificaciones futuras:
-
-1. CONFIGURACIÓN DE SELECTORES CSS (línea 1717)
-   - Sección principal: this.siteConfigs
-   - Incluye selectores para: title, content, author, images, date, exclude
-   - Periódicos: eldiario.es, elpais.com, elmundo.es, abc.es
-
-2. EXTRACCIÓN DE AUTOR (línea 3522)
-   - Función: extractAuthor()
-   - Lógica específica para: eldiario.es, elpais.com, antena3.com
-   - Periódicos genéricos usan config.author (ara.cat, etc.)
-
-3. EXTRACCIÓN DE IMAGEN DEL AUTOR (línea 3772)
-   - Función: extractAuthorImage()
-   - Lógica específica para: abc.es, antena3.com, es.ara.cat, elpais.com, eldiario.es, elmundo.es
-   - es.ara.cat: extrae desde .opening-actions__authors-image img
-   - elmundo.es: extrae desde JSON-LD schema.org ({"@type":"Person","image":"..."})
-
-4. EXTRACCIÓN DE CONTENIDO Y FECHAS (línea 3812)
-   - Función: extractContent()
-   - Fechas de publicación/actualización
-   - Lógica específica para: eldiario.es, elpais.com, abc.es, antena3.com, elmundo.es, es.ara.cat, cadenaser.com
-   - elmundo.es: extrae desde .ue-c-article__bar-footer > .ue-c-article__publishdate > time > span
-   - es.ara.cat: extrae desde JSON-LD (datePublished, dateModified) con formatDateFromISO() para mantener zona horaria, fallback a meta tags
-   - cadenaser.com: extrae fecha actualizada desde header.h-pri > div.menu > div.c-opc > p y la formatea con formatCadenaSERDate()
-   - formatDateFromISO(): parsea fechas ISO 8601 sin conversión de zona horaria
-   - formatCadenaSERDate(): convierte formato "08 oct 2025 Actualizado 05:13" a "08-10-2025 05:13"
-   - Eliminación de elementos específicos por periódico
-   - Selectores de contenido específicos
-
-5. EXTRACCIÓN DE IMÁGENES (línea 4248)
-   - Función: extractImages()
-   - Optimización de calidad de imagen para: abc.es, elpais.com, eldiario.es
-   - Extracción de pies de foto para: abc.es, elpais.com, elmundo.es, es.ara.cat
-   - es.ara.cat: extrae desde figcaption.footer (.text y .author)
-   - elmundo.es: extrae descripción (.ue-c-article__media-description) y autor/agencia
-
-6. EXTRACCIÓN DE CONTENIDO ADICIONAL (línea 4581)
-   - Función: extractAdditionalContent()
-   - Lógica específica para: eldiario.es (enlaces relacionados), abc.es (subtítulos), es.ara.cat (subtítulo), elmundo.es (standfirst y noticias en directo), antena3.com (enlaces relacionados y noticias en directo)
-   - es.ara.cat: extrae el subtítulo (h2.subtitle) que se usa como resumen
-   - elmundo.es: extrae el standfirst (.ue-c-article__standfirst) que aparece en el resumen del modal
-   - elmundo.es: extrae noticias en directo desde article.ue-c-streamlive-comment (tiempo, título, párrafos)
-   - antena3.com: extrae noticias en directo desde section.timeline-new (tiempo, título, resumen)
-
-7. DETECCIÓN DE VIDEOS (líneas 2945-3475)
-   - detectDailymotionVideos() - línea 2945
-     · Detecta 5 patrones: data-video-id, iframe src, URL directa, data-src, player ID
-     · Patrón 5 específico para elmundo.es: id="player_..._X" donde X es el video ID
-     · Compatible con todos los periódicos
-   - detectBlueskyVideos() - línea 3111 - detecta posts de Bluesky embebidos
-   - detectBrightcoveVideos() - línea 3457 - específico para abc.es
-   - fetchBlueskyVideos() - extrae videos usando la API pública de Bluesky
-
-8. DETECCIÓN Y CORRECCIÓN DE ENCODING (líneas 2787-2872)
-   - loadFullContent() - línea 2787 - detecta automáticamente la codificación correcta
-   - fixEncoding() - línea 2844 - corrige caracteres mal codificados (�)
-   - Funciona para todos los periódicos (elmundo.es, etc.)
-   - Lee respuestas como arrayBuffer y detecta charset declarado en HTML
-   - Intenta UTF-8 primero, luego Windows-1252/ISO-8859-1 si es necesario
-
-9. FILTRO DE CONSOLA ROBUSTO (líneas 1957-2088)
-   - Filtro agresivo y persistente de mensajes en consola de depuración
-   - Suprime mensajes de: [NPAW, NPAW, youbora, gtag, analytics, PMUser, tritonnnn, gsi_logger, hls.js.map,
-     flv.js.map, certification tool, video analytics, ads analytics, mat v, C  O  R  E, lib loaded, rms_, fedcm, adapter, onFullConsent, DEMO
-   - Usa Object.defineProperty con configurable: false para evitar sobrescrituras
-   - Guarda referencias originales con .bind(console) de forma inmutable
-   - setInterval cada 100ms para re-aplicar el filtro si scripts externos lo sobrescriben
-   - Convierte primer argumento a string de forma robusta (string, object, otros)
-   - Sobrescribe console.log, console.warn, console.error, console.info y console.debug
-   - Previene contaminación de la consola con logs de scripts externos (NPAW/Youbora) de forma persistente
-
-10. MANEJO DE CLICKS EN NOTICIAS (líneas 3007-3062)
-   - handleNewsClick() - maneja clicks y toques en las noticias
-   - CTRL + clic (o CMD + clic en Mac): Abre la noticia SIEMPRE en nueva pestaña del navegador
-     · Ignora completamente el estado del switch "Ventana emergente"
-     · Detecta con e.ctrlKey || e.metaKey
-     · Usa window.open(url, '_blank') para apertura directa
-   - Clic normal: Comportamiento según switch de "Ventana emergente" (modal o nueva pestaña)
-   - Prevención de duplicados: mismo elemento en menos de 500ms
-   - Protección contra procesamiento simultáneo con flag isProcessing
-
-11. EXTRACCIÓN Y VISUALIZACIÓN DE AUDIOS (Cadena SER)
-   - siteConfigs['cadenaser.com'] (líneas 2585-2649):
-     · Selectores de título: 'main.epi-pod .cnt-data-art .c-i h1' (prioritario)
-     · Selectores de contenido: 'main.epi-pod .cnt-data-art .c-i' (prioritario)
-     · Selectores de autor: '.cnt-byline .c-dat-art .emi' y variantes
-   - extractContent() - Limpieza específica para Cadena SER (líneas 5825-5844):
-     · Elimina h1 (ya mostrado en título)
-     · Elimina .cnt-txt (texto intro ya se muestra por separado)
-     · Elimina sidebar (.c-d, aside.upds, .lst-pod)
-     · Elimina reproductor permanente (.cnt-player-permanente, .pp-popup)
-     · Elimina recomendaciones (.c-sab, .pdc, .rec, .pd-re)
-     · Selectores de contenido: 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure' (líneas 5951-5954)
-   - detectCadenaSERAudios() (líneas 4270-4439): EXTRACCIÓN COMPLETA DE AUDIOS
-     · MÉTODO 1: Busca elementos <audio> con atributos src y elementos <source>
-       - Extrae título del contenedor padre: h1-h6, figcaption, .title, .audio-title
-       - Extrae descripción: p, .description, .audio-description, .cnt-txt p
-     · MÉTODO 2: Regex para buscar URLs en HTML
-       - Formatos: .mp3, .m4a, .ogg, .wav, .aac, .flac
-       - Patrón: /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi
-       - Busca título en: main.epi-pod .cnt-data-art .c-i h1
-       - Busca descripción en: main.epi-pod .cnt-data-art .c-i .cnt-txt p
-     · MÉTODO 3: Enlaces a /audio/ (específico Cadena SER)
-       - Encuentra título en contenedor padre o texto del enlace
-       - Busca descripción en texto antes del enlace o contenedor padre
-       - Convierte URLs relativas a absolutas
-     · Previene duplicados por nombre de archivo usando Set
-     · Retorna array de objetos {type, src, title, description, position, source}
-     · Basado en el formato del Scraper Web.html para máxima cobertura
-   - extractAdditionalContent() (líneas 6760-6773): Extrae texto introductorio para cadenaser.com
-     · Selector: main.epi-pod .cnt-data-art .c-i .cnt-txt p
-     · Se guarda en cadenaSerIntro (NO en footerSummary)
-     · Se muestra debajo del título, NO en el resumen
-   - extractImages() (líneas 6220-6253): Excluye múltiples contenedores de imágenes para cadenaser.com
-     · Excluye imágenes dentro de .cnt-txt (texto descriptivo)
-     · Excluye imágenes dentro de aside.upds (podcasts relacionados)
-     · Excluye imágenes dentro de .lst-pod (lista de podcasts)
-     · Excluye imágenes dentro de .c-d (columna derecha con contenido relacionado)
-     · Excluye imágenes dentro de .cnt-player-permanente y .pp-popup (reproductor permanente)
-     · Excluye imágenes dentro de .c-sab, .pdc, .rec, .pd-re (sidebar y recomendaciones)
-     · Usa img.closest() para detectar y excluir cada contenedor
-   - extractArticleContent() (línea 5066): Llama a detectCadenaSERAudios(html, doc) solo para cadenaser.com
-   - displayModalContent():
-     · (líneas 7056-7095) Sección de información (periódico, autor, fechas)
-     · (líneas 7100-7102) NO muestra resumen para cadenaser.com
-     · (líneas 7223-7227) NO muestra texto principal (content.text) para cadenaser.com
-     · (líneas 7229-7269) Muestra los audios
-       · Orden Cadena SER: Título → Info → Audios (con cadenaSerIntro en el primer audio)
-       · Orden otros: Título → Info → Resumen → Texto principal → Audios
-       · Cada audio muestra:
-         1. Título del audio (h3, si existe)
-         2. PRIMER audio: cadenaSerIntro debajo del título (líneas 7245-7248)
-         3. Resto de audios: descripción propia (si existe)
-         4. Reproductor de audio nativo con controls (sin enlace de descarga)
-       · Contenedor con gradiente de fondo y borde
-       · Múltiples formatos: audio/mpeg, audio/mp4, audio/ogg
-
-CÓMO AGREGAR UN NUEVO PERIÓDICO:
-=================================
-1. Agregar configuración en this.siteConfigs (línea 1717)
-2. Si es necesario, agregar lógica específica en:
-   - extractAuthor() (línea 3522) para autor
-   - extractAuthorImage() (línea 3556) para imagen del autor
-   - extractContent() (línea 3682) para fechas y formato de contenido
-   - extractImages() (línea 4118) para optimización de imágenes y pies de foto
-   - extractAdditionalContent() (línea 4414) para contenido adicional específico
-3. Agregar eliminación de elementos específicos si es necesario
-4. Probar con varias noticias del periódico
 
  -->
