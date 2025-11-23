@@ -3306,11 +3306,11 @@
                         if (sourcesChangeTimeout) {
                             clearTimeout(sourcesChangeTimeout);
                         }
-                        // Ejecutar con debounce de 100ms
+                        // Ejecutar con debounce de 300ms (aumentado para móviles)
                         sourcesChangeTimeout = setTimeout(() => {
                             this.displayFilteredNews();
                             sourcesChangeTimeout = null;
-                        }, 100);
+                        }, 300);
                     }
                 });
                 
@@ -3321,11 +3321,11 @@
                         if (readingModeChangeTimeout) {
                             clearTimeout(readingModeChangeTimeout);
                         }
-                        // Ejecutar con debounce de 100ms
+                        // Ejecutar con debounce de 300ms (aumentado para móviles)
                         readingModeChangeTimeout = setTimeout(() => {
                             this.displayFilteredNews();
                             readingModeChangeTimeout = null;
-                        }, 100);
+                        }, 300);
                     }
                 });
 
@@ -3666,7 +3666,8 @@
                 this.isSearching = true;
                 this.currentQuery = query;
                 this.allNews = [];
-                this.lastFilterApplied = null; // Resetear filtro aplicado
+                this.lastFilterApplied = null; // Resetear filtro aplicado para nueva búsqueda
+                this.isDisplaying = false; // Asegurar que el flag de display esté limpio
 
                 this.showLoading(true);
                 this.hideMessages();
@@ -4287,13 +4288,13 @@
 
                 this.isDisplaying = true;
                 
-                // Timeout de seguridad para liberar el flag (3 segundos)
+                // Timeout de seguridad para liberar el flag (1 segundo - reducido para móviles)
                 const safetyTimeout = setTimeout(() => {
                     if (this.isDisplaying) {
                         console.warn('⚠️ displayNews timeout de seguridad activado, liberando flag');
                         this.isDisplaying = false;
                     }
-                }, 3000);
+                }, 1000);
 
                 try {
                     // Limpieza robusta del contenedor (triple verificación)
@@ -4449,7 +4450,8 @@
                 this.isSearching = true;
                 this.currentQuery = query;
                 this.allNews = [];
-                this.lastFilterApplied = null; // Resetear filtro aplicado
+                this.lastFilterApplied = null; // Resetear filtro aplicado para nueva búsqueda
+                this.isDisplaying = false; // Asegurar que el flag de display esté limpio
 
                 this.showLoading(true);
                 this.hideMessages();
@@ -4663,8 +4665,14 @@
                 const readingMode = this.elements.readingModeSwitch.checked;
                 const filterKey = `${selectedValue}-${readingMode}`;
                 
-                // Si ya mostramos este filtro, no hacer nada
-                if (this.lastFilterApplied === filterKey && !this.isDisplaying) {
+                // Si ya estamos mostrando noticias, ignorar
+                if (this.isDisplaying) {
+                    console.log('⚠️ Ya se están mostrando noticias, ignorando llamada duplicada');
+                    return;
+                }
+                
+                // Si ya mostramos este filtro exacto, no hacer nada
+                if (this.lastFilterApplied === filterKey) {
                     console.log('⚠️ Filtro ya aplicado, ignorando llamada duplicada');
                     return;
                 }
@@ -9908,4 +9916,3 @@ OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido 
 
 
  -->
- 
