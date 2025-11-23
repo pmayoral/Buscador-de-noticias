@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +17,7 @@
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --secondary-gradient: linear-gradient(135deg, #4ecdc4, #44a08d);
             --white-transparent: rgba(255, 255, 255, 0.95);
-            --shadow-light: 0 20px 40px rgba(0,0,0,0.1);
+            --shadow-light: 0 20px 40px rgba(0, 0, 0, 0.1);
             --border-light: 1px solid rgba(255, 255, 255, 0.2);
             --radius: 20px;
         }
@@ -41,7 +42,9 @@
             padding: 20px 20px 20px 20px;
         }
 
-        .header, .search-container, .news-item {
+        .header,
+        .search-container,
+        .news-item {
             background: var(--white-transparent);
             border-radius: var(--radius);
             box-shadow: var(--shadow-light);
@@ -61,7 +64,7 @@
             margin-bottom: 5px;
             font-size: 2.5em;
             font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .header p {
@@ -69,7 +72,7 @@
             font-size: 1.1em;
             margin: 0;
             opacity: 0.95;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .search-container {
@@ -88,7 +91,8 @@
             flex-wrap: nowrap;
         }
 
-        .sources-dropdown, .count-dropdown {
+        .sources-dropdown,
+        .count-dropdown {
             position: relative;
         }
 
@@ -217,14 +221,14 @@
             background-color: white;
             transition: .4s;
             border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        input:checked + .slider {
+        input:checked+.slider {
             background: var(--primary-gradient);
         }
 
-        input:checked + .slider:before {
+        input:checked+.slider:before {
             transform: translateX(26px);
         }
 
@@ -257,8 +261,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .results-container {
@@ -276,7 +285,7 @@
 
         .news-item:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .news-content {
@@ -655,7 +664,8 @@
             }
         }
 
-        .modal-text h2, .modal-text h3 {
+        .modal-text h2,
+        .modal-text h3 {
             color: #1a202c !important;
             margin: 25px 0 15px !important;
             font-weight: 600 !important;
@@ -692,7 +702,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
         }
 
-        .modal-text .c-detail__box > div:first-child {
+        .modal-text .c-detail__box>div:first-child {
             flex: 1 1 60% !important;
             min-width: 0 !important;
             display: flex !important;
@@ -742,12 +752,12 @@
         .modal-text .c-detail__box a:hover {
             text-decoration: underline !important;
         }
- 
+
         /* Estilos específicos para .c-detail__summary de COPE.ES */
         .modal-text .c-detail__box .c-detail__summary {
             width: 100% !important;
         }
- 
+
         .modal-text .c-detail__box .c-detail__summary h4,
         .modal-text .c-detail__box .c-detail__summary__title,
         .modal-text .c-detail__box h4.c-detail__summary__title {
@@ -759,14 +769,14 @@
             padding-bottom: 8px !important;
             border-bottom: 2px solid #667eea !important;
         }
- 
+
         .modal-text .c-detail__box .c-detail__summary p {
             font-size: 0.95em !important;
             line-height: 1.7 !important;
             color: #2d3748 !important;
             margin: 12px 0 0 0 !important;
         }
- 
+
         /* Estilo especial para c-detail__box--noborder */
         .modal-text .c-detail__box.c-detail__box--noborder {
             border: none !important;
@@ -780,7 +790,7 @@
                 gap: 16px !important;
             }
 
-            .modal-text .c-detail__box > div:first-child,
+            .modal-text .c-detail__box>div:first-child,
             .modal-text .c-detail__box picture,
             .modal-text .c-detail__box figure {
                 flex: none !important;
@@ -992,12 +1002,12 @@
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: var(--transition);
         }
 
         .modal-tweet-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
 
@@ -1452,7 +1462,7 @@
             max-width: 900px;
             width: 100%;
             margin: 0 auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             position: relative;
             animation: modalSlideIn 0.3s ease;
         }
@@ -1462,6 +1472,7 @@
                 transform: translateY(-50px);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -1494,7 +1505,7 @@
             position: absolute;
             top: 18px;
             right: 18px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             border: none;
             color: white;
             font-size: 26px;
@@ -1506,7 +1517,7 @@
         }
 
         .newspaper-modal-close:hover {
-            background: rgba(255,255,255,0.25);
+            background: rgba(255, 255, 255, 0.25);
             transform: rotate(90deg);
         }
 
@@ -1622,6 +1633,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Botón de periódicos configurados -->
     <button class="newspapers-button" id="newspapersButton">📰</button>
@@ -1631,7 +1643,8 @@
         <div class="newspapers-dropdown__header">
             <div class="newspapers-dropdown__title">Periódicos (49)</div>
             <button class="newspapers-dropdown__export-btn" id="exportNewspapersBtn">Exportar</button>
-            <button class="newspapers-dropdown__info-btn" id="deviceInfoBtn" title="Información del dispositivo">ℹ️</button>
+            <button class="newspapers-dropdown__info-btn" id="deviceInfoBtn"
+                title="Información del dispositivo">ℹ️</button>
         </div>
         <ul class="newspapers-dropdown__list" id="newspapersList">
             <li class="newspapers-dropdown__item" data-domain="abc.es">
@@ -1639,343 +1652,404 @@
                     <span class="newspapers-dropdown__text">ABC</span>
                     <span class="newspapers-dropdown__domain">(abc.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ABC', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ABC', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="es.ara.cat">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">ARA</span>
                     <span class="newspapers-dropdown__domain">(es.ara.cat)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ARA', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ARA', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="antena3.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Antena 3</span>
                     <span class="newspapers-dropdown__domain">(antena3.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Antena 3', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Antena 3', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="cadenaser.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Cadena SER</span>
                     <span class="newspapers-dropdown__domain">(cadenaser.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Cadena SER', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Cadena SER', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="catalunyapress.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">CatalunyaPress</span>
                     <span class="newspapers-dropdown__domain">(catalunyapress.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('CatalunyaPress', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('CatalunyaPress', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="cope.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">COPE</span>
                     <span class="newspapers-dropdown__domain">(cope.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('COPE', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('COPE', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="cuadernosdeseguridad.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Cuadernos de Seguridad</span>
                     <span class="newspapers-dropdown__domain">(cuadernosdeseguridad.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Cuadernos de Seguridad', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Cuadernos de Seguridad', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="deia.eus">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Deia</span>
                     <span class="newspapers-dropdown__domain">(deia.eus)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Deia', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Deia', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="democrata.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Demócrata</span>
                     <span class="newspapers-dropdown__domain">(democrata.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Demócrata', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Demócrata', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariodemallorca.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Diario de Mallorca</span>
                     <span class="newspapers-dropdown__domain">(diariodemallorca.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario de Mallorca', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Diario de Mallorca', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariosocialista.net">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Diario Socialista</span>
                     <span class="newspapers-dropdown__domain">(diariosocialista.net)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario Socialista', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Diario Socialista', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariosur.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Diario Sur</span>
                     <span class="newspapers-dropdown__domain">(diariosur.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario Sur', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario Sur', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariosigloxxi.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Diario Siglo XXI</span>
                     <span class="newspapers-dropdown__domain">(diariosigloxxi.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Diario Siglo XXI', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Diario Siglo XXI', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elconfidencial.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El Confidencial</span>
                     <span class="newspapers-dropdown__domain">(elconfidencial.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Confidencial', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Confidencial', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elconfidencialdigital.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El Confidencial Digital</span>
                     <span class="newspapers-dropdown__domain">(elconfidencialdigital.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Confidencial Digital', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('El Confidencial Digital', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elcorreo.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El Correo</span>
                     <span class="newspapers-dropdown__domain">(elcorreo.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Correo', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Correo', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldebate.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">elDEBATE</span>
                     <span class="newspapers-dropdown__domain">(eldebate.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('elDEBATE', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('elDEBATE', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldia.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">ELDIA.ES (El Día)</span>
                     <span class="newspapers-dropdown__domain">(eldia.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ELDIA.ES', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ELDIA.ES', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldiario.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">elDiario.es</span>
                     <span class="newspapers-dropdown__domain">(eldiario.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('elDiario.es', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('elDiario.es', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="eldiariodemadrid.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Eldiariodemadrid.es</span>
                     <span class="newspapers-dropdown__domain">(eldiariodemadrid.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Eldiariodemadrid.es', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Eldiariodemadrid.es', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elespanol.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El Español</span>
                     <span class="newspapers-dropdown__domain">(elespanol.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Español', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Español', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="huffingtonpost.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El HuffPost</span>
                     <span class="newspapers-dropdown__domain">(huffingtonpost.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El HuffPost', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El HuffPost', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elindependiente.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El Independiente</span>
                     <span class="newspapers-dropdown__domain">(elindependiente.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Independiente', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('El Independiente', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elmundo.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El Mundo</span>
                     <span class="newspapers-dropdown__domain">(elmundo.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Mundo', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Mundo', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elmundotoday.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">ELMUNDOTODAY.COM</span>
                     <span class="newspapers-dropdown__domain">(elmundotoday.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ELMUNDOTODAY.COM', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('ELMUNDOTODAY.COM', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elnoticierodigital.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">ELNOTICIERODIGITAL.COM</span>
                     <span class="newspapers-dropdown__domain">(elnoticierodigital.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ELNOTICIERODIGITAL.COM', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('ELNOTICIERODIGITAL.COM', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elpais.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El País</span>
                     <span class="newspapers-dropdown__domain">(elpais.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El País', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El País', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="elperiodico.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">El Periódico</span>
                     <span class="newspapers-dropdown__domain">(elperiodico.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Periódico', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('El Periódico', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="epe.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Epe.es</span>
                     <span class="newspapers-dropdown__domain">(epe.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Epe.es', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Epe.es', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="escudodigital.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">ESCUDODIGITAL.COM</span>
                     <span class="newspapers-dropdown__domain">(escudodigital.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('ESCUDODIGITAL.COM', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('ESCUDODIGITAL.COM', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="estrelladigital.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Estrella Digital</span>
                     <span class="newspapers-dropdown__domain">(estrelladigital.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Estrella Digital', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Estrella Digital', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="europapress.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Europa Press</span>
                     <span class="newspapers-dropdown__domain">(europapress.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Europa Press', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Europa Press', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="gacetinmadrid.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Gacetín Madrid</span>
                     <span class="newspapers-dropdown__domain">(gacetinmadrid.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Gacetín Madrid', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Gacetín Madrid', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="hoyaragon.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">HOY ARAGÓN</span>
                     <span class="newspapers-dropdown__domain">(hoyaragon.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('HOY ARAGÓN', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('HOY ARAGÓN', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="infobae.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Infobae</span>
                     <span class="newspapers-dropdown__domain">(infobae.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Infobae', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Infobae', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="infolibre.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">infoLibre</span>
                     <span class="newspapers-dropdown__domain">(infolibre.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('infoLibre', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('infoLibre', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="infoplay.info">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">INFOPLAY</span>
                     <span class="newspapers-dropdown__domain">(infoplay.info)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('INFOPLAY', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('INFOPLAY', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="larazon.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">LA RAZÓN</span>
                     <span class="newspapers-dropdown__domain">(larazon.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('LA RAZÓN', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('LA RAZÓN', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="lasexta.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">laSexta</span>
                     <span class="newspapers-dropdown__domain">(lasexta.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('laSexta', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('laSexta', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="libertaddigital.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Libertad Digital</span>
                     <span class="newspapers-dropdown__domain">(libertaddigital.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Libertad Digital', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Libertad Digital', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="lavanguardia.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">La Vanguardia</span>
                     <span class="newspapers-dropdown__domain">(lavanguardia.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('La Vanguardia', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('La Vanguardia', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="naiz.eus">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">NAIZ</span>
                     <span class="newspapers-dropdown__domain">(naiz.eus)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('NAIZ', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('NAIZ', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="newtral.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Newtral</span>
                     <span class="newspapers-dropdown__domain">(newtral.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Newtral', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Newtral', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="okdiario.com">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">OKDIARIO</span>
                     <span class="newspapers-dropdown__domain">(okdiario.com)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('OKDIARIO', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('OKDIARIO', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="ondacero.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Onda Cero</span>
                     <span class="newspapers-dropdown__domain">(ondacero.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Onda Cero', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Onda Cero', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="pressdigital.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">PressDigital</span>
                     <span class="newspapers-dropdown__domain">(pressdigital.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('PressDigital', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('PressDigital', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="publico.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Público</span>
                     <span class="newspapers-dropdown__domain">(publico.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Público', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Público', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="rtve.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">RTVE</span>
                     <span class="newspapers-dropdown__domain">(rtve.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('RTVE', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('RTVE', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="telecinco.es">
                 <div class="newspapers-dropdown__item-content">
                     <span class="newspapers-dropdown__text">Telecinco</span>
                     <span class="newspapers-dropdown__domain">(telecinco.es)</span>
                 </div>
-                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Telecinco', event)" title="Ver información del periódico">📋</button>
+                <button class="newspapers-dropdown__item-info-btn" onclick="openNewspaperInfo('Telecinco', event)"
+                    title="Ver información del periódico">📋</button>
             </li>
         </ul>
     </div>
@@ -1987,7 +2061,8 @@
 
         <div class="search-container">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Escribe tu término de búsqueda (ej: ayuso, pedro sánchez, etc.)" />
+                <input type="text" id="searchInput"
+                    placeholder="Escribe tu término de búsqueda (ej: ayuso, pedro sánchez, etc.)" />
                 <button id="searchButton" class="button-primary">Buscar</button>
                 <div class="count-dropdown">
                     <select id="countSelect" class="dropdown-select">
@@ -2040,18 +2115,18 @@
                     <div class="modal-dates" id="modalDates"></div>
                 </div>
             </div>
-             <div class="modal-body" id="modalBody">
-                 <div class="modal-loading">
-                     Cargando contenido completo...
-                 </div>
-             </div>
-             <div class="modal-footer">
-                 <a href="#" class="modal-original-link" id="modalOriginalLink" target="_blank">
-                     🔗 Abrir la noticia original
-                 </a>
-             </div>
-         </div>
-     </div>
+            <div class="modal-body" id="modalBody">
+                <div class="modal-loading">
+                    Cargando contenido completo...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="modal-original-link" id="modalOriginalLink" target="_blank">
+                    🔗 Abrir la noticia original
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal para mostrar información del periódico -->
     <div class="newspaper-info-modal" id="newspaperInfoModal">
@@ -2080,7 +2155,7 @@
             const filterKeywords = [
                 'NPAW', 'npaw', '[NPAW', '[npaw',
                 'youbora', 'Youbora', 'YOUBORA',
-                'gtag', 'analytics', 'Analytics', 
+                'gtag', 'analytics', 'Analytics',
                 'PMUser', 'pmuser', 'TRITONNNN', 'tritonnnn',
                 'GSI_LOGGER', 'gsi_logger',
                 'hls.js.map', 'flv.js.map', 'No se pudo leer el mapa',
@@ -2096,7 +2171,7 @@
                 if (!args || args.length === 0) return false;
                 const firstArg = args[0];
                 let message = '';
-                
+
                 if (typeof firstArg === 'string') {
                     message = firstArg;
                 } else if (firstArg && typeof firstArg === 'object') {
@@ -2108,7 +2183,7 @@
                 } else {
                     message = String(firstArg);
                 }
-                
+
                 return filterKeywords.some(keyword => message.includes(keyword));
             };
 
@@ -2120,7 +2195,7 @@
                     const _originalInfo = console.info ? console.info.bind(console) : _originalLog;
                     const _originalDebug = console.debug ? console.debug.bind(console) : _originalLog;
 
-                    const createWrapper = (originalFn) => function(...args) {
+                    const createWrapper = (originalFn) => function (...args) {
                         if (!shouldFilter(args)) originalFn(...args);
                     };
 
@@ -2137,7 +2212,7 @@
                                 value: wrapper, writable: true, enumerable: true, configurable: false
                             });
                         });
-                    } catch(e) {
+                    } catch (e) {
                         console.log = logWrapper;
                         console.warn = warnWrapper;
                         console.error = errorWrapper;
@@ -2162,7 +2237,7 @@
         // Módulo encapsulado para gestión de datos
         const NewspaperDB = {
             data: null,
-            load: function() {
+            load: function () {
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', 'Periodicos espana.html', false);  // Síncrono
                 try {
@@ -2191,12 +2266,12 @@
                     this.data = {};
                 }
             },
-            get: function(name) {
+            get: function (name) {
                 if (!this.data || Object.keys(this.data).length === 0) this.load();
                 let periodico = this.data[name];
                 if (!periodico) {
-                    const key = Object.keys(this.data).find(k => 
-                        this.data[k].nombre === name || 
+                    const key = Object.keys(this.data).find(k =>
+                        this.data[k].nombre === name ||
                         this.data[k].nombre.toLowerCase() === name.toLowerCase()
                     );
                     if (key) periodico = this.data[key];
@@ -2204,11 +2279,11 @@
                 return periodico;
             }
         };
-        
+
         // Cargar la base de datos al inicio
         NewspaperDB.load();
         // Mantener referencia global para compatibilidad si es necesario, aunque intentaremos usar NewspaperDB
-        let periodicosDB = NewspaperDB.data; 
+        let periodicosDB = NewspaperDB.data;
 
         // ===== DETECCIÓN DE DISPOSITIVO Y NAVEGADOR =====
         const DeviceManager = {
@@ -2221,10 +2296,10 @@
             getOS: () => {
                 const ua = navigator.userAgent.toLowerCase();
                 const uaOriginal = navigator.userAgent;
-                
+
                 if (ua.includes('android')) return 'Android';
                 if (ua.includes('iphone') || ua.includes('ipad')) return 'iOS';
-                
+
                 if (ua.includes('win')) {
                     let ver = 'Windows';
                     if (ua.includes('windows nt 10.0')) {
@@ -2239,15 +2314,15 @@
                     else if (ua.includes('windows nt 6.1')) ver = 'Windows 7';
                     else if (ua.includes('windows nt 6.0')) ver = 'Windows Vista';
                     else if (ua.includes('windows nt 5.1') || ua.includes('windows nt 5.2')) ver = 'Windows XP';
-                    
+
                     if (ua.includes('win64') || ua.includes('wow64') || uaOriginal.includes('x64')) ver += ' (64-bit)';
                     else if (ua.includes('win32')) ver += ' (32-bit)';
                     return ver;
                 }
-                
+
                 if (ua.includes('mac')) return 'MacOS';
                 if (ua.includes('linux')) return 'Linux';
-                
+
                 return 'Desconocido';
             },
             getBrowser: () => {
@@ -2259,15 +2334,15 @@
                 if (ua.includes('Vivaldi')) return 'Vivaldi';
                 if (ua.includes('Edg')) return 'Edge';
                 if (ua.includes('Opera') || ua.includes('OPR')) return 'Opera';
-                
+
                 if (ua.includes('Firefox')) return 'Firefox';
                 if (ua.includes('Chrome')) return 'Chrome';
                 if (ua.includes('Safari')) return 'Safari';
                 if (ua.includes('Trident')) return 'Internet Explorer';
-                
+
                 return 'Navegador basado en Chromium';
             },
-            getInfo: function() {
+            getInfo: function () {
                 return {
                     sistema: this.getOS(),
                     navegador: this.getBrowser(),
@@ -2299,19 +2374,19 @@
             const modalTitle = document.getElementById('newspaperModalTitle');
             const modalUrl = document.getElementById('newspaperModalUrl');
             const modalBody = document.getElementById('newspaperModalBody');
-            
+
             // Mostrar título genérico mientras carga
             modalTitle.textContent = newspaperName;
             modalUrl.textContent = 'Cargando información...';
             modalBody.innerHTML = '<div style="text-align: center; padding: 60px; color: #aaa;">Cargando información del periódico...</div>';
-            
+
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            
+
             try {
                 // Usar NewspaperDB
                 const periodico = NewspaperDB.get(newspaperName);
-                
+
                 if (!periodico) {
                     modalTitle.textContent = 'Periódico no encontrado';
                     modalUrl.textContent = '';
@@ -2324,11 +2399,11 @@
                     `;
                     return;
                 }
-                
+
                 // Actualizar título y URL
                 modalTitle.textContent = periodico.nombre;
                 modalUrl.textContent = periodico.url;
-                
+
                 // Generar el contenido de la modal
                 modalBody.innerHTML = `
                     <div class="newspaper-modal-section">
@@ -2408,7 +2483,7 @@
         // Función para mostrar información del dispositivo
         function mostrarInfoDispositivo() {
             var info = obtenerInfoDispositivo();
-            
+
             // Crear backdrop (fondo oscuro)
             var backdrop = document.createElement('div');
             backdrop.style.cssText = `
@@ -2420,7 +2495,7 @@
                 background: rgba(0, 0, 0, 0.5);
                 z-index: 99998;
             `;
-            
+
             // Crear un div flotante con la información
             var infoDiv = document.createElement('div');
             infoDiv.style.cssText = `
@@ -2437,7 +2512,7 @@
                 max-height: 80%;
                 overflow-y: auto;
             `;
-            
+
             infoDiv.innerHTML = `
                 <h3 style="margin: 0 0 15px 0; color: #667eea;">📱 Información del Dispositivo</h3>
                 <p><strong>🖥️ Tipo:</strong> ${info.tipoDispositivo}</p>
@@ -2466,33 +2541,33 @@
                     width: 100%;"
                 >Cerrar</button>
             `;
-            
+
             // Función para cerrar el modal
             function cerrarModal() {
                 backdrop.remove();
                 infoDiv.remove();
             }
-            
+
             // Añadir elementos al DOM
             document.body.appendChild(backdrop);
             document.body.appendChild(infoDiv);
-            
+
             // Cerrar al hacer clic en el botón (usando setTimeout para asegurar que el DOM está listo)
-            setTimeout(function() {
+            setTimeout(function () {
                 var closeBtn = document.getElementById('closeInfoBtn');
                 if (closeBtn) {
                     closeBtn.addEventListener('click', cerrarModal);
                 }
             }, 0);
-            
+
             // Cerrar al hacer clic en el backdrop
             backdrop.addEventListener('click', cerrarModal);
-            
+
             // Auto-seleccionar el textarea al hacer clic
-            setTimeout(function() {
+            setTimeout(function () {
                 var textarea = infoDiv.querySelector('textarea');
                 if (textarea) {
-                    textarea.addEventListener('click', function() {
+                    textarea.addEventListener('click', function () {
                         this.select();
                     });
                 }
@@ -2502,39 +2577,39 @@
 
         class NewsSearcher {
 
-        // ===== CONSTANTES DE CONFIGURACIÓN =====
-        static TIMEOUTS = {
-            MOBILE_FETCH: 25000,
-            DESKTOP_FETCH: 20000,
-            BLUESKY_API: 10000
-        };
+            // ===== CONSTANTES DE CONFIGURACIÓN =====
+            static TIMEOUTS = {
+                MOBILE_FETCH: 25000,
+                DESKTOP_FETCH: 20000,
+                BLUESKY_API: 10000
+            };
 
-        static TEXT_THRESHOLDS = {
-            MIN_SUBTITLE_LENGTH: 20,
-            MIN_SNIPPET_LENGTH: 30,
-            MAX_SNIPPET_LENGTH: 400,
-            MIN_FALLBACK_SCORE: 5,
-            MIN_SNIPPET_FOR_VALIDATION: 20,
-            SIMILARITY_THRESHOLD: 0.8
-        };
+            static TEXT_THRESHOLDS = {
+                MIN_SUBTITLE_LENGTH: 20,
+                MIN_SNIPPET_LENGTH: 30,
+                MAX_SNIPPET_LENGTH: 400,
+                MIN_FALLBACK_SCORE: 5,
+                MIN_SNIPPET_FOR_VALIDATION: 20,
+                SIMILARITY_THRESHOLD: 0.8
+            };
 
-        static REGEX_PATTERNS = {
-            DAILYMOTION_DATA_ID: /data-video-id=["']([^"']+)["']/gi,
-            DAILYMOTION_IFRAME: /src=["']https?:\/\/(?:www\.)?dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/gi,
-            DAILYMOTION_URL: /dailymotion\.com\/video\/([a-zA-Z0-9]+)/gi,
-            YOUTUBE_EMBED: /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/gi,
-            YOUTUBE_WATCH: /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/gi,
-            TWITTER_VIDEO: /video\.twimg\.com/gi,
-            BLUESKY_POST: /https:\/\/bsky\.app\/profile\/([^/]+)\/post\/([a-zA-Z0-9]+)/gi
-        };
+            static REGEX_PATTERNS = {
+                DAILYMOTION_DATA_ID: /data-video-id=["']([^"']+)["']/gi,
+                DAILYMOTION_IFRAME: /src=["']https?:\/\/(?:www\.)?dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/gi,
+                DAILYMOTION_URL: /dailymotion\.com\/video\/([a-zA-Z0-9]+)/gi,
+                YOUTUBE_EMBED: /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/gi,
+                YOUTUBE_WATCH: /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/gi,
+                TWITTER_VIDEO: /video\.twimg\.com/gi,
+                BLUESKY_POST: /https:\/\/bsky\.app\/profile\/([^/]+)\/post\/([a-zA-Z0-9]+)/gi
+            };
 
-        static COMMON_AD_SELECTORS = [
-            '.ad', '.advertisement', '.publicidad', '.banner',
-            '[class*="ad-"]', '[id*="ad-"]',
-            '[class*="taboola"]', '[class*="outbrain"]',
-            '.comments', '#disqus_thread', '.w_rs'
-        ];
-        // ===== FIN CONSTANTES =====
+            static COMMON_AD_SELECTORS = [
+                '.ad', '.advertisement', '.publicidad', '.banner',
+                '[class*="ad-"]', '[id*="ad-"]',
+                '[class*="taboola"]', '[class*="outbrain"]',
+                '.comments', '#disqus_thread', '.w_rs'
+            ];
+            // ===== FIN CONSTANTES =====
 
 
             constructor() {
@@ -2778,7 +2853,7 @@
                             'style'
                         ].join(', ')
                     },
-                    
+
                     // -----------------------------------------------------------------
                     // CATALUNYAPRESS
                     // -----------------------------------------------------------------
@@ -2811,7 +2886,7 @@
                         date: 'time, .date, .article-date, .article_legend time',
                         exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .related'
                     },
-                    
+
                     // -----------------------------------------------------------------
                     // ELDIARIO.ES
                     // -----------------------------------------------------------------
@@ -3197,7 +3272,7 @@
                             '.date'
                         ].join(', '),
                         exclude: [
-                            '.ad', '.advertisement', '.publicidad', '.banner', 
+                            '.ad', '.advertisement', '.publicidad', '.banner',
                             '.comments', '.social-share', '.related-articles',
                             '.c-detail__ai',                    // IA generada
                             '.c-detail__related',               // Artículos relacionados
@@ -3295,30 +3370,30 @@
                 let isProcessing = false;
                 let lastClickedElement = null;
                 let lastClickTime = 0;
-                
+
                 const handleNewsClick = (e, eventType) => {
                     const trigger = e.target.closest('.modal-trigger');
                     if (!trigger) return;
-                    
+
                     const now = Date.now();
-                    
+
                     // Prevenir duplicados: mismo elemento en menos de 500ms
                     if (trigger === lastClickedElement && (now - lastClickTime) < 500) {
                         e.preventDefault();
                         e.stopPropagation();
                         return;
                     }
-                    
+
                     // Prevenir si ya estamos procesando otro clic
                     if (isProcessing) {
                         e.preventDefault();
                         e.stopPropagation();
                         return;
                     }
-                    
+
                     const { link } = trigger.dataset;
                     const url = decodeURIComponent(link);
-                    
+
                     // Si se presiona CTRL (o CMD en Mac) + clic, abrir en nueva pestaña
                     if (e.ctrlKey || e.metaKey) {
                         // Permitir que el navegador maneje la apertura en nueva pestaña
@@ -3328,16 +3403,16 @@
                         e.stopPropagation();
                         return;
                     }
-                    
+
                     // Comportamiento normal (modal o nueva pestaña según switch)
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
-                    
+
                     isProcessing = true;
                     lastClickedElement = trigger;
                     lastClickTime = now;
-                    
+
                     const { title, author, date, subtitle } = trigger.dataset;
                     this.openNewsPopup(
                         url,
@@ -3346,13 +3421,13 @@
                         decodeURIComponent(date),
                         decodeURIComponent(subtitle || '')
                     );
-                    
+
                     // Resetear flag después de 300ms
                     setTimeout(() => {
                         isProcessing = false;
                     }, 300);
                 };
-                
+
                 // Manejar eventos táctiles (móvil) y clicks (desktop)
                 this.elements.resultsContainer.addEventListener('touchend', (e) => handleNewsClick(e, 'touch'), { passive: false });
                 this.elements.resultsContainer.addEventListener('click', (e) => handleNewsClick(e, 'click'), { passive: false });
@@ -3539,9 +3614,9 @@
 
             async search() {
                 if (this.isSearching) return;
-                
+
                 let query = this.elements.searchInput.value.trim();
-                
+
                 // Si no hay término de búsqueda, usar "a" para obtener noticias del día
                 if (!query) {
                     query = 'a';
@@ -3598,20 +3673,20 @@
                 // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
                 while (allNews.length < maxCount && attemptCount < maxAttempts) {
                     attemptCount++;
-                    
+
                     let googleNewsUrl = this.buildGoogleNewsUrl(query, selectedValue, numResults);
-                    
+
                     // Añadir parámetro &start=XX si no es la primera búsqueda
                     if (startIndex > 0) {
                         googleNewsUrl += `&start=${startIndex}`;
                     }
-                    
+
                     console.log(`🔍 Búsqueda #${attemptCount} - URL:`, googleNewsUrl);
 
                     // Consultar todos los proxies en paralelo - devolver el primero que responda exitosamente
                     const isMobile = DeviceManager.isMobile();
                     const timeout = isMobile ? NewsSearcher.TIMEOUTS.MOBILE_FETCH : NewsSearcher.TIMEOUTS.DESKTOP_FETCH;
-                    
+
                     console.log(`⏱️ Timeout configurado: ${timeout}ms (${isMobile ? 'Móvil' : 'Desktop'})`);
                     console.log(`📡 Probando ${this.proxies.length} proxies en paralelo...`);
 
@@ -3620,30 +3695,30 @@
                         const controller = new AbortController();
                         controllers.push(controller);
                         const proxyName = proxy.split('/')[2] || proxy;
-                        
+
                         try {
                             const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
                             const timeoutId = setTimeout(() => controller.abort(), timeout);
-                            
+
                             console.log(`🔄 Intentando proxy: ${proxyName}`);
-                            
+
                             const headers = {
                                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                                 'Accept-Language': 'es-ES,es;q=0.9',
                                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                                 'Referer': 'https://www.google.com/'
                             };
-                            
+
                             // Añadir API key si es proxy.cors.sh
                             if (proxy.includes('proxy.cors.sh')) {
                                 headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
                             }
-                            
+
                             const response = await fetch(proxyUrl, {
                                 signal: controller.signal,
                                 headers: headers
                             });
-                            
+
                             clearTimeout(timeoutId);
 
                             if (response.ok) {
@@ -3672,17 +3747,17 @@
 
                     // Esperar al primer resultado exitoso usando Promise.race correctamente
                     let foundResults = false;
-                    
+
                     try {
                         // Crear una promesa que se resuelve con el primer resultado exitoso
                         const firstSuccessfulResult = await new Promise((resolve, reject) => {
                             let completed = 0;
                             let hasResolved = false;
-                            
+
                             proxyPromises.forEach(promise => {
                                 promise.then(result => {
                                     completed++;
-                                    
+
                                     if (!hasResolved && result.success && result.news.length > 0) {
                                         hasResolved = true;
                                         // Cancelar todas las peticiones restantes
@@ -3699,29 +3774,29 @@
                                 });
                             });
                         });
-                        
+
                         if (attemptCount === 1) {
                             console.log(`✅ Proxy exitoso: ${firstSuccessfulResult.proxy}`);
                         }
                         console.log(`📰 Noticias extraídas en búsqueda #${attemptCount}: ${firstSuccessfulResult.news.length}`);
-                        
+
                         // Añadir noticias evitando duplicados por URL
                         const existingUrls = new Set(allNews.map(n => n.link));
                         const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
                         allNews.push(...newNews);
-                        
+
                         console.log(`📊 Total acumulado: ${allNews.length} de ${maxCount} solicitadas`);
-                        
+
                         // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
                         if (newNews.length === 0) {
                             console.log('⚠️ No hay más noticias disponibles en Google');
                             return allNews;
                         }
-                        
+
                         // Actualizar el índice de inicio para la próxima búsqueda
                         startIndex = allNews.length;
                         foundResults = true;
-                        
+
                     } catch (error) {
                         // Ningún proxy devolvió resultados exitosos
                         foundResults = false;
@@ -3730,7 +3805,7 @@
                     // Si ningún proxy devolvió resultados, terminar
                     if (!foundResults) {
                         controllers.forEach(ctrl => ctrl.abort());
-                        
+
                         if (allNews.length === 0) {
                             console.log('❌ No se pudieron extraer noticias de ningún proxy');
                         } else {
@@ -3750,7 +3825,7 @@
             buildGoogleNewsUrl(query, selectedValue, numResults) {
                 // Cuando query es "a" (búsqueda sin término), usar qdr=h (última hora) y ordenar por fecha
                 const isDefaultSearch = (query === 'a');
-                
+
                 if (isDefaultSearch) {
                     // Búsqueda sin término: última hora ordenada por fecha
                     if (selectedValue !== 'all') {
@@ -3770,18 +3845,18 @@
                         }
                     }
                     return `https://www.google.com/search?` +
-                           `q=${encodeURIComponent(query)}&` +
-                           `tbm=nws&` +
-                           `hl=es&` +
-                           `gl=es&` +
-                           `lr=lang_es&` +
-                           `ie=UTF-8&` +
-                           `oe=UTF-8&` +
-                           `num=${numResults}&` +
-                           `qdr=h&` +
-                           `tbs=sbd:1`;
+                        `q=${encodeURIComponent(query)}&` +
+                        `tbm=nws&` +
+                        `hl=es&` +
+                        `gl=es&` +
+                        `lr=lang_es&` +
+                        `ie=UTF-8&` +
+                        `oe=UTF-8&` +
+                        `num=${numResults}&` +
+                        `qdr=h&` +
+                        `tbs=sbd:1`;
                 }
-                
+
                 // Búsquedas normales con término
                 if (selectedValue !== 'all') {
                     const selectedDomain = this.newspaperToDomain[selectedValue];
@@ -3808,21 +3883,21 @@
                         `num=${numResults}`;
                 }
                 return `https://www.google.com/search?` +
-                       `q=${encodeURIComponent(query)}&` +
-                       `tbm=nws&` +
-                       `qdr:m&` +
-                       `hl=es&` +
-                       `gl=es&` +
-                       `lr=lang_es&` +
-                       `ie=UTF-8&` +
-                       `oe=UTF-8&` +
-                       `tbs=sbd:1&` +
-                       `num=${numResults}`;
+                    `q=${encodeURIComponent(query)}&` +
+                    `tbm=nws&` +
+                    `qdr:m&` +
+                    `hl=es&` +
+                    `gl=es&` +
+                    `lr=lang_es&` +
+                    `ie=UTF-8&` +
+                    `oe=UTF-8&` +
+                    `tbs=sbd:1&` +
+                    `num=${numResults}`;
             }
 
             buildProxyUrl(proxy, url) {
                 // Proxies que necesitan la URL codificada
-                if (proxy.includes('corsproxy.io') || 
+                if (proxy.includes('corsproxy.io') ||
                     proxy.includes('api.codetabs.com') ||
                     proxy.includes('proxy.cors.sh') ||
                     proxy.includes('allorigins.win') ||
@@ -3847,7 +3922,7 @@
 
                 for (const selector of possibleSelectors) {
                     const newsItems = doc.querySelectorAll(selector);
-                    
+
                     if (newsItems.length > 0) {
                         console.log(`🔍 Selector "${selector}" encontró ${newsItems.length} elementos`);
                         newsItems.forEach(item => {
@@ -3861,7 +3936,7 @@
                         }
                     }
                 }
-                
+
                 if (news.length === 0) {
                     console.log(`❌ No se encontraron noticias con ningún selector. HTML inicio: ${html.substring(0, 500)}`);
                 }
@@ -3900,7 +3975,7 @@
                         date: dateElement ? this.parseDate(this.cleanText(dateElement.textContent)) : 'Fecha no disponible',
                         author: this.inferAuthorFromHost(hostname)
                     };
-                } catch (e) {}
+                } catch (e) { }
                 return null;
             }
 
@@ -3949,7 +4024,7 @@
             extractHostname(url) {
                 try {
                     return new URL(url).hostname.replace(/^www\./, '');
-                } catch {}
+                } catch { }
                 return '';
             }
 
@@ -4114,7 +4189,7 @@
                 if (query === 'a') {
                     return news;
                 }
-                
+
                 const queryNormalized = this.normalizeText(query);
                 return news.filter(item => {
                     const titleNormalized = this.normalizeText(item.title);
@@ -4162,36 +4237,69 @@
             }
 
             displayNews(news) {
-                this.elements.resultsContainer.innerHTML = '';
+                // Prevenir llamadas concurrentes
+                if (this.isDisplaying) {
+                    console.warn('⚠️ displayNews ya está ejecutándose, ignorando llamada duplicada');
+                    return;
+                }
 
-                news.forEach((item, index) => {
-                    
-                    const isPopupMode = this.elements.readingModeSwitch.checked;
-                    const linkHTML = isPopupMode ?
-                        `<a href="#" class="modal-trigger" data-link="${encodeURIComponent(item.link)}" data-title="${encodeURIComponent(item.title)}" data-author="${encodeURIComponent(item.author)}" data-date="${encodeURIComponent(item.date)}" data-subtitle="${encodeURIComponent(item.subtitle || '')}">${item.title}</a>` :
-                        `<a href="${item.link}" target="_blank">${item.title}</a>`;
+                this.isDisplaying = true;
 
-                    const subtitleHTML = item.subtitle ? (isPopupMode ?
-                        `<a href="#" class="modal-trigger" data-link="${encodeURIComponent(item.link)}" data-title="${encodeURIComponent(item.title)}" data-author="${encodeURIComponent(item.author)}" data-date="${encodeURIComponent(item.date)}" data-subtitle="${encodeURIComponent(item.subtitle || '')}">${item.subtitle}</a>` :
-                        `<a href="${item.link}" target="_blank">${item.subtitle}</a>`) : '';
+                try {
+                    // Limpieza robusta del contenedor (triple verificación)
+                    const container = this.elements.resultsContainer;
 
-                    const newsElement = document.createElement('div');
-                    newsElement.className = 'news-item';
-                    newsElement.innerHTML = `
-                        <div class="news-content">
-                            <div class="news-source-time">
-                                <div class="news-source">${item.author}</div>
-                                <div class="news-time">${item.date}</div>
+                    // Método 1: innerHTML
+                    container.innerHTML = '';
+
+                    // Método 2: removeChild (por si innerHTML falla en móvil)
+                    while (container.firstChild) {
+                        container.removeChild(container.firstChild);
+                    }
+
+                    // Método 3: Verificación final
+                    if (container.children.length > 0) {
+                        console.warn('⚠️ Contenedor no se limpió correctamente, forzando limpieza');
+                        Array.from(container.children).forEach(child => child.remove());
+                    }
+
+                    console.log(`📰 Mostrando ${news.length} noticias`);
+
+                    news.forEach((item, index) => {
+
+                        const isPopupMode = this.elements.readingModeSwitch.checked;
+                        const linkHTML = isPopupMode ?
+                            `<a href="#" class="modal-trigger" data-link="${encodeURIComponent(item.link)}" data-title="${encodeURIComponent(item.title)}" data-author="${encodeURIComponent(item.author)}" data-date="${encodeURIComponent(item.date)}" data-subtitle="${encodeURIComponent(item.subtitle || '')}">${item.title}</a>` :
+                            `<a href="${item.link}" target="_blank">${item.title}</a>`;
+
+                        const subtitleHTML = item.subtitle ? (isPopupMode ?
+                            `<a href="#" class="modal-trigger" data-link="${encodeURIComponent(item.link)}" data-title="${encodeURIComponent(item.title)}" data-author="${encodeURIComponent(item.author)}" data-date="${encodeURIComponent(item.date)}" data-subtitle="${encodeURIComponent(item.subtitle || '')}">${item.subtitle}</a>` :
+                            `<a href="${item.link}" target="_blank">${item.subtitle}</a>`) : '';
+
+                        const newsElement = document.createElement('div');
+                        newsElement.className = 'news-item';
+                        newsElement.innerHTML = `
+                            <div class="news-content">
+                                <div class="news-source-time">
+                                    <div class="news-source">${item.author}</div>
+                                    <div class="news-time">${item.date}</div>
+                                </div>
+                                <div class="news-title">
+                                    <h3>${linkHTML}</h3>
+                                </div>
+                                ${item.subtitle ? `<div class="news-subtitle">${subtitleHTML}</div>` : ''}
                             </div>
-                            <div class="news-title">
-                                <h3>${linkHTML}</h3>
-                            </div>
-                            ${item.subtitle ? `<div class="news-subtitle">${subtitleHTML}</div>` : ''}
-                        </div>
-                    `;
+                        `;
 
-                    this.elements.resultsContainer.appendChild(newsElement);
-                });
+                        container.appendChild(newsElement);
+                    });
+
+                    console.log(`✅ ${container.children.length} elementos añadidos al DOM`);
+
+                } finally {
+                    // Asegurar que el flag se resetea incluso si hay error
+                    this.isDisplaying = false;
+                }
             }
 
             showLoading(show) {
@@ -4334,23 +4442,23 @@
                         const proxyPromises = preferredProxies.map(async (proxy) => {
                             const controller = new AbortController();
                             controllers.push(controller);
-                            
+
                             try {
                                 const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
-                                
+
                                 const headers = {
                                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                                     'Accept-Language': 'es-ES,es;q=0.9',
                                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                                     'Referer': 'https://www.google.com/'
                                 };
-                                
+
                                 // Añadir API key si es proxy.cors.sh
                                 if (proxy.includes('proxy.cors.sh')) {
                                     headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
                                 }
-                                
-                                const response = await fetch(proxyUrl, { 
+
+                                const response = await fetch(proxyUrl, {
                                     signal: controller.signal,
                                     headers: headers
                                 });
@@ -4374,17 +4482,17 @@
 
                         // Esperar al primer resultado exitoso usando Promise.race correctamente
                         let foundResults = false;
-                        
+
                         try {
                             // Crear una promesa que se resuelve con el primer resultado exitoso
                             const firstSuccessfulResult = await new Promise((resolve, reject) => {
                                 let completed = 0;
                                 let hasResolved = false;
-                                
+
                                 proxyPromises.forEach(promise => {
                                     promise.then(result => {
                                         completed++;
-                                        
+
                                         if (!hasResolved && result.success && result.news.length > 0) {
                                             hasResolved = true;
                                             // Cancelar todas las peticiones restantes
@@ -4401,19 +4509,19 @@
                                     });
                                 });
                             });
-                            
+
                             if (attemptCount === 1) {
                                 console.log(`✅ Proxy exitoso (${newspaperName}): ${firstSuccessfulResult.proxy}`);
                             }
                             console.log(`📰 Noticias extraídas en búsqueda #${attemptCount}: ${firstSuccessfulResult.news.length}`);
-                            
+
                             // Añadir noticias evitando duplicados por URL
                             const existingUrls = new Set(allResults.map(n => n.link));
                             const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
                             allResults.push(...newNews);
-                            
+
                             console.log(`📊 Total acumulado: ${allResults.length} de ${maxCount} solicitadas`);
-                            
+
                             // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
                             if (newNews.length === 0) {
                                 console.log('⚠️ No hay más noticias disponibles en Google');
@@ -4423,7 +4531,7 @@
                                 startIndex = allResults.length;
                                 foundResults = true;
                             }
-                            
+
                         } catch (error) {
                             // Ningún proxy devolvió resultados exitosos
                             foundResults = false;
@@ -4432,7 +4540,7 @@
                         // Si ningún proxy devolvió resultados, terminar
                         if (!foundResults) {
                             controllers.forEach(ctrl => ctrl.abort());
-                            
+
                             if (allResults.length === 0) {
                                 console.log(`❌ No se pudieron extraer noticias de ningún proxy (${newspaperName})`);
                             } else {
@@ -4657,14 +4765,14 @@
                     const fetchPromises = proxiesParalelos.map(async (proxy) => {
                         try {
                             const proxyUrl = this.buildProxyUrl(proxy, url);
-                            
+
                             const response = await fetch(proxyUrl);
 
                             if (response.ok) {
                                 // Leer como buffer para detectar la codificación correcta
                                 const buffer = await response.arrayBuffer();
                                 const bytes = new Uint8Array(buffer);
-                                
+
                                 // Primero intentar decodificar como UTF-8
                                 let decoder = new TextDecoder('utf-8', { fatal: true });
                                 let html;
@@ -4675,29 +4783,29 @@
                                     decoder = new TextDecoder('windows-1252');
                                     html = decoder.decode(bytes);
                                 }
-                                
+
                                 // Detectar la codificación declarada en el HTML
                                 const charsetMatch = html.match(/<meta[^>]+charset=["']?([^"'\s>]+)/i);
                                 if (charsetMatch) {
                                     const declaredCharset = charsetMatch[1].toLowerCase();
-                                    
+
                                     // Si la codificación declarada es ISO-8859-1 o Windows-1252, redecodificar
                                     if (declaredCharset === 'iso-8859-1' || declaredCharset === 'windows-1252' || declaredCharset === 'latin1') {
                                         decoder = new TextDecoder('windows-1252');
                                         html = decoder.decode(bytes);
                                     }
                                 }
-                                
+
                                 // Corrección adicional por si acaso
                                 html = this.fixEncoding(html);
-                                
+
                                 const extractedContent = await this.extractArticleContent(html, url);
 
                                 if (extractedContent && (extractedContent.text || extractedContent.images.length > 0)) {
                                     return { success: true, content: extractedContent, proxy };
                                 }
                             }
-                            
+
                             throw new Error('Proxy no devolvió contenido válido');
                         } catch (error) {
                             throw error;
@@ -4733,7 +4841,7 @@
                                         decoder = new TextDecoder('windows-1252');
                                         html = decoder.decode(bytes);
                                     }
-                                    
+
                                     html = this.fixEncoding(html);
                                     content = await this.extractArticleContent(html, url);
 
@@ -4758,22 +4866,22 @@
                 if (!html.includes('\uFFFD')) {
                     return html; // No hay problemas aparentes
                 }
-                
+
                 try {
                     // Convertir a bytes y redecodificar como Windows-1252
                     const encoder = new TextEncoder();
                     const utf8Bytes = encoder.encode(html);
-                    
+
                     // Decodificar como Windows-1252
                     const decoder = new TextDecoder('windows-1252');
                     let fixed = decoder.decode(utf8Bytes);
-                    
+
                     // Si todavía tiene problemas, intentar ISO-8859-1
                     if (fixed.includes('\uFFFD')) {
                         const decoderISO = new TextDecoder('iso-8859-1');
                         fixed = decoderISO.decode(utf8Bytes);
                     }
-                    
+
                     if (!fixed.includes('\uFFFD')) {
                         return fixed;
                     }
@@ -4787,32 +4895,32 @@
                 const allAudios = [];
                 const seenUrls = new Set(); // Para detectar duplicados
                 let globalIndex = 0;
-                
+
                 // 1. Buscar elementos <audio> con atributos src y elementos <source>
                 const audioElements = Array.from(doc.querySelectorAll('audio'));
                 audioElements.forEach(audio => {
                     const sources = audio.querySelectorAll('source');
                     const srcAttr = audio.getAttribute('src');
-                    
+
                     // Si tiene src directo
                     if (srcAttr) {
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
-                            
+
                             // Buscar título y descripción en el contenedor padre
                             let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
                             let description = '';
-                            
+
                             const parent = audio.closest('figure, div, article, section, main');
                             if (parent) {
                                 const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .audio-title, [class*="title"]');
                                 if (titleEl && !title) title = this.cleanText(titleEl.textContent);
-                                
+
                                 const descEl = parent.querySelector('p, .description, .audio-description, .cnt-txt p, [class*="description"]');
                                 if (descEl) description = this.cleanText(descEl.textContent);
                             }
-                            
+
                             allAudios.push({
                                 type: 'audio',
                                 src: srcAttr,
@@ -4823,28 +4931,28 @@
                             });
                         }
                     }
-                    
+
                     // Si tiene elementos <source>
                     sources.forEach(source => {
                         const srcAttr = source.getAttribute('src');
                         if (!srcAttr) return;
-                        
+
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
-                            
+
                             let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
                             let description = '';
-                            
+
                             const parent = audio.closest('figure, div, article, section, main');
                             if (parent) {
                                 const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .audio-title, [class*="title"]');
                                 if (titleEl && !title) title = this.cleanText(titleEl.textContent);
-                                
+
                                 const descEl = parent.querySelector('p, .description, .audio-description, .cnt-txt p, [class*="description"]');
                                 if (descEl) description = this.cleanText(descEl.textContent);
                             }
-                            
+
                             allAudios.push({
                                 type: 'audio',
                                 src: srcAttr,
@@ -4856,32 +4964,32 @@
                         }
                     });
                 });
-                
+
                 // 2. Buscar URLs de audio en el HTML usando expresiones regulares
                 // Incluye: mp3, m4a, ogg, wav, aac, flac
                 const audioUrlRegex = /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi;
                 let match;
-                
+
                 while ((match = audioUrlRegex.exec(html)) !== null) {
                     const audioUrl = match[1];
                     const cleanUrl = audioUrl.split('"')[0];
                     const fileName = cleanUrl.split('/').pop().split('?')[0];
-                    
+
                     if (!seenUrls.has(fileName)) {
                         seenUrls.add(fileName);
-                        
+
                         // Intentar encontrar contexto para este audio
                         // Buscar en el HTML el elemento que contiene esta URL
                         let title = 'Audio detectado';
                         let description = '';
-                        
+
                         // Buscar en los selectores específicos de Cadena SER
                         const mainTitle = doc.querySelector('main.epi-pod .cnt-data-art .c-i h1');
                         if (mainTitle) title = this.cleanText(mainTitle.textContent);
-                        
+
                         const mainDesc = doc.querySelector('main.epi-pod .cnt-data-art .c-i .cnt-txt p');
                         if (mainDesc) description = this.cleanText(mainDesc.textContent);
-                        
+
                         allAudios.push({
                             type: 'audio',
                             src: cleanUrl,
@@ -4892,40 +5000,40 @@
                         });
                     }
                 }
-                
+
                 // 3. Buscar enlaces a /audio/ (episodios de Cadena SER)
                 // Hacer scraping de cada página de episodio para extraer el audio EN PARALELO
                 const audioLinks = Array.from(doc.querySelectorAll('a[href*="/audio/"]'));
-                
+
                 // Crear promesas para procesar todos los episodios en paralelo
                 const episodePromises = audioLinks.map(async (link) => {
                     const href = link.getAttribute('href');
                     if (!href) return null;
-                    
+
                     // Convertir URL relativa a absoluta
                     let episodeUrl = href;
                     if (href.startsWith('/')) {
                         episodeUrl = 'https://cadenaser.com' + href;
                     }
-                    
+
                     // Extraer ID del episodio para control de duplicados
                     const episodeId = href.split('/').filter(Boolean).pop();
                     if (seenUrls.has(episodeId)) return null;
                     seenUrls.add(episodeId);
-                    
+
                     // Extraer título y descripción de la página actual
                     let title = link.textContent.trim() || link.getAttribute('title') || link.getAttribute('aria-label') || '';
                     let description = '';
-                    
+
                     const parent = link.closest('article, section, div, li, figure');
                     if (parent) {
                         const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, .title, [class*="title"]');
                         if (titleEl && !title) title = this.cleanText(titleEl.textContent);
-                        
+
                         const descEl = parent.querySelector('p, .description, [class*="description"]');
                         if (descEl) description = this.cleanText(descEl.textContent);
                     }
-                    
+
                     // Si no hay descripción, buscar texto antes del enlace
                     if (!description) {
                         let prevNode = link.previousSibling;
@@ -4938,31 +5046,31 @@
                             prevNode = prevNode.previousSibling;
                         }
                     }
-                    
+
                     // Hacer scraping de la página del episodio usando múltiples proxies
                     try {
                         let episodeHtml = null;
-                        
+
                         // Probar múltiples proxies
                         const proxies = [
                             'https://proxy.cors.sh/',
                             'https://corsproxy.io/?',
                             'https://api.codetabs.com/v1/proxy?quest='
                         ];
-                        
+
                         for (const proxy of proxies) {
                             try {
-                                const proxyUrl = proxy.includes('cors.sh') 
+                                const proxyUrl = proxy.includes('cors.sh')
                                     ? `${proxy}${episodeUrl}`
                                     : `${proxy}${encodeURIComponent(episodeUrl)}`;
-                                
+
                                 const headers = {};
                                 if (proxy.includes('cors.sh')) {
                                     headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
                                 }
-                                
+
                                 const response = await fetch(proxyUrl, { headers });
-                                
+
                                 if (response.ok) {
                                     episodeHtml = await response.text();
                                     break; // Salir del bucle si se obtiene respuesta
@@ -4972,17 +5080,17 @@
                                 continue;
                             }
                         }
-                        
+
                         // Si se obtuvo el HTML, buscar el audio
                         if (episodeHtml) {
                             const audioUrlRegex = /"(https?:\/\/[^"]+\.(?:mp3|m4a|ogg|wav|aac|flac))"/gi;
                             const audioMatches = episodeHtml.match(audioUrlRegex);
-                            
+
                             if (audioMatches && audioMatches.length > 0) {
                                 // Tomar el primer audio encontrado
                                 const audioUrl = audioMatches[0].replace(/"/g, '');
                                 const cleanUrl = audioUrl.split('?')[0];
-                                
+
                                 return {
                                     type: 'audio',
                                     src: cleanUrl,
@@ -4996,13 +5104,13 @@
                     } catch (error) {
                         // Silenciar errores para no romper la carga de otros episodios
                     }
-                    
+
                     return null;
                 });
-                
+
                 // Esperar a que todas las promesas se resuelvan (en paralelo)
                 const episodeResults = await Promise.allSettled(episodePromises);
-                
+
                 // Agregar los audios exitosos al array
                 episodeResults.forEach(result => {
                     if (result.status === 'fulfilled' && result.value) {
@@ -5010,7 +5118,7 @@
                         allAudios.push(result.value);
                     }
                 });
-                
+
                 return allAudios;
             }
 
@@ -5018,12 +5126,12 @@
                 const allAudios = [];
                 const seenUrls = new Set();
                 let globalIndex = 0;
-                
+
                 const blacklist = [
-                    'adswizz', 'doubleclick', 'googlesyndication', 'analytics', 
-                    'tracking', 'pixel', 'blank.mp3', 'silence.mp3', 
+                    'adswizz', 'doubleclick', 'googlesyndication', 'analytics',
+                    'tracking', 'pixel', 'blank.mp3', 'silence.mp3',
                     'intro', 'outro', 'bumper', 'promo', 'advert',
-                    'triton', 'liveradio', 'directo', 'stream', 
+                    'triton', 'liveradio', 'directo', 'stream',
                     'omny', 'user_uploads', 'audio_vacio', 'cdn.agitar.xyz',
                     'fragment', 'chunk', 'manifest', '2083'
                 ];
@@ -5050,26 +5158,26 @@
 
                     const sources = audio.querySelectorAll('source');
                     const srcAttr = audio.getAttribute('src');
-                    
+
                     // Si tiene src directo
                     if (srcAttr && !isBlacklisted(srcAttr)) {
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
-                            
+
                             // Buscar título y descripción en el contenedor padre
                             let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
                             let description = '';
-                            
+
                             const parent = audio.closest('figure, div, article, section, main');
                             if (parent) {
                                 const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .c-detail__title, [class*="title"]');
                                 if (titleEl && !title) title = this.cleanText(titleEl.textContent);
-                                
+
                                 const descEl = parent.querySelector('p, .description, [class*="description"]');
                                 if (descEl) description = this.cleanText(descEl.textContent);
                             }
-                            
+
                             allAudios.push({
                                 type: 'audio',
                                 src: srcAttr,
@@ -5080,28 +5188,28 @@
                             });
                         }
                     }
-                    
+
                     // Si tiene elementos <source>
                     sources.forEach(source => {
                         const srcAttr = source.getAttribute('src');
                         if (!srcAttr || isBlacklisted(srcAttr)) return;
-                        
+
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
-                            
+
                             let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
                             let description = '';
-                            
+
                             const parent = audio.closest('figure, div, article, section, main');
                             if (parent) {
                                 const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, .c-detail__title, [class*="title"]');
                                 if (titleEl && !title) title = this.cleanText(titleEl.textContent);
-                                
+
                                 const descEl = parent.querySelector('p, .description, [class*="description"]');
                                 if (descEl) description = this.cleanText(descEl.textContent);
                             }
-                            
+
                             allAudios.push({
                                 type: 'audio',
                                 src: srcAttr,
@@ -5113,29 +5221,29 @@
                         }
                     });
                 });
-                
+
                 // 2. Buscar URLs de audio en el HTML usando expresiones regulares
                 // Incluye: mp3, m4a, ogg, wav, aac, flac
                 const audioUrlRegex = /(https?:\/\/[^"'\s<>]+\.(?:mp3|m4a|ogg|wav|aac|flac)(?:\?[^"'\s<>]*)?)/gi;
                 let match;
-                
+
                 while ((match = audioUrlRegex.exec(html)) !== null) {
                     const audioUrl = match[1];
                     const cleanUrl = audioUrl.replace(/["']$/, '');
-                    
+
                     if (cleanUrl.length < 10 || cleanUrl.includes('schema.org') || isBlacklisted(cleanUrl)) continue;
-                    
+
                     const fileName = cleanUrl.split('/').pop().split('?')[0];
-                    
+
                     if (!seenUrls.has(fileName)) {
                         seenUrls.add(fileName);
-                        
+
                         let title = 'Audio de Cope.es';
                         let description = '';
-                        
+
                         const mainTitle = doc.querySelector('.c-detail__title h1, .c-detail h1');
                         if (mainTitle) title = this.cleanText(mainTitle.textContent);
-                        
+
                         allAudios.push({
                             type: 'audio',
                             src: cleanUrl,
@@ -5152,24 +5260,24 @@
                 audioLinks.forEach(link => {
                     const href = link.getAttribute('href');
                     if (!href) return;
-                    
+
                     let audioUrl = href;
                     if (href.startsWith('/')) {
                         audioUrl = 'https://www.cope.es' + href;
                     } else if (!href.startsWith('http')) {
                         return;
                     }
-                    
+
                     if (isBlacklisted(audioUrl)) return;
-                    
+
                     const fileName = audioUrl.split('/').pop().split('?')[0];
                     if (!seenUrls.has(fileName)) {
                         seenUrls.add(fileName);
-                        
+
                         let title = link.textContent.trim() || link.getAttribute('title') || 'Audio relacionado';
                         if (title.length < 3) {
-                             const mainTitle = doc.querySelector('.c-detail__title h1, .c-detail h1');
-                             if (mainTitle) title = this.cleanText(mainTitle.textContent);
+                            const mainTitle = doc.querySelector('.c-detail__title h1, .c-detail h1');
+                            if (mainTitle) title = this.cleanText(mainTitle.textContent);
                         }
 
                         allAudios.push({
@@ -5190,18 +5298,18 @@
                         const json = JSON.parse(script.textContent);
                         const processEntity = (entity) => {
                             if (!entity) return;
-                            
+
                             if (entity['@type'] === 'AudioObject' && (entity.contentUrl || entity.url)) {
                                 const audioUrl = entity.contentUrl || entity.url;
-                                
+
                                 if (isBlacklisted(audioUrl)) return;
-                                
+
                                 const cleanUrl = audioUrl.split('?')[0];
                                 const fileName = cleanUrl.split('/').pop();
-                                
+
                                 if (!seenUrls.has(fileName)) {
                                     seenUrls.add(fileName);
-                                    
+
                                     // Añadir al PRINCIPIO del array porque JSON-LD suele ser el más fiable
                                     allAudios.unshift({
                                         type: 'audio',
@@ -5214,18 +5322,18 @@
                                     });
                                 }
                             }
-                            
+
                             Object.keys(entity).forEach(key => {
                                 if (typeof entity[key] === 'object') processEntity(entity[key]);
                             });
                         };
-                        
+
                         if (Array.isArray(json)) {
                             json.forEach(processEntity);
                         } else {
                             processEntity(json);
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 });
 
                 // 5. Buscar reproductores específicos de COPE (.c-player, data-file, data-src) - PRIORIDAD ALTA
@@ -5234,13 +5342,13 @@
                     const src = player.getAttribute('data-file') || player.getAttribute('data-src') || player.getAttribute('data-audio');
                     if (src && (src.includes('.mp3') || src.includes('.m4a') || src.includes('.ogg'))) {
                         if (isBlacklisted(src)) return;
-                        
+
                         const cleanUrl = src.split('?')[0];
                         const fileName = cleanUrl.split('/').pop();
-                        
+
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
-                            
+
                             let title = player.getAttribute('data-title') || '';
                             if (!title) {
                                 const parent = player.closest('article, .c-detail, .c-player-container');
@@ -5249,10 +5357,10 @@
                                     if (titleEl) title = this.cleanText(titleEl.textContent);
                                 }
                             }
-                            
+
                             // Añadir al principio si parece ser el reproductor principal
                             const isMainPlayer = player.classList.contains('c-player--main') || player.closest('.c-detail__media');
-                            
+
                             const audioObj = {
                                 type: 'audio',
                                 src: src,
@@ -5262,7 +5370,7 @@
                                 source: 'cope-player-attributes',
                                 isMain: isMainPlayer
                             };
-                            
+
                             if (isMainPlayer) {
                                 allAudios.unshift(audioObj);
                             } else {
@@ -5285,9 +5393,9 @@
                                 let finalUrl = audioUrl;
                                 if (finalUrl.startsWith('//')) finalUrl = 'https:' + finalUrl;
                                 else if (finalUrl.startsWith('/')) finalUrl = 'https://www.cope.es' + finalUrl;
-                                
+
                                 if (isBlacklisted(finalUrl)) continue;
-                                
+
                                 const fileName = finalUrl.split('/').pop().split('?')[0];
                                 if (!seenUrls.has(fileName)) {
                                     seenUrls.add(fileName);
@@ -5304,9 +5412,9 @@
                         }
                     }
                 });
-                
+
                 // Filtrado final: Estrategia de selección estricta
-                
+
                 // 1. Si tenemos audios marcados como "isMain" (JSON-LD o Player Principal), nos quedamos SOLO con esos
                 const mainAudios = allAudios.filter(a => a.isMain);
                 if (mainAudios.length > 0) {
@@ -5316,9 +5424,9 @@
 
                 // 2. Si hay audios con título específico (que no sea el genérico "Audio de Cope.es" o "Audio sin título")
                 // Priorizar aquellos que tengan un título descriptivo
-                const descriptivelyTitled = allAudios.filter(a => 
-                    a.title && 
-                    !a.title.includes('Audio de Cope.es') && 
+                const descriptivelyTitled = allAudios.filter(a =>
+                    a.title &&
+                    !a.title.includes('Audio de Cope.es') &&
                     !a.title.includes('Audio sin título') &&
                     !a.title.includes('Enlace de audio') &&
                     !a.title.includes('Audio detectado')
@@ -5336,7 +5444,7 @@
                     allAudios.sort((a, b) => a.position - b.position);
                     return [allAudios[0]];
                 }
-                
+
                 return [];
             }
 
@@ -5344,23 +5452,23 @@
                 const allAudios = [];
                 const seenUrls = new Set();
                 let globalIndex = 0;
-                
+
                 // 1. Buscar contenedores con data-audio-src (formato específico de ABC para audificación de noticias)
                 const audioContainers = doc.querySelectorAll('[data-audio-src], .voc-c-container--aud-p-news[data-audio-src]');
-                
+
                 audioContainers.forEach(container => {
                     const audioSrc = container.getAttribute('data-audio-src');
                     if (!audioSrc) return;
-                    
+
                     const fileName = audioSrc.split('/').pop().split('?')[0];
                     if (!seenUrls.has(fileName)) {
                         seenUrls.add(fileName);
-                        
+
                         // Buscar título del artículo
                         let title = '';
                         const mainTitle = doc.querySelector('h1, .voc-title, [class*="title"]');
                         if (mainTitle) title = this.cleanText(mainTitle.textContent);
-                        
+
                         allAudios.push({
                             type: 'audio',
                             src: audioSrc,
@@ -5371,31 +5479,31 @@
                         });
                     }
                 });
-                
+
                 // 2. Buscar elementos <audio> con atributos src y elementos <source>
                 const audioElements = Array.from(doc.querySelectorAll('audio'));
                 audioElements.forEach(audio => {
                     const sources = audio.querySelectorAll('source');
                     const srcAttr = audio.getAttribute('src');
-                    
+
                     // Si tiene src directo
                     if (srcAttr) {
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
-                            
+
                             let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
                             let description = '';
-                            
+
                             const parent = audio.closest('figure, div, article, section, main');
                             if (parent) {
                                 const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, [class*="title"]');
                                 if (titleEl && !title) title = this.cleanText(titleEl.textContent);
-                                
+
                                 const descEl = parent.querySelector('p, .description, [class*="description"]');
                                 if (descEl) description = this.cleanText(descEl.textContent);
                             }
-                            
+
                             allAudios.push({
                                 type: 'audio',
                                 src: srcAttr,
@@ -5406,28 +5514,28 @@
                             });
                         }
                     }
-                    
+
                     // Si tiene elementos <source>
                     sources.forEach(source => {
                         const srcAttr = source.getAttribute('src');
                         if (!srcAttr) return;
-                        
+
                         const fileName = srcAttr.split('/').pop().split('?')[0];
                         if (!seenUrls.has(fileName)) {
                             seenUrls.add(fileName);
-                            
+
                             let title = audio.getAttribute('title') || audio.getAttribute('aria-label') || '';
                             let description = '';
-                            
+
                             const parent = audio.closest('figure, div, article, section, main');
                             if (parent) {
                                 const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title, [class*="title"]');
                                 if (titleEl && !title) title = this.cleanText(titleEl.textContent);
-                                
+
                                 const descEl = parent.querySelector('p, .description, [class*="description"]');
                                 if (descEl) description = this.cleanText(descEl.textContent);
                             }
-                            
+
                             allAudios.push({
                                 type: 'audio',
                                 src: srcAttr,
@@ -5439,23 +5547,23 @@
                         }
                     });
                 });
-                
+
                 // 3. Buscar URLs de audio en el HTML usando expresiones regulares (específicamente de abcstatics.com)
                 const audioUrlRegex = /"(https?:\/\/[^"]*abcstatics\.com[^"]*\.(?:mp3|m4a|ogg|wav|aac|flac)[^"]*)"/gi;
                 let match;
-                
+
                 while ((match = audioUrlRegex.exec(html)) !== null) {
                     const audioUrl = match[1];
                     const cleanUrl = audioUrl.split('"')[0];
                     const fileName = cleanUrl.split('/').pop().split('?')[0];
-                    
+
                     if (!seenUrls.has(fileName)) {
                         seenUrls.add(fileName);
-                        
+
                         let title = '';
                         const mainTitle = doc.querySelector('h1, .voc-title, [class*="title"]');
                         if (mainTitle) title = this.cleanText(mainTitle.textContent);
-                        
+
                         allAudios.push({
                             type: 'audio',
                             src: cleanUrl,
@@ -5466,24 +5574,24 @@
                         });
                     }
                 }
-                
+
                 return allAudios;
             }
 
             detectYouTubeVideos(html, doc, domain = '') {
                 const videos = [];
                 const seen = new Set();
-                
+
                 // Para ABC.es NO detectar videos de YouTube porque están en contenedores que se eliminan
                 if (domain === 'abc.es') {
                     return videos;
                 }
-                
+
                 // Método 1: Buscar iframes de YouTube
                 const iframes = doc.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtu.be"]');
                 iframes.forEach(iframe => {
                     const src = iframe.getAttribute('src') || '';
-                    
+
                     // Extraer ID del video de youtube.com/embed/VIDEO_ID
                     const embedMatch = src.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
                     if (embedMatch) {
@@ -5497,7 +5605,7 @@
                             });
                         }
                     }
-                    
+
                     // Extraer ID de youtu.be/VIDEO_ID (URL corta)
                     const shortMatch = src.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
                     if (shortMatch) {
@@ -5512,7 +5620,7 @@
                         }
                     }
                 });
-                
+
                 // Método 2: Buscar URLs en el HTML usando regex
                 // youtube.com/watch?v=VIDEO_ID
                 const watchRegex = /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/gi;
@@ -5528,7 +5636,7 @@
                         });
                     }
                 }
-                
+
                 // youtube.com/embed/VIDEO_ID
                 const embedRegex = /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/gi;
                 while ((match = embedRegex.exec(html)) !== null) {
@@ -5542,7 +5650,7 @@
                         });
                     }
                 }
-                
+
                 // youtu.be/VIDEO_ID (URL corta)
                 const shortRegex = /youtu\.be\/([a-zA-Z0-9_-]+)/gi;
                 while ((match = shortRegex.exec(html)) !== null) {
@@ -5556,19 +5664,19 @@
                         });
                     }
                 }
-                
+
                 return videos;
             }
 
             detectDailymotionVideos(html, domain = '') {
                 const videos = [];
                 const seen = new Set();
-                
+
                 // Para ABC.es NO detectar videos de Dailymotion porque están en contenedores que se eliminan
                 if (domain === 'abc.es') {
                     return videos;
                 }
-                
+
                 // Patrón 1: data-video-id="..."
                 const dataVideoIdRegex = /data-video-id=["']([^"']+)["']/gi;
                 let match;
@@ -5660,7 +5768,7 @@
                     if (source.closest('.recirculation-video')) {
                         return; // Saltar este video
                     }
-                    
+
                     const videoUrl = source.getAttribute('src');
                     if (videoUrl && videoUrl.includes('.mp4')) {
                         const normalizedUrl = normalizeVideoUrl(videoUrl);
@@ -5680,7 +5788,7 @@
                 // Método 2: Buscar URLs de dpvclip.antena3.com en el HTML (solo si no fueron encontradas en Método 1)
                 // Este método está deshabilitado para evitar capturar videos de noticias secundarias (.recirculation-video)
                 // ya que el Método 1 es más preciso y puede filtrar por contenedor
-                
+
                 return videos;
             }
 
@@ -5739,7 +5847,7 @@
                 const mp4Regex = /<(?:video|source)[^>]+src=["']([^"']+\.mp4[^"']*)["']/gi;
                 while ((match = mp4Regex.exec(html)) !== null) {
                     let videoUrl = match[1];
-                    
+
                     if (videoUrl.startsWith('//')) {
                         videoUrl = 'https:' + videoUrl;
                     }
@@ -5790,11 +5898,11 @@
                 jsonLdScripts.forEach((script) => {
                     try {
                         const jsonData = JSON.parse(script.textContent);
-                        
+
                         // Buscar contentUrl, embedUrl, url en VideoObject
                         const findVideos = (obj) => {
                             if (!obj || typeof obj !== 'object') return;
-                            
+
                             // Si es un VideoObject o tiene contentUrl
                             if (obj['@type'] === 'VideoObject' || obj.contentUrl || obj.embedUrl) {
                                 const videoUrl = obj.contentUrl || obj.embedUrl || obj.url;
@@ -5812,36 +5920,36 @@
                                     }
                                 }
                             }
-                            
+
                             // Buscar recursivamente
                             Object.values(obj).forEach(val => {
                                 if (typeof val === 'object') findVideos(val);
                             });
                         };
-                        
+
                         findVideos(jsonData);
-                    } catch (e) {}
+                    } catch (e) { }
                 });
 
                 // Método 6: Buscar URLs .mp4 en el HTML sin comillas (JSON, JavaScript, etc.)
                 const mp4UrlRegex = /https?:\/\/[^\s"'<>]+\.mp4(?:\?[^\s"'<>&]*)?/gi;
                 while ((match = mp4UrlRegex.exec(html)) !== null) {
                     let videoUrl = match[0];
-                    
+
                     // VALIDACIONES: Saltar URLs inválidas
                     // 1. Que no contenga entidades HTML (&quot;, &amp;, etc.)
                     if (videoUrl.includes('&quot;') || videoUrl.includes('&amp;') || videoUrl.includes('&lt;') || videoUrl.includes('&gt;')) {
                         continue;
                     }
-                    
+
                     // 2. Que termine correctamente en .mp4 o .mp4?params
                     if (!videoUrl.match(/\.mp4(\?[a-zA-Z0-9_=&-]*)?$/)) {
                         continue;
                     }
-                    
+
                     // Limpiar caracteres extra al final
                     videoUrl = videoUrl.replace(/[,;}\]]+$/, '');
-                    
+
                     const normalizedUrl = normalizeVideoUrl(videoUrl);
                     if (!seen.has(normalizedUrl)) {
                         seen.add(normalizedUrl);
@@ -5865,7 +5973,7 @@
                         uniqueVideos.push(video);
                     }
                 }
-                
+
                 return uniqueVideos;
             }
 
@@ -5917,8 +6025,8 @@
                 // Método 2: Buscar elementos con clases o atributos relacionados con Bluesky
                 doc.querySelectorAll('.embed-container--type-bluesky, .bluesky-embed, [data-bluesky-url], [class*="bluesky"]').forEach(el => {
                     const dataUrl = el.getAttribute('data-bluesky-url') ||
-                                   el.getAttribute('data-url') ||
-                                   el.getAttribute('cite');
+                        el.getAttribute('data-url') ||
+                        el.getAttribute('cite');
 
                     if (dataUrl && dataUrl.includes('bsky')) {
                         const info = extractFromUrl(dataUrl);
@@ -6239,17 +6347,17 @@
                 // MÉTODO 1: Buscar blockquotes de Instagram embebidos
                 // -----------------------------------------------------------------
                 doc.querySelectorAll('blockquote.instagram-media').forEach(blockquote => {
-                    const permalink = blockquote.getAttribute('data-instgrm-permalink') || 
-                                     blockquote.getAttribute('cite');
-                    
+                    const permalink = blockquote.getAttribute('data-instgrm-permalink') ||
+                        blockquote.getAttribute('cite');
+
                     if (permalink && /instagram\.com\/(p|reel|reels|tv)\/[^\/\?]+/i.test(permalink)) {
                         const cleanUrl = permalink.split('?')[0];
                         const key = `instagram-${cleanUrl}`;
-                        
+
                         if (!seen.has(key)) {
                             seen.add(key);
                             const postId = cleanUrl.match(/\/(p|reel|reels|tv)\/([^\/\?]+)/i)?.[2] || '';
-                            
+
                             instagrams.push({
                                 type: 'Instagram',
                                 id: postId,
@@ -6266,15 +6374,15 @@
                 // -----------------------------------------------------------------
                 doc.querySelectorAll('a[href*="instagram.com"]').forEach(link => {
                     const href = link.href;
-                    
+
                     if (/instagram\.com\/(p|reel|reels|tv)\/[^\/\?]+/i.test(href)) {
                         const cleanUrl = href.split('?')[0];
                         const key = `instagram-${cleanUrl}`;
-                        
+
                         if (!seen.has(key)) {
                             seen.add(key);
                             const postId = cleanUrl.match(/\/(p|reel|reels|tv)\/([^\/\?]+)/i)?.[2] || '';
-                            
+
                             instagrams.push({
                                 type: 'Instagram',
                                 id: postId,
@@ -6295,10 +6403,10 @@
                     const cleanUrl = match[0].split('?')[0];
                     const key = `instagram-${cleanUrl}`;
                     const postId = match[2];
-                    
+
                     if (!seen.has(key)) {
                         seen.add(key);
-                        
+
                         instagrams.push({
                             type: 'Instagram',
                             id: postId,
@@ -6444,14 +6552,14 @@
                 const cadenaSerAudios = domain === 'cadenaser.com' ? await this.detectCadenaSERAudios(html, doc) : [];
                 const copeAudios = domain === 'cope.es' ? await this.detectCopeAudios(html, doc) : [];
                 const abcAudios = domain === 'abc.es' ? await this.detectABCAudios(html, doc) : [];
-                
+
                 const youtubeVideos = this.detectYouTubeVideos(html, doc, domain);
                 const dailymotionVideos = this.detectDailymotionVideos(html, domain);
                 const brightcoveVideos = this.detectBrightcoveVideos(html, doc, domain);
                 const elPaisVideos = (domain === 'elpais.com' || domain === 'cadenaser.com') ? this.detectElPaisVideos(html, doc) : [];
                 const antena3Videos = domain === 'antena3.com' ? this.detectAntena3Videos(html, doc) : [];
                 const twitterVideos = this.detectTwitterVideos(html, doc, domain);
-                
+
                 // Instagram embeds: NO los detectamos como objetos separados
                 // Los dejamos inline en el texto para que se muestren en su posición original
 
@@ -6473,21 +6581,21 @@
                 // SEGUNDO: Extraer imágenes, autor Y CONTENIDO ADICIONAL ANTES de eliminar elementos
                 const images = this.extractImages(doc, config, url);
                 const authorImage = this.extractAuthorImage(doc, domain, url);
-                
+
                 // Extraer datos adicionales (resúmenes, standfirst, etc.) ANTES de eliminar elementos
                 const { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews, cadenaSerIntro, cadenaSerEpisodiosHeader } = this.extractAdditionalContent(doc, domain, url);
 
                 // Extraer título y autor ANTES de eliminar elementos
                 const title = this.extractTextContent(doc, config.title);
                 const author = this.extractAuthor(doc, config, domain);
-                
+
                 // Extraer fechas de catalunyapress ANTES de eliminar .title-subtitle-legend
                 let catalunyaPressPublishDate = '';
                 let catalunyaPressUpdateDate = '';
                 if (domain === 'catalunyapress.es') {
                     const dateElement = doc.querySelector('.article_legend .article_date .CNewsDateUpdate') ||
-                                       doc.querySelector('.article_date .CNewsDateUpdate') || 
-                                       doc.querySelector('.CNewsDateUpdate');
+                        doc.querySelector('.article_date .CNewsDateUpdate') ||
+                        doc.querySelector('.CNewsDateUpdate');
                     if (dateElement && dateElement.textContent) {
                         catalunyaPressPublishDate = this.cleanText(dateElement.textContent);
                         catalunyaPressUpdateDate = catalunyaPressPublishDate;
@@ -6502,7 +6610,7 @@
                 // Eliminar también contenedores de video de ABC después de extraer los datos
                 if (domain === 'abc.es') {
                     doc.querySelectorAll('.video, .nibara-element').forEach(el => el.remove());
-                    
+
                     // NO eliminar blockquotes de Instagram, TikTok ni Twitter - deben quedarse en el texto para mostrarse inline
                 }
 
@@ -6529,13 +6637,13 @@
                 // Para cope.es, pasar la primera imagen para evitar duplicación
                 const firstImageSrc = (domain === 'cope.es' && images.length > 0) ? images[0].src : null;
                 let { text, publishDate, updateDate, cadenaSerMainText } = this.extractContent(doc, config, domain, url, firstImageSrc);
-                
+
                 // Para catalunyapress, usar las fechas extraídas ANTES de eliminar elementos
                 if (domain === 'catalunyapress.es' && catalunyaPressPublishDate) {
                     publishDate = catalunyaPressPublishDate;
                     updateDate = catalunyaPressUpdateDate;
                 }
-                
+
                 const links = this.extractLinks(doc, domain);
 
                 // Extraer resumen del meta description si está disponible
@@ -6660,7 +6768,7 @@
                         // Eliminar cualquier texto de fecha que pueda haber sido incluido
                         return authorText.split('Publicado')[0].trim();
                     }
-                    
+
                     // Fallback: intentar solo con .article-author__name
                     const authorName = doc.querySelector('.article-author__name');
                     if (authorName && authorName.textContent.trim()) {
@@ -6696,14 +6804,14 @@
                 // Usa el selector de la configuración general
                 // -----------------------------------------------------------------
                 const authorEl = doc.querySelector(config.author);
-                
+
                 // DEBUG para catalunyapress
                 if (domain === 'catalunyapress.es') {
                     console.log('👤 CatalunyaPress - Selector de autor:', config.author);
                     console.log('👤 CatalunyaPress - Elemento encontrado:', authorEl);
                     console.log('👤 CatalunyaPress - Texto:', authorEl ? authorEl.textContent : 'NULL');
                 }
-                
+
                 return authorEl ? this.cleanText(authorEl.textContent) : 'Autor no disponible';
             }
 
@@ -6752,10 +6860,10 @@
                 if (domain === 'es.ara.cat') {
                     const authorImageEl = doc.querySelector('.opening-actions__authors-image img, .opening-actions__authors-image picture img');
                     if (authorImageEl) {
-                        let src = authorImageEl.src || 
-                                  authorImageEl.getAttribute('src') ||
-                                  authorImageEl.getAttribute('data-src') || 
-                                  authorImageEl.getAttribute('data-lazy-src');
+                        let src = authorImageEl.src ||
+                            authorImageEl.getAttribute('src') ||
+                            authorImageEl.getAttribute('data-src') ||
+                            authorImageEl.getAttribute('data-lazy-src');
                         if (src && !src.includes('data:image') && src.length > 10) {
                             if (src.startsWith('/')) {
                                 src = new URL(url).origin + src;
@@ -6772,10 +6880,10 @@
                 if (domain === 'cadenaser.com') {
                     const authorImageEl = doc.querySelector('.inf-fir > div > img');
                     if (authorImageEl) {
-                        let src = authorImageEl.src || 
-                                  authorImageEl.getAttribute('src') ||
-                                  authorImageEl.getAttribute('data-src') || 
-                                  authorImageEl.getAttribute('data-lazy-src');
+                        let src = authorImageEl.src ||
+                            authorImageEl.getAttribute('src') ||
+                            authorImageEl.getAttribute('data-src') ||
+                            authorImageEl.getAttribute('data-lazy-src');
                         if (src && !src.includes('data:image') && src.length > 10) {
                             if (src.startsWith('/')) {
                                 src = new URL(url).origin + src;
@@ -6793,10 +6901,10 @@
                     const authorImageEl = doc.querySelector('.a_md_i img, .a_md_i amp-img, figure.a_md_i img, figure.a_md_i amp-img');
                     if (authorImageEl) {
                         let src = authorImageEl.src ||
-                                  authorImageEl.getAttribute('src') ||
-                                  authorImageEl.getAttribute('data-src') ||
-                                  authorImageEl.getAttribute('data-lazy-src') ||
-                                  authorImageEl.getAttribute('srcset')?.split(',')[0]?.trim()?.split(' ')[0];
+                            authorImageEl.getAttribute('src') ||
+                            authorImageEl.getAttribute('data-src') ||
+                            authorImageEl.getAttribute('data-lazy-src') ||
+                            authorImageEl.getAttribute('srcset')?.split(',')[0]?.trim()?.split(' ')[0];
 
                         if (src && !src.includes('data:image') && src.length > 10) {
                             if (src.startsWith('/')) {
@@ -6828,15 +6936,15 @@
                 if (domain === 'eldiario.es') {
                     // Ruta exacta: .title--with-author__avatar > .ni-figure > a > picture.news-image > img.lazy
                     const authorImageEl = doc.querySelector('.title--with-author__avatar .ni-figure picture.news-image img.lazy') ||
-                                         doc.querySelector('.title--with-author__avatar picture.news-image img') ||
-                                         doc.querySelector('.title--with-author__avatar .ni-figure img') ||
-                                         doc.querySelector('.title--with-author__avatar img');
+                        doc.querySelector('.title--with-author__avatar picture.news-image img') ||
+                        doc.querySelector('.title--with-author__avatar .ni-figure img') ||
+                        doc.querySelector('.title--with-author__avatar img');
 
                     if (authorImageEl) {
                         // Priorizar data-src para imágenes lazy
                         let src = authorImageEl.getAttribute('data-src') ||
-                                  authorImageEl.getAttribute('src') ||
-                                  authorImageEl.getAttribute('data-lazy-src');
+                            authorImageEl.getAttribute('src') ||
+                            authorImageEl.getAttribute('data-lazy-src');
 
                         // Si no hay src directamente, buscar en picture > source
                         if (!src || src.includes('data:image')) {
@@ -6847,8 +6955,8 @@
                                     // Intentar con cada source
                                     for (const source of sources) {
                                         const srcset = source.getAttribute('srcset') ||
-                                                      source.getAttribute('data-srcset') ||
-                                                      source.getAttribute('data-src');
+                                            source.getAttribute('data-srcset') ||
+                                            source.getAttribute('data-src');
                                         if (srcset) {
                                             src = srcset.split(',')[0].trim().split(' ')[0];
                                             if (src && !src.includes('data:image')) {
@@ -6890,26 +6998,26 @@
                 // -----------------------------------------------------------------
                 if (domain === 'elmundo.es') {
                     const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
-                    
+
                     for (const script of jsonLdScripts) {
                         try {
                             const jsonData = JSON.parse(script.textContent);
-                            
+
                             // Buscar en el nivel superior
                             if (jsonData['@type'] === 'Person' && jsonData.image) {
                                 return jsonData.image;
                             }
-                            
+
                             // Buscar dentro de NewsArticle > author
-                            if ((jsonData['@type'] === 'NewsArticle' || 
-                                 jsonData['@type'] === 'ReportageNewsArticle' ||
-                                 (Array.isArray(jsonData['@type']) && 
-                                  (jsonData['@type'].includes('NewsArticle') || jsonData['@type'].includes('ReportageNewsArticle')))) 
+                            if ((jsonData['@type'] === 'NewsArticle' ||
+                                jsonData['@type'] === 'ReportageNewsArticle' ||
+                                (Array.isArray(jsonData['@type']) &&
+                                    (jsonData['@type'].includes('NewsArticle') || jsonData['@type'].includes('ReportageNewsArticle'))))
                                 && jsonData.author) {
-                                
+
                                 // author puede ser un objeto o un array
                                 const authors = Array.isArray(jsonData.author) ? jsonData.author : [jsonData.author];
-                                
+
                                 for (const author of authors) {
                                     if (author['@type'] === 'Person' && author.image) {
                                         return author.image;
@@ -7056,17 +7164,17 @@
                                 if (timeTextNode && timeTextNode.nodeType === 3) {
                                     fullText = timeTextNode.textContent.trim();
                                 }
-                                
+
                                 // Extraer la hora del span dentro del time
                                 const hourSpan = timeElement.querySelector('span');
                                 const hour = hourSpan ? this.cleanText(hourSpan.textContent) : '';
-                                
+
                                 // Combinar fecha y hora
                                 if (fullText && hour) {
                                     // Eliminar el guion final si existe
                                     fullText = fullText.replace(/\s*-\s*$/, '').trim();
                                     const fullDateTime = `${fullText} ${hour}`;
-                                    
+
                                     // Verificar si contiene "Actualizado"
                                     const label = publishDateContainer.textContent;
                                     if (label.toLowerCase().includes('actualizado')) {
@@ -7136,7 +7244,7 @@
                         ".cnt-byline .c-dat-art time .a_ti",
                         "time[datetime]"
                     ]);
-                    
+
                     // Si la fecha de publicación viene en formato texto, formatearla
                     if (publishDate && publishDate.includes('Actualizado')) {
                         const formatted = this.formatCadenaSERDate(publishDate);
@@ -7229,16 +7337,16 @@
 
                 // Para Antena 3, buscar específicamente el contenedor article-main__content
                 if (domain === 'antena3.com' && !contentEl) {
-                    contentEl = doc.querySelector('.article-main__content') || 
-                                doc.querySelector('#intext') ||
-                                doc.querySelector('.article-main');
+                    contentEl = doc.querySelector('.article-main__content') ||
+                        doc.querySelector('#intext') ||
+                        doc.querySelector('.article-main');
                 }
 
                 // Para ARA, buscar específicamente el contenedor ara-body
                 if (domain === 'es.ara.cat' && !contentEl) {
-                    contentEl = doc.querySelector('.layout-left .ara-body') || 
-                                doc.querySelector('.ara-body') ||
-                                doc.querySelector('.ara-main--wrapper');
+                    contentEl = doc.querySelector('.layout-left .ara-body') ||
+                        doc.querySelector('.ara-body') ||
+                        doc.querySelector('.ara-main--wrapper');
                 }
 
                 // Si no se encuentra el contenedor específico, usar la configuración general
@@ -7330,7 +7438,7 @@
                             const textElements = cntTxtElement.querySelectorAll('p, h2, h3, h4, h5, h6, ul, ol, blockquote');
                             const htmlParts = Array.from(textElements).map(el => {
                                 const tagName = el.tagName.toLowerCase();
-                                
+
                                 // Agregar estilos inline para los títulos
                                 let style = '';
                                 if (tagName === 'h2') {
@@ -7344,19 +7452,19 @@
                                 } else if (tagName === 'h6') {
                                     style = ' style="font-size: 1.05em; font-weight: 700; margin: 12px 0 8px 0; color: #1a1a1a;"';
                                 }
-                                
+
                                 // Procesar enlaces para que abran en la misma modal
                                 let htmlContent = el.innerHTML;
                                 htmlContent = htmlContent.replace(/<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>([\s\S]*?)<\/a>/gi,
                                     (match, beforeHref, linkUrl, afterHref, linkContent) => {
                                         // Si es enlace externo o a redes sociales, dejarlo como está
-                                        if (linkUrl.includes('twitter.com') || linkUrl.includes('x.com') || 
+                                        if (linkUrl.includes('twitter.com') || linkUrl.includes('x.com') ||
                                             linkUrl.includes('youtube.com') || linkUrl.includes('facebook.com') ||
-                                            linkUrl.includes('instagram.com') || linkUrl.startsWith('mailto:') || 
+                                            linkUrl.includes('instagram.com') || linkUrl.startsWith('mailto:') ||
                                             linkUrl.startsWith('tel:')) {
                                             return match; // Mantener enlace original
                                         }
-                                        
+
                                         // Convertir URLs relativas a absolutas
                                         let absoluteUrl = linkUrl;
                                         if (linkUrl.startsWith('/')) {
@@ -7367,7 +7475,7 @@
                                             const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
                                             absoluteUrl = urlObj.origin + basePath + linkUrl;
                                         }
-                                        
+
                                         // Para enlaces internos, abrir en modal
                                         const tempDiv = document.createElement('div');
                                         tempDiv.innerHTML = linkContent;
@@ -7375,14 +7483,14 @@
                                         const safeText = plainText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                                         return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${absoluteUrl}', '${safeText}')">${linkContent}</a>`;
                                     });
-                                
+
                                 // Preservar el HTML interno completo (incluyendo <b>, <strong>, <em>, etc.)
                                 return `<${tagName}${style}>${htmlContent}</${tagName}>`;
                             });
                             cadenaSerMainText = htmlParts.join('');
                         }
                     }
-                    
+
                     // -----------------------------------------------------------------
                     // CADENA SER - Elementos específicos a eliminar
                     // Incluye: título (ya mostrado), texto intro (ya mostrado arriba), sidebar, podcasts relacionados
@@ -7531,7 +7639,7 @@
                     const figcaptionMap = new Map();
                     if (domain === 'cope.es') {
                         contentSelector = 'p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure, .c-detail__box, audio, iframe';
-                        
+
                         // Eliminar elementos no deseados específicos de cope.es
                         const copeExclude = [
                             '.c-detail__ai',           // Contenido generado por IA
@@ -7539,11 +7647,11 @@
                             '.c-detail__tags',         // Tags
                             '.c-detail__body--border.c-detail__tags'  // Tags con borde
                         ];
-                        
+
                         copeExclude.forEach(selector => {
                             contentEl.querySelectorAll(selector).forEach(el => el.remove());
                         });
-                        
+
                         // Guardar el texto de cada figcaption asociado a su figura
                         const figures = contentEl.querySelectorAll('figure');
                         figures.forEach((figure, index) => {
@@ -7571,7 +7679,7 @@
                         if (tagName === 'audio' && domain === 'cope.es') {
                             const sources = el.querySelectorAll('source');
                             const srcAttr = el.getAttribute('src') || (sources.length > 0 ? sources[0].getAttribute('src') : '');
-                            
+
                             if (srcAttr) {
                                 // Buscar título en el contenedor padre
                                 let title = el.getAttribute('title') || el.getAttribute('aria-label') || '';
@@ -7580,7 +7688,7 @@
                                     const titleEl = parent.querySelector('h1, h2, h3, h4, h5, h6, figcaption, .title');
                                     if (titleEl) title = this.cleanText(titleEl.textContent);
                                 }
-                                
+
                                 // Insertar reproductor de audio inline
                                 textParts.push(`
                                     <div class="modal-audio-player" style="margin: 20px 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">
@@ -7600,13 +7708,13 @@
                         // Procesar iframes de YouTube inline (COPE)
                         if (tagName === 'iframe' && domain === 'cope.es') {
                             const src = el.getAttribute('src') || el.getAttribute('data-src') || '';
-                            
+
                             // Verificar si es un iframe de YouTube
                             if (src.includes('youtube.com') || src.includes('youtu.be')) {
                                 // Copiar el iframe y añadir el estilo responsive manteniendo todos los atributos originales
                                 const iframe = el.cloneNode(true);
                                 iframe.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%;';
-                                
+
                                 // Envolver en contenedor responsive
                                 textParts.push(`
                                     <div class="modal-video-player" style="margin: 20px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
@@ -7623,7 +7731,7 @@
                             if (domain === 'elpais.com' && el.classList.contains('a_md_i')) {
                                 return; // Saltar esta figura (es la imagen del autor)
                             }
-                            
+
                             // EXCLUIR figuras de portada de COPE (ya se muestran arriba)
                             if (domain === 'cope.es' && el.classList.contains('c-detail__photo--full')) {
                                 return; // Saltar esta figura (es la imagen de portada)
@@ -7661,10 +7769,10 @@
                                 // Si no se encontró en source, buscar en el img
                                 if (!imgSrc) {
                                     imgSrc = imgEl.getAttribute('src') ||
-                                            imgEl.getAttribute('data-src') ||
-                                            imgEl.getAttribute('data-lazy-src') ||
-                                            imgEl.getAttribute('data-srcset') ||
-                                            imgEl.getAttribute('srcset')?.split(',')[0]?.trim()?.split(' ')[0];
+                                        imgEl.getAttribute('data-src') ||
+                                        imgEl.getAttribute('data-lazy-src') ||
+                                        imgEl.getAttribute('data-srcset') ||
+                                        imgEl.getAttribute('srcset')?.split(',')[0]?.trim()?.split(' ')[0];
                                 }
 
                                 if (imgSrc && imgSrc.length > 10 && !imgSrc.includes('data:image')) {
@@ -7737,7 +7845,7 @@
                                                 return url;
                                             }
                                         };
-                                        
+
                                         if (normalizeUrl(imgSrc) === normalizeUrl(firstImageSrc)) {
                                             // Saltar esta imagen (es la de portada que ya se muestra arriba)
                                             return;
@@ -7746,7 +7854,7 @@
 
                                     // Extraer pie de foto
                                     let captionHTML = '';
-                                    
+
                                     // Para cope.es, usar el Map precargado
                                     if (domain === 'cope.es' && figcaptionMap.has(el)) {
                                         const captionText = figcaptionMap.get(el);
@@ -7820,7 +7928,7 @@
                                 // Para ABC: detectar blockquotes de Instagram y darles formato embebido
                                 if (domain === 'abc.es' && el.classList.contains('instagram-media')) {
                                     const permalink = el.getAttribute('data-instgrm-permalink') || el.getAttribute('cite') || '';
-                                    
+
                                     textParts.push(`
                                         <div class="modal-instagram-card" style="
                                             background: #fafafa;
@@ -7847,7 +7955,7 @@
                                 else if (domain === 'abc.es' && el.classList.contains('tiktok-embed')) {
                                     const cite = el.getAttribute('cite') || '';
                                     const dataVideoId = el.getAttribute('data-video-id') || '';
-                                    
+
                                     textParts.push(`
                                         <div class="modal-tiktok-card" style="
                                             background: #000;
@@ -7874,15 +7982,15 @@
                                     // Buscar el enlace al tweet dentro del blockquote
                                     const links = el.querySelectorAll('a[href*="twitter.com"], a[href*="x.com"]');
                                     const tweetLink = links[links.length - 1]; // Tomar el último enlace
-                                    
+
                                     if (tweetLink) {
                                         const href = tweetLink.href;
                                         const tweetMatch = href.match(/(?:twitter\.com|x\.com)\/([^\/\?]+)\/status\/(\d+)/i);
-                                        
+
                                         if (tweetMatch) {
                                             const tweetId = tweetMatch[1];
                                             const embedUrl = `https://platform.twitter.com/embed/Tweet.html?id=${tweetMatch[2]}&theme=light&lang=es`;
-                                            
+
                                             textParts.push(`
                                                 <div class="modal-tweet-card" style="
                                                     background: #fff;
@@ -7960,7 +8068,7 @@
 
                                 // Capturar URL del artículo para conversiones
                                 const fallbackArticleUrl = url;
-                                
+
                                 // Convertir elementos know-more en formato de 2 columnas
                                 htmlContent = htmlContent.replace(
                                     /<aside\s+class="know-more[^"]*"[^>]*>[\s\S]*?<a\s+[^>]*href\s*=\s*["']([^"']+)["'][^>]*>[\s\S]*?<p\s+class="know-more__title"[^>]*>([^<]+)<\/p>[\s\S]*?<picture\s+class="know-more__img"[^>]*>([\s\S]*?)<\/picture>[\s\S]*?<\/a>[\s\S]*?<\/aside>/gi,
@@ -7974,7 +8082,7 @@
                                             const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
                                             knowMoreUrl = urlObj.origin + basePath + knowMoreUrl;
                                         }
-                                        
+
                                         // Extraer la imagen del contenido de picture - buscar img tag
                                         let imgTag = '';
                                         const imgMatch = pictureContent.match(/<img[^>]+>/i);
@@ -8016,7 +8124,7 @@
                                             const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
                                             absoluteUrl = urlObj.origin + basePath + linkUrl;
                                         }
-                                        
+
                                         // Escapar comillas simples en el texto del enlace
                                         const safeText = linkText.replace(/'/g, "\\'");
                                         return `<a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${absoluteUrl}', '${safeText}')">${linkText}</a>`;
@@ -8058,7 +8166,7 @@
                     console.log('🖼️ CatalunyaPress - Selector de imágenes:', config.images);
                     console.log('🖼️ CatalunyaPress - Imágenes encontradas:', imageElements.length);
                     imageElements.forEach((img, idx) => {
-                        console.log(`   Imagen ${idx+1}:`);
+                        console.log(`   Imagen ${idx + 1}:`);
                         console.log('     - src:', img.src);
                         console.log('     - data-src:', img.getAttribute('data-src'));
                         console.log('     - data-lazy-src:', img.getAttribute('data-lazy-src'));
@@ -8075,7 +8183,7 @@
                     if (domain === 'cope.es') {
                         const isInHeader = img.closest('.c-header');
                         const isInNav = img.closest('.c-nav');
-                        
+
                         // Excluir si está dentro del header o navegación
                         if (isInHeader || isInNav) {
                             return; // Saltar esta imagen
@@ -8084,7 +8192,7 @@
 
                     // Primero intentar obtener el atributo src ANTES de que el navegador lo convierta
                     let src = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
-                    
+
                     // Si getAttribute('src') devuelve una URL relativa o el img.src tiene file:///, usar getAttribute
                     // De lo contrario, usar img.src (que ya es absoluto)
                     if (!src || src.length < 10) {
@@ -8094,9 +8202,9 @@
                     // Para elementos amp-img, extraer src de sus atributos específicos
                     if (img.tagName.toLowerCase() === 'amp-img') {
                         src = img.getAttribute('src') ||
-                              img.getAttribute('data-src') ||
-                              img.getAttribute('data-lazy-src') ||
-                              img.getAttribute('srcset')?.split(',')[0]?.trim()?.split(' ')[0];
+                            img.getAttribute('data-src') ||
+                            img.getAttribute('data-lazy-src') ||
+                            img.getAttribute('srcset')?.split(',')[0]?.trim()?.split(' ')[0];
                     }
 
                     // Si no hay src, intentar extraer de srcset o data-srcset (común en picture elements)
@@ -8110,7 +8218,7 @@
                             }
                         }
                     }
-                    
+
                     // Corregir URLs que el navegador convirtió a file:// incorrectamente
                     if (src && src.startsWith('file:///')) {
                         // Extraer la parte después de file:///X:/ (donde X es la letra de unidad)
@@ -8131,27 +8239,27 @@
                         if (img.closest('.cnt-txt')) {
                             return; // Saltar imágenes dentro de .cnt-txt
                         }
-                        
+
                         // Excluir imágenes dentro de aside.upds (lista de podcasts relacionados)
                         if (img.closest('aside.upds')) {
                             return; // Saltar imágenes de podcasts relacionados
                         }
-                        
+
                         // Excluir imágenes dentro de .lst-pod (lista de podcasts)
                         if (img.closest('.lst-pod')) {
                             return; // Saltar imágenes de lista de podcasts
                         }
-                        
+
                         // Excluir imágenes dentro de .c-d (columna derecha con contenido relacionado)
                         if (img.closest('.c-d')) {
                             return; // Saltar imágenes de contenido relacionado
                         }
-                        
+
                         // Excluir imágenes del reproductor permanente
                         if (img.closest('.cnt-player-permanente') || img.closest('.pp-popup')) {
                             return; // Saltar imágenes del reproductor permanente
                         }
-                        
+
                         // Excluir imágenes del sidebar y recomendaciones
                         if (img.closest('.c-sab') || img.closest('.pdc') || img.closest('.rec') || img.closest('.pd-re')) {
                             return; // Saltar imágenes de sidebar y recomendaciones
@@ -8418,7 +8526,7 @@
                                     if (descriptionEl) {
                                         caption = this.cleanText(descriptionEl.textContent);
                                     }
-                                    
+
                                     // Combinar autor y agencia si ambos existen
                                     let authorParts = [];
                                     if (authorEl) {
@@ -8487,7 +8595,7 @@
                             caption: caption,
                             captionAuthor: captionAuthor
                         });
-                        
+
                         if (domain === 'catalunyapress.es') {
                             console.log('     ✅ Imagen añadida al array:', src.substring(0, 80) + '...');
                         }
@@ -8559,7 +8667,7 @@
                 if (domain === 'catalunyapress.es') {
                     console.log('📸 CatalunyaPress - Imágenes finales retornadas:', images.length);
                     images.forEach((img, idx) => {
-                        console.log(`   Final ${idx+1}: ${img.src.substring(0, 80)}...`);
+                        console.log(`   Final ${idx + 1}: ${img.src.substring(0, 80)}...`);
                     });
                 }
 
@@ -8613,13 +8721,13 @@
                         if (link && link.href) {
                             const linkText = this.cleanText(link.textContent);
                             let linkUrl = link.href;
-                            
+
                             // Asegurar URL absoluta
                             if (linkUrl && linkUrl.startsWith('/')) {
                                 const urlObj = new URL(url);
                                 linkUrl = urlObj.origin + linkUrl;
                             }
-                            
+
                             if (linkText && linkUrl) {
                                 relatedLinks.push({
                                     text: linkText,
@@ -8635,12 +8743,12 @@
                         const timeEl = section.querySelector('.timeline-new__time time');
                         const titleEl = section.querySelector('.timeline-new__title');
                         const summaryEl = section.querySelector('.timeline-new__summary');
-                        
+
                         if (timeEl && titleEl) {
                             const time = this.cleanText(timeEl.textContent);
                             const title = this.cleanText(titleEl.textContent);
                             let summary = '';
-                            
+
                             if (summaryEl) {
                                 // Extraer todos los párrafos del resumen
                                 const paragraphs = summaryEl.querySelectorAll('p');
@@ -8653,7 +8761,7 @@
                                 });
                                 summary = summaryParts.join('\n\n');
                             }
-                            
+
                             timelineNews.push({
                                 time: time,
                                 title: title,
@@ -8722,13 +8830,13 @@
                 // -----------------------------------------------------------------
                 if (domain === 'cope.es') {
                     const subtitleEl = doc.querySelector('.c-detail-header > .c-detail__subtitle > h2') ||
-                                      doc.querySelector('.c-detail__subtitle > h2') ||
-                                      doc.querySelector('.c-detail__subtitle h2');
-                    
+                        doc.querySelector('.c-detail__subtitle > h2') ||
+                        doc.querySelector('.c-detail__subtitle h2');
+
                     if (subtitleEl && subtitleEl.textContent.trim()) {
                         footerSummary = this.cleanText(subtitleEl.textContent);
                     }
-                    
+
                     // Extraer el posttitle (texto después del audio)
                     const posttitleEl = doc.querySelector('.c-detail-header-group .c-detail__posttitle, .c-detail__posttitle');
                     if (posttitleEl && posttitleEl.textContent.trim()) {
@@ -8788,13 +8896,13 @@
                 // -----------------------------------------------------------------
                 if (domain === 'elmundo.es') {
                     const headerContent = doc.querySelector('.ue-l-article__header-content, .ue-c-article__header');
-                    
+
                     if (headerContent) {
                         const standfirstContainer = headerContent.querySelector('.ue-c-article__standfirst');
-                        
+
                         if (standfirstContainer) {
                             const paragraph = standfirstContainer.querySelector('.ue-c-article__paragraph');
-                            
+
                             if (paragraph) {
                                 footerSummary = this.cleanText(paragraph.textContent);
                             } else {
@@ -8809,14 +8917,14 @@
                     streamliveArticles.forEach(article => {
                         const timeEl = article.querySelector('.ue-c-streamlive-comment__time span');
                         const bodyEl = article.querySelector('.ue-c-streamlive-comment__body');
-                        
+
                         if (timeEl && bodyEl) {
                             const time = this.cleanText(timeEl.textContent);
-                            
+
                             // Extraer título (h2 dentro del body)
                             const titleEl = bodyEl.querySelector('h2.ue-c-article__subheadline');
                             const title = titleEl ? this.cleanText(titleEl.textContent) : '';
-                            
+
                             // Extraer todos los párrafos del body
                             const paragraphs = bodyEl.querySelectorAll('p.ue-c-article__paragraph');
                             const summaryParts = [];
@@ -8827,7 +8935,7 @@
                                 }
                             });
                             const summary = summaryParts.join('\n\n');
-                            
+
                             if (time && (title || summary)) {
                                 timelineNews.push({
                                     time: time,
@@ -8846,34 +8954,34 @@
                 // -----------------------------------------------------------------
                 let cadenaSerIntro = '';
                 let cadenaSerEpisodiosHeader = '';
-                
+
                 if (domain === 'cadenaser.com') {
                     // Extraer resumen desde main > article > header.art-header > h2
                     const summaryElement = doc.querySelector('main > article > header.art-header > h2');
                     if (summaryElement) {
                         footerSummary = this.cleanText(summaryElement.textContent);
                     }
-                    
+
                     // Extraer texto introductorio de .cnt-txt
                     const cntTxtElement = doc.querySelector('main.epi-pod .cnt-data-art .c-i .cnt-txt');
-                    
+
                     if (cntTxtElement) {
                         // Obtener todos los <p> dentro del contenedor
                         const allParagraphs = cntTxtElement.querySelectorAll('p');
-                        
+
                         if (allParagraphs.length > 0) {
                             // Concatenar todos los párrafos que tengan texto
                             const paragraphTexts = Array.from(allParagraphs)
                                 .map(p => this.cleanText(p.textContent))
                                 .filter(text => text.length > 0);
-                            
+
                             cadenaSerIntro = paragraphTexts.join('\n\n');
                         } else {
                             // Si no hay <p>, tomar todo el texto del contenedor
                             cadenaSerIntro = this.cleanText(cntTxtElement.textContent);
                         }
                     }
-                    
+
                     // Extraer encabezado de "Episodios anteriores" (o similar)
                     const episodiosHeaderElement = doc.querySelector('main.epi-pod .lst-epi.cnt-pdc-epds h3');
                     if (episodiosHeaderElement) {
@@ -8932,7 +9040,7 @@
                 // Formato: "2025-10-07T12:19:45+00:00" o "2025-10-07T07:30:38+02:00"
                 const match = isoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
                 if (!match) return '';
-                
+
                 const [, year, month, day, hours, minutes] = match;
                 return `${day}-${month}-${year} ${hours}:${minutes}`;
             }
@@ -8941,25 +9049,25 @@
                 if (!dateString) return '';
                 // Formato entrada: "08 oct 2025 Actualizado 05:13"
                 // Formato salida: "08-10-2025 05:13"
-                
+
                 const monthMap = {
                     'ene': '01', 'feb': '02', 'mar': '03', 'abr': '04',
                     'may': '05', 'jun': '06', 'jul': '07', 'ago': '08',
                     'sep': '09', 'oct': '10', 'nov': '11', 'dic': '12'
                 };
-                
+
                 // Pattern: DD mes AAAA Actualizado HH:MM
                 const match = dateString.match(/(\d{1,2})\s+([a-zñ]+)\s+(\d{4})\s+Actualizado\s+(\d{1,2}):(\d{2})/i);
                 if (!match) return '';
-                
+
                 const [, day, monthName, year, hours, minutes] = match;
                 const month = monthMap[monthName.toLowerCase()];
-                
+
                 if (!month) return '';
-                
+
                 const dayPadded = day.padStart(2, '0');
                 const hoursPadded = hours.padStart(2, '0');
-                
+
                 return `${dayPadded}-${month}-${year} ${hoursPadded}:${minutes}`;
             }
 
@@ -9059,14 +9167,14 @@
                     html += '<div class="modal-section modal-summary-section">';
                     html += '<div class="modal-summary-label">Resumen:</div>';
                     html += `<div class="modal-summary-text">${summaryText}</div>`;
-                    
+
                     if (content.subtitleLink && content.subtitleLinkText) {
                         // Enlace en el resumen - ahora se abre en la misma modal
                         html += `<div class="modal-summary-link">
                             <a href="javascript:void(0)" onclick="window.newsSearcher.loadModalContent('${content.subtitleLink}', '${content.subtitleLinkText.replace(/'/g, "\\'")}')">${content.subtitleLinkText}</a>
                         </div>`;
                     }
-                    
+
                     // Enlaces relacionados para Antena 3
                     if (domain === 'antena3.com' && content.relatedLinks && content.relatedLinks.length > 0) {
                         html += '<div style="margin-top: 12px; line-height: 1.3;">';
@@ -9078,31 +9186,31 @@
                         });
                         html += '</div>';
                     }
-                    
+
                     html += '</div>';
                 }
 
                 // Audios de ABC - mostrar AL PRINCIPIO (antes de videos y texto)
                 if (domain === 'abc.es' && content.audios && content.audios.length > 0) {
                     html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
-                    
+
                     content.audios.forEach((audio, index) => {
                         html += `<div class="modal-audio-player" style="margin-bottom: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">`;
-                        
+
                         // Título del audio
                         if (audio.title) {
                             html += `<h3 style="font-size: 1.3em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
                                 🔊 ${audio.title}
                             </h3>`;
                         }
-                        
+
                         // Descripción del audio
                         if (audio.description) {
                             html += `<p style="font-size: 0.95em; color: #555; line-height: 1.6; margin: 0 0 16px 0;">
                                 ${audio.description}
                             </p>`;
                         }
-                        
+
                         // Reproductor de audio
                         html += `
                             <audio controls preload="metadata" style="width: 100%; max-width: 100%; outline: none; margin-top: 12px;">
@@ -9113,16 +9221,16 @@
                             </audio>
                         </div>`;
                     });
-                    
+
                     html += '</div>';
                 }
 
                 // Videos (Dailymotion, Brightcove, El País MP4, Bluesky, YouTube, etc.)
                 // Para COPE, los videos de YouTube ya se procesan inline (línea 7449-7474)
-                const videosToShow = (domain === 'cope.es' && content.videos) 
-                    ? content.videos.filter(v => v.type !== 'YouTube') 
+                const videosToShow = (domain === 'cope.es' && content.videos)
+                    ? content.videos.filter(v => v.type !== 'YouTube')
                     : (content.videos || []);
-                
+
                 if (videosToShow && videosToShow.length > 0) {
                     // Si hay múltiples videos, añadir título de sección
                     if (videosToShow.length > 1) {
@@ -9219,24 +9327,24 @@
                 if (domain === 'cope.es' && content.audios && content.audios.length > 0) {
                     html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
                     html += `<h4 style="font-size: 1.2em; color: #1a1a1a; margin: 0 0 15px 0; font-weight: 700;">🔊 Audios detectados (${content.audios.length})</h4>`;
-                    
+
                     content.audios.forEach((audio, index) => {
                         html += `<div class="modal-audio-player" style="margin-bottom: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">`;
-                        
+
                         // Título del audio
                         if (audio.title) {
                             html += `<h3 style="font-size: 1.1em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
                                 ${audio.title}
                             </h3>`;
                         }
-                        
+
                         // Descripción del audio
                         if (audio.description) {
                             html += `<p style="font-size: 0.9em; color: #555; line-height: 1.5; margin: 0 0 16px 0;">
                                 ${audio.description}
                             </p>`;
                         }
-                        
+
                         // Reproductor de audio
                         html += `
                             <audio controls preload="metadata" style="width: 100%; max-width: 100%; outline: none; margin-top: 12px;">
@@ -9247,10 +9355,10 @@
                             </audio>
                         </div>`;
                     });
-                    
+
                     html += '</div>';
                 }
-                
+
                 // Mostrar el posttitle de COPE al inicio (si existe)
                 if (domain === 'cope.es' && content.relatedLinks && content.relatedLinks.length > 0) {
                     const posttitle = content.relatedLinks.find(link => link.type === 'posttitle');
@@ -9273,7 +9381,7 @@
                 // ABC se muestra al principio, COPE se muestra antes/inline en el texto
                 if (domain === 'cadenaser.com' && content.audios && content.audios.length > 0) {
                     html += '<div class="modal-section modal-audios-section" style="margin-top: 24px; margin-bottom: 24px;">';
-                    
+
                     // Mostrar TODOS los audios encontrados
                     content.audios.forEach((audio, index) => {
                         // Después del primer audio, mostrar el header "Episodios anteriores" (si existe)
@@ -9282,16 +9390,16 @@
                                 ${content.cadenaSerEpisodiosHeader}
                             </h3>`;
                         }
-                        
+
                         html += `<div class="modal-audio-player" style="margin-bottom: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%); padding: 20px; border-radius: 12px; border: 1px solid #d0d7de;">`;
-                        
+
                         // Título del audio (si existe)
                         if (audio.title) {
                             html += `<h3 style="font-size: 1.3em; color: #1a1a1a; margin: 0 0 12px 0; font-weight: 600;">
                                 ${audio.title}
                             </h3>`;
                         }
-                        
+
                         // Para el PRIMER audio, mostrar el texto introductorio de Cadena SER
                         if (index === 0 && domain === 'cadenaser.com' && content.cadenaSerIntro) {
                             html += `<p style="font-size: 0.95em; color: #555; line-height: 1.6; margin: 0 0 16px 0;">
@@ -9304,7 +9412,7 @@
                                 ${audio.description}
                             </p>`;
                         }
-                        
+
                         // Reproductor de audio (sin enlace de descarga)
                         html += `
                             <audio controls preload="metadata" style="width: 100%; max-width: 100%; outline: none; margin-top: 12px;">
@@ -9315,7 +9423,7 @@
                             </audio>
                         </div>`;
                     });
-                    
+
                     html += '</div>';
                 }
 
@@ -9515,7 +9623,7 @@
             initializeInstagramEmbeds() {
                 const oldScripts = document.querySelectorAll('script[src*="instagram.com/embed"]');
                 oldScripts.forEach(s => s.remove());
-                
+
                 // Cargar script de Instagram
                 const script = document.createElement('script');
                 script.async = true;
@@ -9524,7 +9632,7 @@
                     if (typeof window.instgrm !== 'undefined') {
                         // Procesar todos los embeds de Instagram
                         window.instgrm.Embeds.process();
-                        
+
                         // Ajustar estilos después de un delay
                         setTimeout(() => {
                             const blockquotes = document.querySelectorAll('.modal-instagram-section .instagram-media');
@@ -9532,7 +9640,7 @@
                                 blockquote.style.maxWidth = '100%';
                                 blockquote.style.width = '100%';
                                 blockquote.style.minWidth = '100%';
-                                
+
                                 const iframe = blockquote.querySelector('iframe');
                                 if (iframe) {
                                     iframe.style.width = '100%';
@@ -9543,7 +9651,7 @@
                         }, 1000);
                     }
                 };
-                script.onerror = () => {};
+                script.onerror = () => { };
                 document.body.appendChild(script);
             }
 
@@ -9551,7 +9659,7 @@
                 // Eliminar scripts antiguos de TikTok si existen
                 const oldScripts = document.querySelectorAll('script[src*="tiktok.com/embed"]');
                 oldScripts.forEach(s => s.remove());
-                
+
                 // Cargar script de TikTok
                 const script = document.createElement('script');
                 script.async = true;
@@ -9582,14 +9690,14 @@
 
             // Event listeners para la modal de periódicos
             const newspaperModal = document.getElementById('newspaperInfoModal');
-            
+
             // Cerrar modal al hacer clic fuera
             newspaperModal.addEventListener('click', (e) => {
                 if (e.target.id === 'newspaperInfoModal') {
                     closeNewspaperModal();
                 }
             });
-            
+
             // Cerrar modal con tecla ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && newspaperModal.classList.contains('active')) {
@@ -9598,12 +9706,12 @@
             });
 
             // Event listener para mensajes de Instagram y Twitter que ajustan la altura del iframe
-            window.addEventListener('message', function(event) {
+            window.addEventListener('message', function (event) {
                 // Instagram envía mensajes con información de altura
                 if (event.origin === 'https://www.instagram.com') {
                     try {
                         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-                        
+
                         if (data.type === 'MEASURE' && data.details && data.details.height) {
                             const iframes = document.querySelectorAll('iframe[src*="instagram.com"]');
                             iframes.forEach(iframe => {
@@ -9615,19 +9723,19 @@
                         // Ignorar errores de parsing
                     }
                 }
-                
+
                 // Twitter/X envía mensajes con información de altura
                 if (event.origin === 'https://platform.twitter.com') {
                     try {
                         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-                        
+
                         // Twitter usa diferentes formatos de mensaje
                         if (data && data['twttr.embed']) {
                             const embedData = data['twttr.embed'];
                             if (embedData.method === 'twttr.private.resize' && embedData.params && embedData.params[0]) {
                                 const height = embedData.params[0].height;
                                 const tweetId = embedData.params[0].id;
-                                
+
                                 // Buscar el iframe correspondiente
                                 const iframes = document.querySelectorAll('iframe[src*="platform.twitter.com"]');
                                 iframes.forEach(iframe => {
@@ -9644,6 +9752,7 @@
         });
     </script>
 </body>
+
 </html>
 
 <!--
@@ -9722,3 +9831,4 @@ OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido 
 
 
  -->
+ 
