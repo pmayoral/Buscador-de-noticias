@@ -2259,7 +2259,7 @@
                 } catch (e) {
                     // Silenciar el error si es por protocolo file:// (esperado en desarrollo local)
                     if (e.name === 'NetworkError' && window.location.protocol === 'file:') {
-                        console.warn('⚠️ Base de datos de periódicos no disponible (modo archivo local)');
+                        // console.warn('⚠️ Base de datos de periódicos no disponible (modo archivo local)');
                     } else {
                         console.error('❌ Error al cargar base de datos:', e.message || e);
                     }
@@ -2579,8 +2579,8 @@
 
             // ===== CONSTANTES DE CONFIGURACIÓN =====
             static TIMEOUTS = {
-                MOBILE_FETCH: 25000,
-                DESKTOP_FETCH: 20000,
+                MOBILE_FETCH: 8000,      // Reducido de 25000 a 8000ms (8 seg)
+                DESKTOP_FETCH: 6000,     // Reducido de 20000 a 6000ms (6 seg)
                 BLUESKY_API: 10000
             };
 
@@ -3300,12 +3300,14 @@
                     if (this.currentQuery) this.search();
                 });
                 
-                // Protección contra llamadas duplicadas en móvil
+                // Protección contra llamadas duplicadas (adaptativo móvil/desktop)
+                const isMobileDevice = DeviceManager.isMobile();
+                const debounceTime = isMobileDevice ? 300 : 50; // Más rápido en desktop
+                
                 let sourcesChangeTimeout = null;
                 this.elements.sourcesSelect.addEventListener('change', () => {
                     // Ignorar cambios programáticos
                     if (this.isProgrammaticChange) {
-                        console.log('⚠️ Ignorando cambio programático en sourcesSelect');
                         return;
                     }
                     
@@ -3314,11 +3316,11 @@
                         if (sourcesChangeTimeout) {
                             clearTimeout(sourcesChangeTimeout);
                         }
-                        // Ejecutar con debounce de 300ms (aumentado para móviles)
+                        // Ejecutar con debounce adaptativo
                         sourcesChangeTimeout = setTimeout(() => {
                             this.displayFilteredNews();
                             sourcesChangeTimeout = null;
-                        }, 300);
+                        }, debounceTime);
                     }
                 });
                 
@@ -3326,7 +3328,6 @@
                 this.elements.readingModeSwitch.addEventListener('change', () => {
                     // Ignorar cambios programáticos
                     if (this.isProgrammaticChange) {
-                        console.log('⚠️ Ignorando cambio programático en readingModeSwitch');
                         return;
                     }
                     
@@ -3335,11 +3336,11 @@
                         if (readingModeChangeTimeout) {
                             clearTimeout(readingModeChangeTimeout);
                         }
-                        // Ejecutar con debounce de 300ms (aumentado para móviles)
+                        // Ejecutar con debounce adaptativo
                         readingModeChangeTimeout = setTimeout(() => {
                             this.displayFilteredNews();
                             readingModeChangeTimeout = null;
-                        }, 300);
+                        }, debounceTime);
                     }
                 });
 
@@ -3725,7 +3726,7 @@
                 let allNews = [];
                 let startIndex = 0;
                 let attemptCount = 0;
-                const maxAttempts = 20; // Máximo 20 intentos para evitar bucles infinitos
+                const maxAttempts = 5; // Reducido a 5 intentos para mayor velocidad
 
                 // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
                 while (allNews.length < maxCount && attemptCount < maxAttempts) {
@@ -3744,8 +3745,8 @@
                     const isMobile = DeviceManager.isMobile();
                     const timeout = isMobile ? NewsSearcher.TIMEOUTS.MOBILE_FETCH : NewsSearcher.TIMEOUTS.DESKTOP_FETCH;
 
-                    console.log(`⏱️ Timeout configurado: ${timeout}ms (${isMobile ? 'Móvil' : 'Desktop'})`);
-                    console.log(`📡 Probando ${this.proxies.length} proxies en paralelo...`);
+                    // console.log(`⏱️ Timeout configurado: ${timeout}ms (${isMobile ? 'Móvil' : 'Desktop'})`);
+                    // console.log(`📡 Probando ${this.proxies.length} proxies en paralelo...`);
 
                     const controllers = [];
                     const proxyPromises = this.proxies.map(async (proxy) => {
@@ -3757,7 +3758,7 @@
                             const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
                             const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-                            console.log(`🔄 Intentando proxy: ${proxyName}`);
+                            // console.log(`🔄 Intentando proxy: ${proxyName}`);
 
                             const headers = {
                                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -3783,21 +3784,18 @@
                                 const news = this.parseGoogleNewsResults(htmlContent);
 
                                 if (news.length > 0) {
-                                    console.log(`✅ Proxy exitoso: ${proxyName} - ${news.length} noticias`);
                                     return { success: true, news, proxy };
-                                } else {
-                                    console.log(`⚠️ Proxy ${proxyName} respondió OK pero sin noticias`);
                                 }
-                            } else {
-                                console.log(`❌ Proxy ${proxyName} falló: HTTP ${response.status}`);
+                                // console.log(`⚠️ Proxy ${proxyName} respondió OK pero sin noticias`);
                             }
+                            // console.log(`❌ Proxy ${proxyName} falló: HTTP ${response.status}`);
                             return { success: false, proxy };
                         } catch (error) {
                             if (error.name === 'AbortError') {
-                                console.log(`⏱️ Proxy ${proxyName} timeout después de ${timeout}ms`);
+                                // console.log(`⏱️ Proxy ${proxyName} timeout después de ${timeout}ms`);
                                 return { success: false, proxy, aborted: true };
                             }
-                            console.log(`❌ Proxy ${proxyName} error: ${error.message}`);
+                            // console.log(`❌ Proxy ${proxyName} error: ${error.message}`);
                             return { success: false, proxy };
                         }
                     });
@@ -3832,17 +3830,10 @@
                             });
                         });
 
-                        if (attemptCount === 1) {
-                            console.log(`✅ Proxy exitoso: ${firstSuccessfulResult.proxy}`);
-                        }
-                        console.log(`📰 Noticias extraídas en búsqueda #${attemptCount}: ${firstSuccessfulResult.news.length}`);
-
                         // Añadir noticias evitando duplicados por URL
                         const existingUrls = new Set(allNews.map(n => n.link));
                         const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
                         allNews.push(...newNews);
-
-                        console.log(`📊 Total acumulado: ${allNews.length} de ${maxCount} solicitadas`);
 
                         // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
                         if (newNews.length === 0) {
@@ -3970,32 +3961,21 @@
                 const doc = parser.parseFromString(html, 'text/html');
                 const news = [];
 
-                // Debug: verificar si el HTML contiene contenido de Google
-                const htmlLength = html.length;
-                const hasGoogleContent = html.includes('google') || html.includes('Search');
-                console.log(`📄 HTML recibido: ${htmlLength} caracteres, ¿Contiene Google? ${hasGoogleContent ? '✅' : '❌'}`);
-
                 const possibleSelectors = ['.g', '.mnr-c', '.SoaBEf', '.xrnccd', 'div[data-hveid]', '.dbsr > div', '.Gx5Zad'];
 
                 for (const selector of possibleSelectors) {
                     const newsItems = doc.querySelectorAll(selector);
 
                     if (newsItems.length > 0) {
-                        console.log(`🔍 Selector "${selector}" encontró ${newsItems.length} elementos`);
                         newsItems.forEach(item => {
                             const newsItem = this.extractNewsItemData(item);
                             if (newsItem) news.push(newsItem);
                         });
 
                         if (news.length > 0) {
-                            console.log(`✅ Parseadas ${news.length} noticias con selector "${selector}"`);
                             break;
                         }
                     }
-                }
-
-                if (news.length === 0) {
-                    console.log(`❌ No se encontraron noticias con ningún selector. HTML inicio: ${html.substring(0, 500)}`);
                 }
 
                 return news;
@@ -4056,14 +4036,63 @@
             }
 
             findSnippetElement(item) {
-                const snippetSelectors = ['.ilUpNd.H66NU.aSRlid', '.GI74Re.nDgy9d', '.GI74Re', '.st', '.s3v9rd', '.VwiC3b', '.Y3v8qd'];
+                // Primero, obtener el título para evitar capturarlo como snippet
+                const titleElement = this.findFirstElement(item, ['h3', '.DI9d6d', '.LC20lb', '.mCBkyc', '[role="heading"]']);
+                const titleText = titleElement ? this.cleanText(titleElement.textContent) : '';
+                
+                // Selectores actualizados basados en la estructura REAL de Google News (2024)
+                const snippetSelectors = [
+                    '.UqSP2b',                // *** SELECTOR CORRECTO para el snippet descriptivo ***
+                    '.UqSP2b.nDgy9d',         // Variante con nDgy9d
+                    '.GI74Re',                // Selector anterior
+                    '.Y3v8qd',                // Alternativo
+                    '.VwiC3b',                // Backup
+                    '.xBbh9',                 // Selector adicional
+                    '.ilUpNd.H66NU.aSRlid',
+                    '.GI74Re.nDgy9d', 
+                    '.st', 
+                    '.s3v9rd'
+                ];
+                
                 for (const selector of snippetSelectors) {
-                    const element = item.querySelector(selector);
-                    if (element && element.textContent?.trim()) {
-                        let snippetText = element.textContent.trim();
-                        snippetText = snippetText.replace(/\s*\d+\s+(hours?|days?|minutes?)\s+ago$/gi, '');
-                        if (snippetText.length > 10) {
-                            return element;
+                    const elements = item.querySelectorAll(selector);
+                    
+                    for (const element of elements) {
+                        if (element && element.textContent?.trim()) {
+                            // Excluir si tiene role="heading" (es el título)
+                            if (element.getAttribute('role') === 'heading') {
+                                continue;
+                            }
+                            
+                            // Excluir si está dentro del contenedor del nombre del periódico
+                            if (element.closest('.MgUUmf')) {
+                                continue;
+                            }
+                            
+                            // Verificar que no esté dentro del elemento h3 (título)
+                            if (element.closest('h3')) {
+                                continue;
+                            }
+                            
+                            let snippetText = element.textContent.trim();
+                            
+                            // IMPORTANTE: Verificar que NO sea el título
+                            if (titleText && snippetText === titleText) {
+                                continue;
+                            }
+                            
+                            // Verificar que no sea solo el nombre del periódico
+                            if (snippetText.length < 20) {
+                                continue;
+                            }
+                            
+                            // Limpiar marcas de tiempo y fechas del snippet
+                            snippetText = snippetText.replace(/\s*\d+\s+(hours?|days?|minutes?|hora|horas|día|días|minuto|minutos)\s+(ago|atrás)?$/gi, '');
+                            snippetText = snippetText.replace(/^Hace\s+\d+.*?[-—·]\s*/i, '');
+                            
+                            if (snippetText.length > 20) {
+                                return element;
+                            }
                         }
                     }
                 }
@@ -4296,53 +4325,48 @@
             displayNews(news) {
                 // Prevenir llamadas concurrentes
                 if (this.isDisplaying) {
-                    console.warn('⚠️ displayNews ya está ejecutándose, ignorando llamada duplicada');
                     return;
                 }
 
                 this.isDisplaying = true;
+                const isMobile = DeviceManager.isMobile();
                 
-                // Timeout de seguridad para liberar el flag (1 segundo - reducido para móviles)
+                // Timeout de seguridad adaptativo (más corto en desktop)
                 const safetyTimeout = setTimeout(() => {
                     if (this.isDisplaying) {
-                        console.warn('⚠️ displayNews timeout de seguridad activado, liberando flag');
                         this.isDisplaying = false;
                     }
-                }, 1000);
+                }, isMobile ? 1000 : 500);
 
                 try {
-                    // Limpieza robusta del contenedor
+                    // Limpieza del contenedor (optimizada)
                     const container = this.elements.resultsContainer;
+                    const isMobile = DeviceManager.isMobile();
 
-                    // Método 1: innerHTML (más rápido)
+                    // En desktop, innerHTML es suficiente y más rápido
                     container.innerHTML = '';
 
-                    // Método 2: Verificación y limpieza manual si innerHTML falló
-                    while (container.firstChild) {
-                        container.removeChild(container.firstChild);
+                    // En móvil, hacer limpieza adicional si es necesario
+                    if (isMobile && container.firstChild) {
+                        while (container.firstChild) {
+                            container.removeChild(container.firstChild);
+                        }
                     }
-
-                    // Verificación final
-                    if (container.children.length > 0) {
-                        console.error('⚠️ Contenedor no se limpió correctamente, forzando limpieza');
-                        Array.from(container.children).forEach(child => child.remove());
-                    }
-
-                    console.log(`📰 Mostrando ${news.length} noticias (display ID: ${Date.now()})`);
 
                     // Crear un fragmento de documento para mejor rendimiento
                     const fragment = document.createDocumentFragment();
                     
-                    // Set para asegurar que no añadimos URLs duplicadas
-                    const addedLinks = new Set();
+                    // Set para asegurar que no añadimos URLs duplicadas (solo en móvil)
+                    const addedLinks = isMobile ? new Set() : null;
 
                     news.forEach((item, index) => {
-                        // Evitar duplicados por URL
-                        if (addedLinks.has(item.link)) {
-                            console.warn(`⚠️ Noticia duplicada detectada y omitida: ${item.link}`);
-                            return;
+                        // Evitar duplicados por URL (solo en móvil donde es necesario)
+                        if (addedLinks) {
+                            if (addedLinks.has(item.link)) {
+                                return;
+                            }
+                            addedLinks.add(item.link);
                         }
-                        addedLinks.add(item.link);
 
                         const isPopupMode = this.elements.readingModeSwitch.checked;
                         const linkHTML = isPopupMode ?
@@ -4355,7 +4379,9 @@
 
                         const newsElement = document.createElement('div');
                         newsElement.className = 'news-item';
-                        newsElement.setAttribute('data-news-link', item.link); // Añadir atributo para tracking
+                        if (isMobile) {
+                            newsElement.setAttribute('data-news-link', item.link); // Tracking solo en móvil
+                        }
                         newsElement.innerHTML = `
                             <div class="news-content">
                                 <div class="news-source-time">
@@ -4374,13 +4400,6 @@
 
                     // Agregar todos los elementos de una vez
                     container.appendChild(fragment);
-
-                    console.log(`✅ ${container.children.length} elementos añadidos al DOM (esperados: ${addedLinks.size})`);
-                    
-                    // Verificación de duplicados en el DOM
-                    if (container.children.length !== addedLinks.size) {
-                        console.error(`❌ ERROR: Se esperaban ${addedLinks.size} elementos pero hay ${container.children.length} en el DOM`);
-                    }
 
                 } finally {
                     // Cancelar timeout de seguridad y asegurar que el flag se resetea
@@ -4502,7 +4521,7 @@
                     let allResults = [];
                     let startIndex = 0;
                     let attemptCount = 0;
-                    const maxAttempts = 20;
+                    const maxAttempts = 5; // Reducido a 5 intentos para mayor velocidad
 
                     // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
                     while (allResults.length < maxCount && attemptCount < maxAttempts) {
@@ -4615,17 +4634,10 @@
                                 });
                             });
 
-                            if (attemptCount === 1) {
-                                console.log(`✅ Proxy exitoso (${newspaperName}): ${firstSuccessfulResult.proxy}`);
-                            }
-                            console.log(`📰 Noticias extraídas en búsqueda #${attemptCount}: ${firstSuccessfulResult.news.length}`);
-
                             // Añadir noticias evitando duplicados por URL
                             const existingUrls = new Set(allResults.map(n => n.link));
                             const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
                             allResults.push(...newNews);
-
-                            console.log(`📊 Total acumulado: ${allResults.length} de ${maxCount} solicitadas`);
 
                             // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
                             if (newNews.length === 0) {
@@ -4703,18 +4715,18 @@
                 const readingMode = this.elements.readingModeSwitch.checked;
                 const filterKey = `${selectedValue}-${readingMode}`;
                 const now = Date.now();
+                const isMobile = DeviceManager.isMobile();
+                const minTimeBetweenRenders = isMobile ? 500 : 100; // Más rápido en desktop
                 
                 // Si ya estamos mostrando noticias, ignorar
                 if (this.isDisplaying) {
-                    console.log('⚠️ Ya se están mostrando noticias, ignorando llamada duplicada');
                     return;
                 }
                 
-                // Si ya mostramos este filtro exacto RECIENTEMENTE (menos de 500ms), no hacer nada
+                // Si ya mostramos este filtro exacto RECIENTEMENTE, no hacer nada
                 if (this.lastFilterApplied === filterKey && 
                     this.lastFilterTimestamp && 
-                    (now - this.lastFilterTimestamp) < 500) {
-                    console.log('⚠️ Filtro ya aplicado recientemente, ignorando llamada duplicada');
+                    (now - this.lastFilterTimestamp) < minTimeBetweenRenders) {
                     return;
                 }
                 
@@ -9958,3 +9970,4 @@ OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido 
 
 
  -->
+ 
