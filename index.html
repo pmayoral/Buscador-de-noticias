@@ -3370,12 +3370,20 @@
                 let isProcessing = false;
                 let lastClickedElement = null;
                 let lastClickTime = 0;
+                let touchHandled = false; // NUEVO: Flag para prevenir click después de touch
 
                 const handleNewsClick = (e, eventType) => {
                     const trigger = e.target.closest('.modal-trigger');
                     if (!trigger) return;
 
                     const now = Date.now();
+
+                    // NUEVO: Si es un evento click después de touch, ignorarlo
+                    if (eventType === 'click' && touchHandled && (now - lastClickTime) < 500) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
 
                     // Prevenir duplicados: mismo elemento en menos de 500ms
                     if (trigger === lastClickedElement && (now - lastClickTime) < 500) {
@@ -3408,6 +3416,12 @@
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
+
+                    // NUEVO: Marcar que touch fue manejado
+                    if (eventType === 'touch') {
+                        touchHandled = true;
+                        setTimeout(() => { touchHandled = false; }, 500);
+                    }
 
                     isProcessing = true;
                     lastClickedElement = trigger;
@@ -9831,4 +9845,3 @@ OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido 
 
 
  -->
- 
