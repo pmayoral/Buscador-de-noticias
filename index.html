@@ -2634,7 +2634,9 @@
                 this.currentQuery = '';
                 this.isSearching = false;
                 this.isDisplaying = false;
+                this.isProgrammaticChange = false; // Flag para ignorar eventos programáticos
                 this.lastFilterApplied = null;
+                this.lastFilterTimestamp = 0; // Timestamp del último filtro aplicado
                 this.allNews = [];
                 this.newsCounts = {};
                 this.modalHistory = [];
@@ -3301,6 +3303,12 @@
                 // Protección contra llamadas duplicadas en móvil
                 let sourcesChangeTimeout = null;
                 this.elements.sourcesSelect.addEventListener('change', () => {
+                    // Ignorar cambios programáticos
+                    if (this.isProgrammaticChange) {
+                        console.log('⚠️ Ignorando cambio programático en sourcesSelect');
+                        return;
+                    }
+                    
                     if (this.allNews.length > 0) {
                         // Cancelar timeout anterior si existe
                         if (sourcesChangeTimeout) {
@@ -3316,6 +3324,12 @@
                 
                 let readingModeChangeTimeout = null;
                 this.elements.readingModeSwitch.addEventListener('change', () => {
+                    // Ignorar cambios programáticos
+                    if (this.isProgrammaticChange) {
+                        console.log('⚠️ Ignorando cambio programático en readingModeSwitch');
+                        return;
+                    }
+                    
                     if (this.allNews.length > 0) {
                         // Cancelar timeout anterior si existe
                         if (readingModeChangeTimeout) {
@@ -4297,29 +4311,38 @@
                 }, 1000);
 
                 try {
-                    // Limpieza robusta del contenedor (triple verificación)
+                    // Limpieza robusta del contenedor
                     const container = this.elements.resultsContainer;
 
-                    // Método 1: innerHTML
+                    // Método 1: innerHTML (más rápido)
                     container.innerHTML = '';
 
-                    // Método 2: removeChild (por si innerHTML falla en móvil)
+                    // Método 2: Verificación y limpieza manual si innerHTML falló
                     while (container.firstChild) {
                         container.removeChild(container.firstChild);
                     }
 
-                    // Método 3: Verificación final
+                    // Verificación final
                     if (container.children.length > 0) {
-                        console.warn('⚠️ Contenedor no se limpió correctamente, forzando limpieza');
+                        console.error('⚠️ Contenedor no se limpió correctamente, forzando limpieza');
                         Array.from(container.children).forEach(child => child.remove());
                     }
 
-                    console.log(`📰 Mostrando ${news.length} noticias`);
+                    console.log(`📰 Mostrando ${news.length} noticias (display ID: ${Date.now()})`);
 
                     // Crear un fragmento de documento para mejor rendimiento
                     const fragment = document.createDocumentFragment();
+                    
+                    // Set para asegurar que no añadimos URLs duplicadas
+                    const addedLinks = new Set();
 
                     news.forEach((item, index) => {
+                        // Evitar duplicados por URL
+                        if (addedLinks.has(item.link)) {
+                            console.warn(`⚠️ Noticia duplicada detectada y omitida: ${item.link}`);
+                            return;
+                        }
+                        addedLinks.add(item.link);
 
                         const isPopupMode = this.elements.readingModeSwitch.checked;
                         const linkHTML = isPopupMode ?
@@ -4332,6 +4355,7 @@
 
                         const newsElement = document.createElement('div');
                         newsElement.className = 'news-item';
+                        newsElement.setAttribute('data-news-link', item.link); // Añadir atributo para tracking
                         newsElement.innerHTML = `
                             <div class="news-content">
                                 <div class="news-source-time">
@@ -4351,7 +4375,12 @@
                     // Agregar todos los elementos de una vez
                     container.appendChild(fragment);
 
-                    console.log(`✅ ${container.children.length} elementos añadidos al DOM`);
+                    console.log(`✅ ${container.children.length} elementos añadidos al DOM (esperados: ${addedLinks.size})`);
+                    
+                    // Verificación de duplicados en el DOM
+                    if (container.children.length !== addedLinks.size) {
+                        console.error(`❌ ERROR: Se esperaban ${addedLinks.size} elementos pero hay ${container.children.length} en el DOM`);
+                    }
 
                 } finally {
                     // Cancelar timeout de seguridad y asegurar que el flag se resetea
@@ -4408,9 +4437,8 @@
                     optionsHTML += `<option value="${value}">${newspaper} (${count})</option>`;
                 });
 
-                // Temporalmente desactivar el select para evitar eventos change
-                const wasDisabled = this.elements.sourcesSelect.disabled;
-                this.elements.sourcesSelect.disabled = true;
+                // Marcar como cambio programático para evitar disparar eventos
+                this.isProgrammaticChange = true;
                 
                 this.elements.sourcesSelect.innerHTML = optionsHTML;
 
@@ -4420,13 +4448,23 @@
                     this.elements.sourcesSelect.value = 'all';
                 }
                 
-                // Restaurar el estado disabled original
-                this.elements.sourcesSelect.disabled = wasDisabled;
+                // Restaurar el flag después de un pequeño delay
+                setTimeout(() => {
+                    this.isProgrammaticChange = false;
+                }, 50);
             }
 
             resetDropdownOptions() {
+                // Marcar como cambio programático
+                this.isProgrammaticChange = true;
+                
                 this.elements.sourcesSelect.innerHTML = `<option value="all">Todos los periódicos</option>`;
                 this.elements.sourcesSelect.value = 'all';
+                
+                // Restaurar el flag después de un pequeño delay
+                setTimeout(() => {
+                    this.isProgrammaticChange = false;
+                }, 50);
             }
 
             focusSearchInput() {
@@ -4664,6 +4702,7 @@
                 const selectedValue = this.elements.sourcesSelect.value;
                 const readingMode = this.elements.readingModeSwitch.checked;
                 const filterKey = `${selectedValue}-${readingMode}`;
+                const now = Date.now();
                 
                 // Si ya estamos mostrando noticias, ignorar
                 if (this.isDisplaying) {
@@ -4671,13 +4710,16 @@
                     return;
                 }
                 
-                // Si ya mostramos este filtro exacto, no hacer nada
-                if (this.lastFilterApplied === filterKey) {
-                    console.log('⚠️ Filtro ya aplicado, ignorando llamada duplicada');
+                // Si ya mostramos este filtro exacto RECIENTEMENTE (menos de 500ms), no hacer nada
+                if (this.lastFilterApplied === filterKey && 
+                    this.lastFilterTimestamp && 
+                    (now - this.lastFilterTimestamp) < 500) {
+                    console.log('⚠️ Filtro ya aplicado recientemente, ignorando llamada duplicada');
                     return;
                 }
                 
                 this.lastFilterApplied = filterKey;
+                this.lastFilterTimestamp = now;
                 
                 let newsToShow = this.allNews;
 
