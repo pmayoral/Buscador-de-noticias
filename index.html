@@ -2633,6 +2633,8 @@
 
                 this.currentQuery = '';
                 this.isSearching = false;
+                this.isDisplaying = false;
+                this.lastFilterApplied = null;
                 this.allNews = [];
                 this.newsCounts = {};
                 this.modalHistory = [];
@@ -3295,11 +3297,36 @@
                 this.elements.countSelect.addEventListener('change', () => {
                     if (this.currentQuery) this.search();
                 });
+                
+                // Protección contra llamadas duplicadas en móvil
+                let sourcesChangeTimeout = null;
                 this.elements.sourcesSelect.addEventListener('change', () => {
-                    if (this.allNews.length > 0) this.displayFilteredNews();
+                    if (this.allNews.length > 0) {
+                        // Cancelar timeout anterior si existe
+                        if (sourcesChangeTimeout) {
+                            clearTimeout(sourcesChangeTimeout);
+                        }
+                        // Ejecutar con debounce de 100ms
+                        sourcesChangeTimeout = setTimeout(() => {
+                            this.displayFilteredNews();
+                            sourcesChangeTimeout = null;
+                        }, 100);
+                    }
                 });
+                
+                let readingModeChangeTimeout = null;
                 this.elements.readingModeSwitch.addEventListener('change', () => {
-                    if (this.allNews.length > 0) this.displayFilteredNews();
+                    if (this.allNews.length > 0) {
+                        // Cancelar timeout anterior si existe
+                        if (readingModeChangeTimeout) {
+                            clearTimeout(readingModeChangeTimeout);
+                        }
+                        // Ejecutar con debounce de 100ms
+                        readingModeChangeTimeout = setTimeout(() => {
+                            this.displayFilteredNews();
+                            readingModeChangeTimeout = null;
+                        }, 100);
+                    }
                 });
 
                 document.addEventListener('keydown', (e) => {
@@ -3639,6 +3666,7 @@
                 this.isSearching = true;
                 this.currentQuery = query;
                 this.allNews = [];
+                this.lastFilterApplied = null; // Resetear filtro aplicado
 
                 this.showLoading(true);
                 this.hideMessages();
@@ -4258,6 +4286,14 @@
                 }
 
                 this.isDisplaying = true;
+                
+                // Timeout de seguridad para liberar el flag (3 segundos)
+                const safetyTimeout = setTimeout(() => {
+                    if (this.isDisplaying) {
+                        console.warn('⚠️ displayNews timeout de seguridad activado, liberando flag');
+                        this.isDisplaying = false;
+                    }
+                }, 3000);
 
                 try {
                     // Limpieza robusta del contenedor (triple verificación)
@@ -4278,6 +4314,9 @@
                     }
 
                     console.log(`📰 Mostrando ${news.length} noticias`);
+
+                    // Crear un fragmento de documento para mejor rendimiento
+                    const fragment = document.createDocumentFragment();
 
                     news.forEach((item, index) => {
 
@@ -4305,13 +4344,17 @@
                             </div>
                         `;
 
-                        container.appendChild(newsElement);
+                        fragment.appendChild(newsElement);
                     });
+
+                    // Agregar todos los elementos de una vez
+                    container.appendChild(fragment);
 
                     console.log(`✅ ${container.children.length} elementos añadidos al DOM`);
 
                 } finally {
-                    // Asegurar que el flag se resetea incluso si hay error
+                    // Cancelar timeout de seguridad y asegurar que el flag se resetea
+                    clearTimeout(safetyTimeout);
                     this.isDisplaying = false;
                 }
             }
@@ -4364,6 +4407,10 @@
                     optionsHTML += `<option value="${value}">${newspaper} (${count})</option>`;
                 });
 
+                // Temporalmente desactivar el select para evitar eventos change
+                const wasDisabled = this.elements.sourcesSelect.disabled;
+                this.elements.sourcesSelect.disabled = true;
+                
                 this.elements.sourcesSelect.innerHTML = optionsHTML;
 
                 if (currentValue && this.elements.sourcesSelect.querySelector(`option[value="${currentValue}"]`)) {
@@ -4371,6 +4418,9 @@
                 } else {
                     this.elements.sourcesSelect.value = 'all';
                 }
+                
+                // Restaurar el estado disabled original
+                this.elements.sourcesSelect.disabled = wasDisabled;
             }
 
             resetDropdownOptions() {
@@ -4399,6 +4449,7 @@
                 this.isSearching = true;
                 this.currentQuery = query;
                 this.allNews = [];
+                this.lastFilterApplied = null; // Resetear filtro aplicado
 
                 this.showLoading(true);
                 this.hideMessages();
@@ -4607,8 +4658,20 @@
             }
 
             displayFilteredNews() {
-                let newsToShow = this.allNews;
+                // Prevenir llamadas duplicadas guardando el último filtro aplicado
                 const selectedValue = this.elements.sourcesSelect.value;
+                const readingMode = this.elements.readingModeSwitch.checked;
+                const filterKey = `${selectedValue}-${readingMode}`;
+                
+                // Si ya mostramos este filtro, no hacer nada
+                if (this.lastFilterApplied === filterKey && !this.isDisplaying) {
+                    console.log('⚠️ Filtro ya aplicado, ignorando llamada duplicada');
+                    return;
+                }
+                
+                this.lastFilterApplied = filterKey;
+                
+                let newsToShow = this.allNews;
 
                 if (selectedValue !== 'all') {
                     // Buscar el periódico que corresponde al valor seleccionado
@@ -9845,3 +9908,4 @@ OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido 
 
 
  -->
+ 
