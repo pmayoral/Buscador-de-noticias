@@ -4913,54 +4913,9 @@
                         }
                     }
 
-                    if (content) {
-                        this.displayModalContent(content);
-                    } else {
-                        // Fallback especial para móvil: si no podemos extraer el artículo,
-                        // mostrar directamente la página original en un iframe incrustado
-                        if (DeviceManager.isMobile()) {
-                            const safeUrl = url;
-                            this.elements.modalBody.innerHTML = `
-                                <div class="modal-content">
-                                    <div style="margin-bottom: 10px; font-size: 0.9em; color: #4a5568;">
-                                        No se pudo cargar el modo lectura, pero puedes ver la noticia original aquí:
-                                    </div>
-                                    <div style="margin-bottom: 10px;">
-                                        <a href="${safeUrl}" target="_blank" style="color: #2563eb; text-decoration: underline;">
-                                            Abrir noticia en nueva pestaña
-                                        </a>
-                                    </div>
-                                    <div style="height: 70vh; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;">
-                                        <iframe src="${safeUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
-                                    </div>
-                                </div>
-                            `;
-                        } else {
-                            this.showModalError('No se pudo cargar el contenido completo de la noticia.');
-                        }
-                    }
+                    content ? this.displayModalContent(content) : this.showModalError('No se pudo cargar el contenido completo de la noticia.');
                 } catch (error) {
-                    if (DeviceManager.isMobile()) {
-                        // En móvil, usar también el fallback visual en caso de error inesperado
-                        const safeUrl = url;
-                        this.elements.modalBody.innerHTML = `
-                            <div class="modal-content">
-                                <div style="margin-bottom: 10px; font-size: 0.9em; color: #4a5568;">
-                                    No se pudo cargar el modo lectura por un error, pero puedes ver la noticia original aquí:
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <a href="${safeUrl}" target="_blank" style="color: #2563eb; text-decoration: underline;">
-                                        Abrir noticia en nueva pestaña
-                                    </a>
-                                </div>
-                                <div style="height: 70vh; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;">
-                                    <iframe src="${safeUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        this.showModalError('Error al cargar el contenido completo.');
-                    }
+                    this.showModalError('Error al cargar el contenido completo.');
                 }
             }
 
