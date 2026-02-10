@@ -2639,10 +2639,19 @@
                 this.currentOriginalUrl = '';
                 this.currentSubtitle = '';
 
-                this.proxies = [
+                // Proxies diferenciados para móvil y escritorio
+                // MÓVIL: solo los 3 más estables
+                this.proxiesMobile = [
+                    'https://api.allorigins.win/raw?url=',
+                    'https://corsproxy.io/?url=',
+                    'https://api.codetabs.com/v1/proxy?quest='
+                ];
+
+                // ESCRITORIO: los mismos 3 + adicionales (para más tolerancia a fallos)
+                this.proxiesDesktop = [
                     'https://api.codetabs.com/v1/proxy?quest=',
                     'https://api.allorigins.win/raw?url=',
-                    'https://corsproxy.io/?',
+                    'https://corsproxy.io/?url=',
                     'https://proxy.cors.sh/',
                     'https://thingproxy.freeboard.io/fetch/',
                     'https://cors-proxy.htmldriven.com/?url=',
@@ -3608,6 +3617,7 @@
                 let startIndex = 0;
                 let attemptCount = 0;
                 const isMobileGlobal = DeviceManager.isMobile();
+                const proxies = isMobileGlobal ? this.proxiesMobile : this.proxiesDesktop;
                 const maxAttempts = 5; // Mantener intentos consistentes en todos los dispositivos
 
                 // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
@@ -3633,7 +3643,7 @@
                     // console.log(`📡 Probando ${this.proxies.length} proxies en paralelo...`);
 
                     const controllers = [];
-                    const proxyPromises = this.proxies.map(async (proxy) => {
+                    const proxyPromises = proxies.map(async (proxy) => {
                         const controller = new AbortController();
                         controllers.push(controller);
                         const proxyName = proxy.split('/')[2] || proxy;
@@ -4422,7 +4432,8 @@
                         console.log(`🔍 Búsqueda #${attemptCount} (${newspaperName}) - URL:`, googleNewsUrl);
 
                         // Consultar todos los proxies en paralelo con Promise.race optimizado
-                        const preferredProxies = this.proxies;
+                        const isMobileGlobal = DeviceManager.isMobile();
+                        const preferredProxies = isMobileGlobal ? this.proxiesMobile : this.proxiesDesktop;
 
                         // Crear promesas con abort controllers para cancelar las peticiones restantes
                         const controllers = [];
