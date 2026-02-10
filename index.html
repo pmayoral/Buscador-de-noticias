@@ -1026,6 +1026,10 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                background: #f3f4f6;
+            }
+
             .search-box {
                 flex-direction: column;
                 gap: 12px;
@@ -3604,7 +3608,7 @@
                 let startIndex = 0;
                 let attemptCount = 0;
                 const isMobileGlobal = DeviceManager.isMobile();
-                const maxAttempts = isMobileGlobal ? 3 : 5; // Menos intentos en móvil para mejorar velocidad
+                const maxAttempts = 5; // Mantener intentos consistentes en todos los dispositivos
 
                 // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
                 while (allNews.length < maxCount && attemptCount < maxAttempts) {
@@ -4380,7 +4384,7 @@
                     let startIndex = 0;
                     let attemptCount = 0;
                     const isMobileGlobal = DeviceManager.isMobile();
-                    const maxAttempts = isMobileGlobal ? 3 : 5; // Menos intentos en móvil para mejorar velocidad
+                    const maxAttempts = 5; // Mantener intentos consistentes en todos los dispositivos
 
                     // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
                     while (allResults.length < maxCount && attemptCount < maxAttempts) {
