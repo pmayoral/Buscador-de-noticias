@@ -3141,17 +3141,28 @@
                     this.loadModalContent(absoluteUrl, linkText);
                 });
 
-                // Delegación de eventos para modal triggers (prevenir duplicación en móvil)
+                // Delegación de eventos para modal triggers (prevenir duplicación en móvil
+                // y permitir arrastrar para hacer scroll sin abrir noticias)
                 let isProcessing = false;
                 let lastClickedElement = null;
                 let lastClickTime = 0;
-                let touchHandled = false; // NUEVO: Flag para prevenir click después de touch
+                let touchHandled = false; // Flag para prevenir click después de touch
+                let touchStartX = 0;
+                let touchStartY = 0;
+                let touchMoved = false;
 
                 const handleNewsClick = (e, eventType) => {
                     const trigger = e.target.closest('.modal-trigger');
                     if (!trigger) return;
 
                     const now = Date.now();
+
+                    // En móvil: si el usuario ha arrastrado (scroll), no abrir la noticia
+                    if (eventType === 'touch' && touchMoved) {
+                        // No interceptar el scroll: simplemente salimos
+                        touchMoved = false;
+                        return;
+                    }
 
                     // NUEVO: Si es un evento click después de touch, ignorarlo
                     if (eventType === 'click' && touchHandled && (now - lastClickTime) < 500) {
@@ -3218,6 +3229,25 @@
                 };
 
                 // Manejar eventos táctiles (móvil) y clicks (desktop)
+                this.elements.resultsContainer.addEventListener('touchstart', (e) => {
+                    const touch = e.touches && e.touches[0];
+                    if (!touch) return;
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                    touchMoved = false;
+                }, { passive: true });
+
+                this.elements.resultsContainer.addEventListener('touchmove', (e) => {
+                    const touch = e.touches && e.touches[0];
+                    if (!touch) return;
+                    const dx = touch.clientX - touchStartX;
+                    const dy = touch.clientY - touchStartY;
+                    // Umbral de movimiento para considerar que el usuario está haciendo scroll
+                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                        touchMoved = true;
+                    }
+                }, { passive: true });
+
                 this.elements.resultsContainer.addEventListener('touchend', (e) => handleNewsClick(e, 'touch'), { passive: false });
                 this.elements.resultsContainer.addEventListener('click', (e) => handleNewsClick(e, 'click'), { passive: false });
 
@@ -4771,11 +4801,18 @@
                     let content = null;
                     const domain = new URL(url).hostname.replace('www.', '');
 
-                    // Probar los 2 proxies principales en paralelo
-                    const proxiesParalelos = [
-                        'https://proxy.cors.sh/',
-                        'https://corsproxy.io/?'
-                    ];
+                    // Probar proxies principales en paralelo (diferenciando móvil / escritorio)
+                    const isMobile = DeviceManager.isMobile();
+                    const proxiesParalelos = isMobile
+                        ? [
+                            'https://api.allorigins.win/raw?url=',
+                            'https://corsproxy.io/?url=',
+                            'https://api.codetabs.com/v1/proxy?quest='
+                        ]
+                        : [
+                            'https://proxy.cors.sh/',
+                            'https://corsproxy.io/?'
+                        ];
 
                     // Crear promesas para cada proxy
                     const fetchPromises = proxiesParalelos.map(async (proxy) => {
@@ -4828,18 +4865,23 @@
                         }
                     });
 
-                    // Usar Promise.race para obtener el primero que responda exitosamente
+                    // Usar Promise.any para obtener el primero que responda exitosamente
                     try {
                         const result = await Promise.any(fetchPromises);
                         if (result.success) {
                             content = result.content;
                         }
                     } catch (error) {
-                        // Si ambos fallan, probar los proxies de respaldo secuencialmente
-                        const proxiesRespaldo = [
-                            'https://api.codetabs.com/v1/proxy?quest=',
-                            'https://cors-anywhere.herokuapp.com/'
-                        ];
+                        // Si todos fallan, probar proxies de respaldo secuencialmente
+                        const proxiesRespaldo = isMobile
+                            ? [
+                                'https://api.allorigins.win/raw?url=',
+                                'https://api.codetabs.com/v1/proxy?quest='
+                            ]
+                            : [
+                                'https://api.codetabs.com/v1/proxy?quest=',
+                                'https://cors-anywhere.herokuapp.com/'
+                            ];
 
                         for (const proxy of proxiesRespaldo) {
                             try {
