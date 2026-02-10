@@ -20,6 +20,7 @@
             --shadow-light: 0 20px 40px rgba(0, 0, 0, 0.1);
             --border-light: 1px solid rgba(255, 255, 255, 0.2);
             --radius: 20px;
+            --transition: all 0.3s ease;
         }
 
         * {
@@ -39,7 +40,7 @@
         .container {
             max-width: 100%;
             margin: 0;
-            padding: 20px 20px 20px 20px;
+            padding: 20px;
         }
 
         .header,
@@ -114,8 +115,11 @@
             box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
         }
 
-        #sourcesSelect:hover {
+        .dropdown-select:hover {
             transform: translateY(-2px);
+        }
+
+        #sourcesSelect:hover {
             box-shadow: 0 12px 25px rgba(78, 205, 196, 0.4);
         }
 
@@ -127,7 +131,6 @@
         }
 
         #countSelect:hover {
-            transform: translateY(-2px);
             box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
             background: #f7fafc;
             border-color: #cbd5e0;
@@ -596,17 +599,13 @@
             margin-bottom: 0 !important;
         }
 
-        .modal-text .ev-title {
+        .modal-text .ev-title,
+        .modal-text .ev-main .ev-text .ev-title {
             font-size: 1.3em !important;
             font-weight: 700 !important;
             color: #1a202c !important;
             margin: 20px 0 12px 0 !important;
             line-height: 1.4 !important;
-        }
-
-        .modal-text .ev-main .ev-text .ev-title {
-            font-size: 1.3em !important;
-            font-weight: 700 !important;
         }
 
         .know-more-container {
@@ -2282,8 +2281,6 @@
 
         // Cargar la base de datos al inicio
         NewspaperDB.load();
-        // Mantener referencia global para compatibilidad si es necesario, aunque intentaremos usar NewspaperDB
-        let periodicosDB = NewspaperDB.data;
 
         // ===== DETECCIÓN DE DISPOSITIVO Y NAVEGADOR =====
         const DeviceManager = {
@@ -2353,10 +2350,6 @@
             }
         };
 
-        // Mantener funciones globales para compatibilidad
-        function esMovil() { return DeviceManager.isMobile(); }
-        function detectarSistemaOperativo() { return DeviceManager.getOS(); }
-        function detectarNavegador() { return DeviceManager.getBrowser(); }
         function obtenerInfoDispositivo() { return DeviceManager.getInfo(); }
 
         // Función para abrir la información del periódico en modal
@@ -2611,7 +2604,6 @@
             ];
             // ===== FIN CONSTANTES =====
 
-
             constructor() {
                 this.elements = {
                     searchInput: document.getElementById('searchInput'),
@@ -2784,78 +2776,26 @@
                     // CADENA SER
                     // -----------------------------------------------------------------
                     'cadenaser.com': {
-                        title: [
-                            'main.epi-pod .cnt-data-art .c-i h1',
-                            'h1',
-                            '.article-title',
-                            '.news-title h1',
-                            'article h1',
-                            '.content h1'
-                        ].join(', '),
-                        content: [
-                            'main.epi-pod .cnt-data-art .c-i',
-                            'main.epi-pod .cnt-data-art',
-                            '.cnt-data-art .c-i',
-                            '.cnt-data-art',
-                            'article .content',
-                            '.article-content',
-                            '.news-content',
-                            '.article-body',
-                            '.content-body',
-                            'main article',
-                            '.article-text'
-                        ].join(', '),
-                        author: [
-                            '.cnt-byline .c-dat-art .emi',
-                            '.cnt-byline .c-dat-art a.emi',
-                            '.cnt-data-art .cnt-byline .emi',
-                            '.c-dat-art .emi',
-                            '.author',
-                            '.article-author',
-                            '.news-author',
-                            '.byline',
-                            '.author-name'
-                        ].join(', '),
-                        images: [
-                            'article img',
-                            '.article-image img',
-                            '.news-image img',
-                            '.content img',
-                            'figure img',
-                            '.media img'
-                        ].join(', '),
-                        date: [
-                            '.cnt-byline .c-dat-art time .a_ti',
-                            '.cnt-byline .c-dat-art time span.a_ti',
-                            '.cnt-data-art .cnt-byline time .a_ti',
-                            '.c-dat-art time .a_ti',
-                            'meta[property="article:published_time"]',
-                            'meta[name="article:published_time"]',
-                            'time',
-                            '.date',
-                            '.article-date',
-                            '.news-date'
-                        ].join(', '),
-                        exclude: [
-                            'script[src*="youbora"]',
-                            'script[src*="npaw"]',
-                            'script[src*="analytics"]',
-                            'script[src*="gtag"]',
-                            'script[src*="gtm"]',
-                            '.ads',
-                            '.advertisement',
-                            '.social-share',
-                            '.comments',
-                            '.related-articles',
-                            '.newsletter-signup',
-                            '.footer',
-                            '.navigation',
-                            '.sidebar',
-                            '.promo',
-                            '.cookie-banner',
-                            'script',
-                            'style'
-                        ].join(', ')
+                        title: 'main.epi-pod .cnt-data-art .c-i h1, h1, .article-title, .news-title h1, article h1, .content h1',
+                        content: 'main.epi-pod .cnt-data-art .c-i, main.epi-pod .cnt-data-art, .cnt-data-art .c-i, .cnt-data-art, article .content, .article-content, .news-content, .article-body, .content-body, main article, .article-text',
+                        author: '.cnt-byline .c-dat-art .emi, .cnt-byline .c-dat-art a.emi, .cnt-data-art .cnt-byline .emi, .c-dat-art .emi, .author, .article-author, .news-author, .byline, .author-name',
+                        images: {
+                            selector: 'article img, .article-image img, .news-image img, .content img, figure img, .media img',
+                            cleanUrl: null // No special cleaning needed
+                        },
+                        audios: {
+                            selector: 'div.cnt-audio, .audio-player, .c-audio',
+                            playerSelector: '.cnt-audio .btn-play, .audio-player .play-btn',
+                            srcAttr: 'data-src',
+                            titleSelector: '.cnt-audio .tit-audio, .audio-title'
+                        },
+                        videos: [
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' },
+                            { type: 'dailymotion', selector: 'iframe[src*="dailymotion"]' },
+                            { type: 'cadenaser', selector: 'iframe[src*="cadenaser.com/embed"]' }
+                        ],
+                        date: '.cnt-byline .c-dat-art time .a_ti, .cnt-byline .c-dat-art time span.a_ti, .cnt-data-art .cnt-byline time .a_ti, .c-dat-art time .a_ti, meta[property="article:published_time"], meta[name="article:published_time"], time, .date, .article-date, .news-date',
+                        exclude: 'script[src*="youbora"], script[src*="npaw"], script[src*="analytics"], script[src*="gtag"], script[src*="gtm"], .ads, .advertisement, .social-share, .comments, .related-articles, .newsletter-signup, .footer, .navigation, .sidebar, .promo, .cookie-banner, script, style'
                     },
 
                     // -----------------------------------------------------------------
@@ -2863,82 +2803,51 @@
                     // -----------------------------------------------------------------
                     'catalunyapress.es': {
                         title: 'h1, .article-title, #read_content h1',
-                        content: [
-                            '#article_content.article_content.story_editor',
-                            '#read_content .article_main',
-                            '#read_content',
-                            'article',
-                            '.article-content'
-                        ].join(', '),
-                        author: [
-                            '.article_legend .article_author',
-                            '.article_author',
-                            '.article_legend a',
-                            '.author',
-                            '.byline'
-                        ].join(', '),
-                        images: [
-                            'article#read_content .article_main .article_content.story_editor figure.image img',
-                            '#read_content .article_main #article_content figure.image img',
-                            '#article_content.article_content.story_editor figure.image img',
-                            '#article_content figure.image img',
-                            'figure.image img',
-                            '#article_content img',
-                            '#read_content img',
-                            'article img'
-                        ].join(', '),
-                        date: 'time, .date, .article-date, .article_legend time',
-                        exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .related'
+                        content: '#article_content.article_content.story_editor, #read_content .article_main, #read_content, article, .article-content',
+                        author: '.article_legend .article_author, .article_author, .article_legend a, .author, .byline',
+                        images: {
+                            selector: 'article#read_content .article_main .article_content.story_editor figure.image img, #read_content .article_main #article_content figure.image img, #article_content.article_content.story_editor figure.image img, #article_content figure.image img, figure.image img, #article_content img, #read_content img, article img',
+                            cleanUrl: (url) => {
+                                if (url.includes('?')) {
+                                    const urlObj = new URL(url);
+                                    ['width', 'height', 'w', 'h', 'resize', 'quality'].forEach(p => urlObj.searchParams.delete(p));
+                                    return urlObj.toString();
+                                }
+                                return url;
+                            }
+                        },
+                        videos: [
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' },
+                            { type: 'catalunyapress', selector: 'iframe[src*="catalunyapress.es/embed"]' }
+                        ],
+                        date: 'time, .date, .article-date, .article_legend time, .article_date .CNewsDateUpdate, .article_legend .article_date, .CNewsDateUpdate, .article_date',
+                        exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .related, .title-subtitle-legend, .article_subtitle'
                     },
 
                     // -----------------------------------------------------------------
                     // ELDIARIO.ES
                     // -----------------------------------------------------------------
                     'eldiario.es': {
-                        title: [
-                            'main.content__wrapper .c-header .news-header h1.title',
-                            '.content__wrapper .c-header .news-header h1.title',
-                            '.c-header .news-header h1.title',
-                            '.news-header h1.title',
-                            'h1.title',
-                            'h1'
-                        ].join(', '),
+                        title: 'main.content__wrapper .c-header .news-header h1.title, .content__wrapper .c-header .news-header h1.title, .c-header .news-header h1.title, .news-header h1.title, h1.title, h1',
                         content: '.partner-wrapper.article-page__body-row .second-col, .article-text, .content__wrapper, .item__content, .c-content',
                         author: '.author, .authors, .item__content__author',
-                        images: [
-                            '.ni-figure img',
-                            '.news-image img',
-                            '.news-image amp-img',
-                            '.main-image img',
-                            '.lazy img',
-                            '.know-more__img img',
-                            '.post-item__body picture img'
-                        ].join(', '),
+                        images: {
+                            selector: '.ni-figure img, .news-image img, .news-image amp-img, .main-image img, .lazy img, .know-more__img img, .post-item__body picture img',
+                            cleanUrl: (url) => {
+                                if (url.includes('?')) {
+                                    const urlObj = new URL(url);
+                                    ['width', 'height', 'w', 'h', 'resize', 'quality'].forEach(p => urlObj.searchParams.delete(p));
+                                    url = urlObj.toString();
+                                }
+                                return url.replace(/_(small|medium|large|thumb)\.(jpg|jpeg|png|webp)/gi, '.$2').replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                            }
+                        },
+                        videos: [
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' },
+                            { type: 'eldiario', selector: 'iframe[src*="eldiario.es/video"], script[src*="eldiario.es/video"]' }
+                        ],
                         date: '.date, .modification-date',
-                        exclude: [
-                            '.first-col',
-                            '.edi-advertising',
-                            '.ad-body',
-                            '.ad__no-dotted',
-                            '.ad__no-legend',
-                            '.ad-mobile-intext',
-                            '.ad-desktop-intext',
-                            '.ad-desktop-intext--300x600',
-                            '.addoor-widget',
-                            '.edi-advertising--header',
-                            '.header-ad',
-                            '.edi-advertising-sticky-wrapper',
-                            '.fixedadmobile',
-                            '.bannerbottom',
-                            '.edi-social-buttons',
-                            '.shareIcons',
-                            '.comments',
-                            '.date-comments-wrapper',
-                            '.recirculation-area',
-                            '.header',
-                            '.menu-header',
-                            '.c-subheader'
-                        ].join(', ')
+                        exclude: '.first-col, .edi-advertising, .ad-body, .ad__no-dotted, .ad__no-legend, .ad-mobile-intext, .ad-desktop-intext, .ad-desktop-intext--300x600, .addoor-widget, .edi-advertising--header, .header-ad, .edi-advertising-sticky-wrapper, .fixedadmobile, .bannerbottom, .edi-social-buttons, .shareIcons, .comments, .date-comments-wrapper, .recirculation-area, .header, .menu-header, .c-subheader'
                     },
 
                     // -----------------------------------------------------------------
@@ -2948,138 +2857,44 @@
                         title: 'h1, h1.headline, .a_t, .titulo, .title',
                         content: '.a_c, .a, .a_md, .stream-panel-content, .ev-text, article',
                         author: '.a_md_a_n, .ev-author, .autor, .a_md_a',
-                        images: [
-                            '.a_e_m img',
-                            '.a_e_m amp-img',
-                            'figure.a_m img',
-                            'figure.a_m amp-img',
-                            '.a_m_w img',
-                            '.a_m_w amp-img',
-                            '.a_m_i img',
-                            '.a_m_i amp-img',
-                            '.a_c img',
-                            '.a_c amp-img',
-                            '.prisa_ad figure.a_m img',
-                            '.prisa_ad figure.a_m amp-img',
-                            '.prisa_ad .a_m_w img',
-                            '.prisa_ad .a_m_w amp-img',
-                            '.ep_i',
-                            '.ev-au-img'
-                        ].join(', '),
+                        images: {
+                            selector: '.a_e_m img, .a_e_m amp-img, figure.a_m img, figure.a_m amp-img, .a_m_w img, .a_m_w amp-img, .a_m_i img, .a_m_i amp-img, .a_c img, .a_c amp-img, .prisa_ad figure.a_m img, .prisa_ad figure.a_m amp-img, .prisa_ad .a_m_w img, .prisa_ad .a_m_w amp-img, .ep_i, .ev-au-img',
+                            cleanUrl: (url) => {
+                                if (url.includes('?')) {
+                                    const urlObj = new URL(url);
+                                    ['width', 'height', 'w', 'h', 'resize', 'quality'].forEach(p => urlObj.searchParams.delete(p));
+                                    url = urlObj.toString();
+                                }
+                                return url.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                            }
+                        },
+                        videos: [
+                            { type: 'elpais', selector: 'iframe[src*="elpais.com/video"], iframe[src*="kaltura"]' },
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' }
+                        ],
                         date: '.ev-date, .a_md_f, time',
-                        exclude: [
-                            '.ad',
-                            '.ad-giga',
-                            '.ad-ldb',
-                            '.ad-mldb',
-                            '.ad-mpu',
-                            '.ad-nstd-bd',
-                            '#ctn_head',
-                            '#edition_head',
-                            '#reading_progress_bar_id',
-                            '#capping-upgrade',
-                            '#disqus_thread',
-                            '#comments_bar',
-                            '#comments_container',
-                            '#comments_close',
-                            '.disqus-comment-count',
-                            '.w_rs',
-                            '.a_com',
-                            '.me-dis',
-                            '.me_f',
-                            '.w-rel',
-                            '.outbrain',
-                            '.obne_ob',
-                            '.obne_ne',
-                            '.taboola',
-                            '#taboola-below-article-thumbnails',
-                            '.x-ph',
-                            '.x_bh',
-                            '.z-fo',
-                            '.z-he'
-                        ].join(', ')
+                        exclude: '.ad, .ad-giga, .ad-ldb, .ad-mldb, .ad-mpu, .ad-nstd-bd, #ctn_head, #edition_head, #reading_progress_bar_id, #capping-upgrade, #disqus_thread, #comments_bar, #comments_container, #comments_close, .disqus-comment-count, .w_rs, .a_com, .me-dis, .me_f, .w-rel, .outbrain, .obne_ob, .obne_ne, .taboola, #taboola-below-article-thumbnails, .x-ph, .x_bh, .z-fo, .z-he'
                     },
 
                     // -----------------------------------------------------------------
                     // EL MUNDO
                     // -----------------------------------------------------------------
                     'elmundo.es': {
-                        title: [
-                            '.ue-c-article__headline',
-                            'h1.ue-c-article__headline',
-                            'h1'
-                        ].join(', '),
+                        title: '.ue-c-article__headline, h1.ue-c-article__headline, h1',
                         subtitle: '.ue-c-article__standfirst',
                         content: '.ue-c-article__body, .article-text',
-                        author: [
-                            '.ue-c-article__author-name-item',
-                            '.ue-c-article__author-name',
-                            '.ue-c-article__byline-name'
-                        ].join(', '),
-                        images: [
-                            '.ue-c-article__image',
-                            '.ue-c-article__media img',
-                            '.ue-c-article__image img'
-                        ].join(', '),
-                        imageCaption: [
-                            '.ue-c-article__media-caption',
-                            '.ue-c-article__media-description'
-                        ].join(', '),
-                        date: [
-                            '.ue-c-article__publishdate',
-                            'time[datetime]',
-                            '.ue-c-article__bar-footer time'
-                        ].join(', '),
-                        exclude: [
-                            // Header y navegación
-                            '.ue-c-main-header',
-                            '.ue-l-main-header__row',
-                            '.ue-c-main-navigation',
-                            '.ue-c-main-header__breadcrumb',
-                            '.ue-c-main-header__subscription',
-                            '.ue-c-section-title',
-                            // Publicidad
-                            '.ue-c-ad',
-                            '.ue-gcp-sd',
-                            '.ue-gcp-si',
-                            '.ue-gcp-m',
-                            '.ue-gcp-r',
-                            '.ue-gcp-rb',
-                            '.ue-gcp-rc',
-                            '.ue-gcp-f',
-                            '.ue-gcp-f2',
-                            '.ue-gcp-f3',
-                            '.ue-gcp-r-nata',
-                            '.skin-ad',
-                            '[id*="div-gpt-ad"]',
-                            '.publicidad',
-                            // Compartir y redes sociales
-                            '.ue-c-article__share-tools',
-                            '.ue-c-article__toolbox',
-                            '.ue-c-main-header__social-tools',
-                            // Comentarios
-                            '.aside-comments',
-                            '.comments-panel',
-                            '.comments-tool',
-                            '.em-comments-container-body',
-                            '.ue-c-article__button--theme-comments',
-                            '#ancla_comentarios',
-                            // Widgets y módulos externos
-                            '.ue-c-popular-links',
-                            '.ue-l-article__newsletter-widget',
-                            '[id*="taboola"]',
-                            // Footer
-                            '.site-footer',
-                            '.container-list-footer',
-                            // Paywall
-                            '.ue-cintillo-premium',
-                            // Scripts y tracking
-                            '.pixelcontabilizacion',
-                            '.loading-module',
-                            // Paneles laterales
-                            '.lightbox_shadow',
-                            '.right-panel'
-                        ].join(', ')
+                        author: '.ue-c-article__author-name-item, .ue-c-article__author-name, .ue-c-article__byline-name',
+                        images: {
+                            selector: '.ue-c-article__image, .ue-c-article__media img, .ue-c-article__image img',
+                            cleanUrl: null
+                        },
+                        imageCaption: '.ue-c-article__media-caption, .ue-c-article__media-description',
+                        videos: [
+                            { type: 'elmundo', selector: 'iframe[src*="elmundo.es/video"], iframe[src*="ue-c-article__media"]' },
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' }
+                        ],
+                        date: '.ue-c-article__publishdate, time[datetime], .ue-c-article__bar-footer time',
+                        exclude: '.ue-c-main-header, .ue-l-main-header__row, .ue-c-main-navigation, .ue-c-main-header__breadcrumb, .ue-c-main-header__subscription, .ue-c-section-title, .ue-c-ad, .ue-gcp-sd, .ue-gcp-si, .ue-gcp-m, .ue-gcp-r, .ue-gcp-rb, .ue-gcp-rc, .ue-gcp-f, .ue-gcp-f2, .ue-gcp-f3, .ue-gcp-r-nata, .skin-ad, [id*="div-gpt-ad"], .publicidad, .ue-c-article__share-tools, .ue-c-article__toolbox, .ue-c-main-header__social-tools, .aside-comments, .comments-panel, .comments-tool, .em-comments-container-body, .ue-c-article__button--theme-comments, #ancla_comentarios, .ue-c-popular-links, .ue-l-article__newsletter-widget, [id*="taboola"], .site-footer, .container-list-footer, .ue-cintillo-premium, .pixelcontabilizacion, .loading-module, .lightbox_shadow, .right-panel'
                     },
 
                     // -----------------------------------------------------------------
@@ -3089,12 +2904,29 @@
                         title: 'h1, .voc-title',
                         content: '.voc-article-container, .voc-article--detail, .voc-d__article',
                         author: '.voc-author__name',
-                        authorImage: '.voc-author__image img',  // Imagen del autor
-                        images: '.voc-info-container .voc-img, .voc-img-container img, .voc-img-figure img, .voc-img, img.voc-img',
-                        imageCaptionText: '.voc-figcaption--text',  // Texto del pie de foto
-                        imageCaptionAuthor: '.voc-figcaption--autho',  // Autor del pie de foto
+                        authorImage: '.voc-author__image img',
+                        images: {
+                            selector: '.voc-info-container .voc-img, .voc-img-container img, .voc-img-figure img, .voc-img, img.voc-img',
+                            cleanUrl: (url) => {
+                                if (url.includes('?')) {
+                                    const urlObj = new URL(url);
+                                    ['width', 'height', 'w', 'h', 'resize', 'quality'].forEach(p => urlObj.searchParams.delete(p));
+                                    return urlObj.toString();
+                                }
+                                return url;
+                            }
+                        },
+                        imageCaptionText: '.voc-figcaption--text',
+                        imageCaptionAuthor: '.voc-figcaption--autho',
+                        audios: {
+                            selector: '.voc-audio-player, div[data-voc-audio-player]',
+                            srcAttr: 'data-src'
+                        },
+                        videos: [
+                            { type: 'brightcove', selector: '.video, .nibara-element, iframe[src*="brightcove"]' },
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' }
+                        ],
                         date: '.voc-author__time, time',
-                        videoContainers: '.video, .nibara-element',  // Contenedores de video Brightcove
                         exclude: '.voc-header, .voc-header-news, .voc-advertising, .voc-breadcrumbs, .voc-social, .voc-share-social, .voc-save-news, .voc-comments-panel, #disqus_thread, #comments-container, .voc-see-comments, .voc-d-c-related-news, .voc-most-read, .voc-ob-wrapper, .voc-ints, .voc-cope-mod, .voc-discounts, .paywall2, .voc-premium, .voc-footer, .voc-onplus, .voc-btn__container'
                     },
 
@@ -3102,60 +2934,21 @@
                     // ANTENA 3
                     // -----------------------------------------------------------------
                     'antena3.com': {
-                        title: [
-                            '.article-main__title',
-                            '.article-main__header h1',
-                            'h1'
-                        ].join(', '),
+                        title: '.article-main__title, .article-main__header h1, h1',
                         subtitle: '.article-main__description',
                         content: '.article-main__content, #intext, .article-main, article',
-                        author: [
-                            '.article-author__name a',
-                            '.article-author__body',
-                            '.article-author'
-                        ].join(', '),
+                        author: '.article-author__name a, .article-author__body, .article-author',
                         authorImage: '.article-author__avatar img',
-                        images: [
-                            '.multimedia img',
-                            '.video-main-picture img',
-                            '.article-main img',
-                            '.article-main__content img'
-                        ].join(', '),
-                        date: [
-                            '.article-dates__detail.date_updated time',
-                            '.article-dates__detail time',
-                            'time[datetime]',
-                            '.article-dates time'
-                        ].join(', '),
-                        exclude: [
-                            // Menú y cabecera
-                            '#menu-custom',
-                            '.cont-menu-custom',
-                            '.container-menu',
-                            // Publicidad
-                            '.ad',
-                            '.advertisement',
-                            '.publicidad',
-                            // Recirculación y contenido relacionado
-                            '.recirculation',
-                            '.recirculation-title',
-                            '.recirculation-list-row',
-                            '.recirculation-item-row',
-                            // Sección lateral
-                            '.col-md-4',
-                            '.mod-sticky',
-                            '.tab',
-                            '.tab--articles',
-                            '.most-viewed-list',
-                            // Compartir
-                            '.article-share',
-                            // Comentarios
-                            '.comments',
-                            '#disqus_thread',
-                            // Widgets externos
-                            '.taboola',
-                            '.outbrain'
-                        ].join(', ')
+                        images: {
+                            selector: '.multimedia img, .video-main-picture img, .article-main img, .article-main__content img',
+                            cleanUrl: null
+                        },
+                        videos: [
+                            { type: 'antena3', selector: 'iframe[src*="antena3.com/embed"], iframe[src*="atresplayer"]' },
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' }
+                        ],
+                        date: '.article-dates__detail.date_updated time, .article-dates__detail time, time[datetime], .article-dates time',
+                        exclude: '#menu-custom, .cont-menu-custom, .container-menu, .ad, .advertisement, .publicidad, .recirculation, .recirculation-title, .recirculation-list-row, .recirculation-item-row, .col-md-4, .mod-sticky, .tab, .tab--articles, .most-viewed-list, .article-share, .comments, #disqus_thread, .taboola, .outbrain'
                     },
 
                     // -----------------------------------------------------------------
@@ -3163,126 +2956,53 @@
                     // -----------------------------------------------------------------
                     'es.ara.cat': {
                         title: 'h1, .ara-opening h1, .title',
-                        subtitle: [
-                            '.ara-opening-info h2.subtitle',
-                            'h2.subtitle',
-                            '.subtitle'
-                        ].join(', '),
-                        content: [
-                            '.layout-left .ara-body',
-                            '.ara-body',
-                            '.ara-main--wrapper',
-                            'main.ara-main'
-                        ].join(', '),
-                        author: [
-                            '.authors .author.author--last',
-                            '.authors .author',
-                            '.author'
-                        ].join(', '),
+                        subtitle: '.ara-opening-info h2.subtitle, h2.subtitle, .subtitle',
+                        content: '.layout-left .ara-body, .ara-body, .ara-main--wrapper, main.ara-main',
+                        author: '.authors .author.author--last, .authors .author, .author',
                         authorImage: '.opening-actions__authors-image img',
-                        images: [
-                            '.ara-opening ara-multimedia-visor figure.image picture img',
-                            'ara-multimedia-visor figure.image picture img',
-                            'figure.image picture img',
-                            'article img',
-                            '.ara-main img'
-                        ].join(', '),
-                        imageCaption: [
-                            'figcaption.footer .text',
-                            'figcaption .text',
-                            'figcaption'
-                        ].join(', '),
-                        imageCaptionAuthor: [
-                            'figcaption.footer .author',
-                            'figcaption .author'
-                        ].join(', '),
-                        date: [
-                            '.opening-actions__date',
-                            'time[datetime]',
-                            '.date'
-                        ].join(', '),  // También se extraerá desde meta tags
+                        images: {
+                            selector: '.ara-opening ara-multimedia-visor figure.image picture img, ara-multimedia-visor figure.image picture img, figure.image picture img, article img, .ara-main img',
+                            cleanUrl: null
+                        },
+                        imageCaption: 'figcaption.footer .text, figcaption .text, figcaption',
+                        imageCaptionAuthor: 'figcaption.footer .author, figcaption .author',
+                        videos: [
+                            { type: 'ara', selector: 'iframe[src*="ara.cat/embed"]' },
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' }
+                        ],
+                        date: '.opening-actions__date, time[datetime], .date',
                         exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .social-share, .opening-actions, .seo-links, .seo-links--top, .seo-links--bottom'
-                    },
-
-                    // -----------------------------------------------------------------
-                    // CATALUNYAPRESS
-                    // -----------------------------------------------------------------
-                    'catalunyapress.es': {
-                        title: 'h1, .title, #read_content h1',
-                        subtitle: '.article_subtitle, .title-subtitle-legend .article_subtitle',
-                        content: '#article_content, .article_content, article',
-                        author: '.author, .byline',
-                        images: [
-                            'article#read_content figure.image img',
-                            '#article_content figure.image img',
-                            '#article_content figure img',
-                            'figure.image img',
-                            '#article_content img',
-                            'article img',
-                            '.article_main img'
-                        ].join(', '),
-                        date: [
-                            '.article_date .CNewsDateUpdate',
-                            '.article_legend .article_date',
-                            '.CNewsDateUpdate',
-                            '.article_date',
-                            'time[datetime]'
-                        ].join(', '),
-                        exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .title-subtitle-legend, .article_subtitle'
                     },
 
                     // -----------------------------------------------------------------
                     // COPE.ES
                     // -----------------------------------------------------------------
                     'cope.es': {
-                        title: [
-                            '.c-detail__title h1',
-                            '.c-detail h1',
-                            'h1',
-                            '.article-title'
-                        ].join(', '),
-                        subtitle: [
-                            '.c-detail-header > .c-detail__subtitle > h2',
-                            '.c-detail__subtitle > h2',
-                            '.c-detail__subtitle h2',
-                            '.c-detail__excerpt',
-                            '.c-detail__lead'
-                        ].join(', '),
-                        content: [
-                            '.c-detail-content',
-                            '.c-detail__body',
-                            'article .c-detail',
-                            '.article-content'
-                        ].join(', '),
-                        author: [
-                            '.c-detail__signature__author .c-detail__signature__name',
-                            '.c-detail__signature__name',
-                            '.c-detail__signature__author a',
-                            '.author',
-                            '.byline'
-                        ].join(', '),
-                        images: [
-                            'article.c-detail .c-detail__photo--full img',
-                            'article.c-detail .c-detail__photo__thumb img',
-                            'article.c-detail .c-player-detail-container picture img',
-                            'article.c-detail .c-player-detail-image__container img',
-                            'article.c-detail .c-detail__body figure img',
-                            'article.c-detail .c-detail-content img'
-                        ].join(', '),
-                        date: [
-                            '.c-detail__signature__info time',
-                            '.c-detail__signature time',
-                            'time[datetime]',
-                            '.date'
-                        ].join(', '),
-                        exclude: [
-                            '.ad', '.advertisement', '.publicidad', '.banner',
-                            '.comments', '.social-share', '.related-articles',
-                            '.c-detail__ai',                    // IA generada
-                            '.c-detail__related',               // Artículos relacionados
-                            '.c-detail__tags',                  // Tags/etiquetas
-                            '.c-detail__body--border.c-detail__tags'  // Tags con borde
-                        ].join(', ')
+                        title: '.c-detail__title h1, .c-detail h1, h1, .article-title',
+                        subtitle: '.c-detail-header > .c-detail__subtitle > h2, .c-detail__subtitle > h2, .c-detail__subtitle h2, .c-detail__excerpt, .c-detail__lead',
+                        content: '.c-detail-content, .c-detail__body, article .c-detail, .article-content',
+                        author: '.c-detail__signature__author .c-detail__signature__name, .c-detail__signature__name, .c-detail__signature__author a, .author, .byline',
+                        images: {
+                            selector: 'article.c-detail .c-detail__photo--full img, article.c-detail .c-detail__photo__thumb img, article.c-detail .c-player-detail-container picture img, article.c-detail .c-player-detail-image__container img, article.c-detail .c-detail__body figure img, article.c-detail .c-detail-content img',
+                            cleanUrl: (url) => {
+                                if (url.includes('?')) {
+                                    const urlObj = new URL(url);
+                                    ['width', 'height', 'w', 'h', 'resize', 'quality'].forEach(p => urlObj.searchParams.delete(p));
+                                    return urlObj.toString();
+                                }
+                                return url;
+                            }
+                        },
+                        audios: {
+                            selector: '.c-detail__audio, .player-wrapper, .c-audio-player',
+                            srcAttr: 'data-src'
+                        },
+                        videos: [
+                            { type: 'cope', selector: 'iframe[src*="cope.es/embed"]' },
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' }
+                        ],
+                        date: '.c-detail__signature__info time, .c-detail__signature time, time[datetime], .date',
+                        exclude: '.ad, .advertisement, .publicidad, .banner, .comments, .social-share, .related-articles, .c-detail__ai, .c-detail__related, .c-detail__tags, .c-detail__body--border.c-detail__tags'
                     }
                 };
 
@@ -3299,18 +3019,18 @@
                 this.elements.countSelect.addEventListener('change', () => {
                     if (this.currentQuery) this.search();
                 });
-                
+
                 // Protección contra llamadas duplicadas (adaptativo móvil/desktop)
                 const isMobileDevice = DeviceManager.isMobile();
                 const debounceTime = isMobileDevice ? 300 : 50; // Más rápido en desktop
-                
+
                 let sourcesChangeTimeout = null;
                 this.elements.sourcesSelect.addEventListener('change', () => {
                     // Ignorar cambios programáticos
                     if (this.isProgrammaticChange) {
                         return;
                     }
-                    
+
                     if (this.allNews.length > 0) {
                         // Cancelar timeout anterior si existe
                         if (sourcesChangeTimeout) {
@@ -3323,14 +3043,14 @@
                         }, debounceTime);
                     }
                 });
-                
+
                 let readingModeChangeTimeout = null;
                 this.elements.readingModeSwitch.addEventListener('change', () => {
                     // Ignorar cambios programáticos
                     if (this.isProgrammaticChange) {
                         return;
                     }
-                    
+
                     if (this.allNews.length > 0) {
                         // Cancelar timeout anterior si existe
                         if (readingModeChangeTimeout) {
@@ -3668,6 +3388,163 @@
                 alert(`Se han exportado ${newNewspapers.length} periódicos nuevos.`);
             }
 
+            cleanText(text) {
+                if (!text) return '';
+                return text.replace(/\s+/g, ' ').replace(/(\r\n|\n|\r)/gm, '').trim();
+            }
+
+            cleanImageUrl(url, domain) {
+                if (!url) return '';
+
+                // Limpieza básica
+                let cleanUrl = url;
+                if (cleanUrl.startsWith('//')) {
+                    cleanUrl = 'https:' + cleanUrl;
+                }
+
+                // Usar función específica del dominio si existe
+                const config = this.siteConfigs[domain];
+                if (config && config.images && config.images.cleanUrl) {
+                    return config.images.cleanUrl(cleanUrl);
+                }
+
+                return cleanUrl;
+            }
+
+            getDedupKey(url) {
+                if (!url) return '';
+                try {
+                    const u = new URL(url);
+                    let host = (u.hostname || '').replace(/^www\./, '');
+                    let path = u.pathname || '/';
+
+                    // Normalizar algunos patrones típicos de noticias
+                    // - Quitar sufijo _amp antes de la extensión
+                    path = path.replace(/_amp(\.[a-z0-9]+)$/i, '$1');
+                    // - Colapsar /amp/ en la ruta
+                    path = path.replace(/\/amp\//i, '/');
+                    // - Quitar barra final (excepto raíz)
+                    if (path.length > 1 && path.endsWith('/')) {
+                        path = path.slice(0, -1);
+                    }
+
+                    return `${host}${path}`;
+                } catch {
+                    // Si la URL es inválida, usar el string original
+                    return url;
+                }
+            }
+
+            async detectMedia(doc, domain) {
+                const media = {
+                    videos: [],
+                    audios: []
+                };
+
+                const config = this.siteConfigs[domain];
+                if (!config) return media;
+
+                // 1. Detectar Videos
+                if (config.videos && Array.isArray(config.videos)) {
+                    for (const videoConfig of config.videos) {
+                        const elements = doc.querySelectorAll(videoConfig.selector);
+                        elements.forEach(el => {
+                            let videoData = null;
+
+                            if (videoConfig.type === 'youtube') {
+                                // Lógica específica para YouTube
+                                let src = el.src || el.getAttribute('data-src') || '';
+                                let videoId = '';
+                                if (src.includes('embed/')) videoId = src.split('embed/')[1].split('?')[0];
+                                else if (src.includes('v=')) videoId = src.split('v=')[1].split('&')[0];
+                                else if (src.includes('youtu.be/')) videoId = src.split('youtu.be/')[1].split('?')[0];
+
+                                if (videoId) {
+                                    videoData = {
+                                        type: 'youtube',
+                                        src: `https://www.youtube.com/embed/${videoId}`,
+                                        id: videoId
+                                    };
+                                }
+                            } else if (videoConfig.type === 'dailymotion') {
+                                // Lógica para Dailymotion
+                                let src = el.src || el.getAttribute('data-src') || '';
+                                let videoId = '';
+                                if (src.includes('video/')) videoId = src.split('video/')[1].split('?')[0];
+
+                                if (videoId) {
+                                    videoData = {
+                                        type: 'dailymotion',
+                                        src: `https://www.dailymotion.com/embed/video/${videoId}`,
+                                        id: videoId
+                                    };
+                                }
+                            } else if (videoConfig.type === 'tiktok') {
+                                // Lógica para TikTok
+                                const cite = el.getAttribute('cite');
+                                const videoId = el.getAttribute('data-video-id') || (cite ? cite.split('/video/')[1] : '');
+                                if (videoId) {
+                                    videoData = {
+                                        type: 'tiktok',
+                                        id: videoId,
+                                        cite: cite || `https://www.tiktok.com/@user/video/${videoId}`
+                                    };
+                                }
+                            } else {
+                                // Videos genéricos (iframe)
+                                const src = el.src || el.getAttribute('data-src');
+                                if (src) {
+                                    videoData = {
+                                        type: videoConfig.type || 'iframe',
+                                        src: src
+                                    };
+                                }
+                            }
+
+                            if (videoData) {
+                                // Evitar duplicados
+                                const exists = media.videos.some(v => v.src === videoData.src || (v.id && v.id === videoData.id));
+                                if (!exists) {
+                                    media.videos.push(videoData);
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // 2. Detectar Audios
+                if (config.audios) {
+                    const audioElements = doc.querySelectorAll(config.audios.selector);
+                    audioElements.forEach(el => {
+                        let src = '';
+                        if (config.audios.srcAttr) {
+                            src = el.getAttribute(config.audios.srcAttr);
+                        } else if (el.tagName.toLowerCase() === 'audio') {
+                            src = el.src || el.querySelector('source')?.src;
+                        } else if (el.tagName.toLowerCase() === 'iframe') {
+                            src = el.src;
+                        }
+
+                        if (src) {
+                            // Buscar título
+                            let title = '';
+                            if (config.audios.titleSelector) {
+                                const titleEl = el.closest(config.audios.playerSelector || 'div')?.querySelector(config.audios.titleSelector);
+                                if (titleEl) title = this.cleanText(titleEl.textContent);
+                            }
+
+                            media.audios.push({
+                                type: 'audio',
+                                src: src,
+                                title: title || 'Audio'
+                            });
+                        }
+                    });
+                }
+
+                return media;
+            }
+
             async search() {
                 if (this.isSearching) return;
 
@@ -3726,7 +3603,8 @@
                 let allNews = [];
                 let startIndex = 0;
                 let attemptCount = 0;
-                const maxAttempts = 5; // Reducido a 5 intentos para mayor velocidad
+                const isMobileGlobal = DeviceManager.isMobile();
+                const maxAttempts = isMobileGlobal ? 3 : 5; // Menos intentos en móvil para mejorar velocidad
 
                 // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
                 while (allNews.length < maxCount && attemptCount < maxAttempts) {
@@ -3742,8 +3620,10 @@
                     console.log(`🔍 Búsqueda #${attemptCount} - URL:`, googleNewsUrl);
 
                     // Consultar todos los proxies en paralelo - devolver el primero que responda exitosamente
-                    const isMobile = DeviceManager.isMobile();
-                    const timeout = isMobile ? NewsSearcher.TIMEOUTS.MOBILE_FETCH : NewsSearcher.TIMEOUTS.DESKTOP_FETCH;
+                    const isMobile = isMobileGlobal;
+                    const timeout = isMobile
+                        ? NewsSearcher.TIMEOUTS.MOBILE_FETCH
+                        : NewsSearcher.TIMEOUTS.DESKTOP_FETCH;
 
                     // console.log(`⏱️ Timeout configurado: ${timeout}ms (${isMobile ? 'Móvil' : 'Desktop'})`);
                     // console.log(`📡 Probando ${this.proxies.length} proxies en paralelo...`);
@@ -3831,8 +3711,11 @@
                         });
 
                         // Añadir noticias evitando duplicados por URL
-                        const existingUrls = new Set(allNews.map(n => n.link));
-                        const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
+                        const existingKeys = new Set(allNews.map(n => this.getDedupKey(n.link)));
+                        const newNews = firstSuccessfulResult.news.filter(n => {
+                            const key = this.getDedupKey(n.link);
+                            return !existingKeys.has(key);
+                        });
                         allNews.push(...newNews);
 
                         // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
@@ -3908,18 +3791,20 @@
                 // Búsquedas normales con término
                 if (selectedValue !== 'all') {
                     const selectedDomain = this.newspaperToDomain[selectedValue];
-                    return selectedDomain ?
-                        `https://www.google.com/search?` +
-                        `q=site:${selectedDomain}+${encodeURIComponent(query)}&` +
-                        `tbm=nws&` +
-                        `tbs=qdr:w&` +
-                        `hl=es&` +
-                        `gl=es&` +
-                        `lr=lang_es&` +
-                        `ie=UTF-8&` +
-                        `oe=UTF-8&` +
-                        `num=${numResults}` :
-                        `https://www.google.com/search?` +
+                    if (selectedDomain) {
+                        return `https://www.google.com/search?` +
+                            `q=site:${selectedDomain}+${encodeURIComponent(query)}&` +
+                            `tbm=nws&` +
+                            `tbs=qdr:w&` +
+                            `hl=es&` +
+                            `gl=es&` +
+                            `lr=lang_es&` +
+                            `ie=UTF-8&` +
+                            `oe=UTF-8&` +
+                            `num=${numResults}`;
+                    }
+
+                    return `https://www.google.com/search?` +
                         `q=${encodeURIComponent(query)}&` +
                         `tbm=nws&` +
                         `qdr:m&` +
@@ -3990,7 +3875,7 @@
                     if (!titleElement || !linkElement) return null;
 
                     const title = this.cleanText(titleElement.textContent);
-                    let link = linkElement.href;
+                    let link = linkElement.href || '';
 
                     if (link.includes('/url?q=')) {
                         const urlParams = new URLSearchParams(link.split('?')[1]);
@@ -4039,7 +3924,7 @@
                 // Primero, obtener el título para evitar capturarlo como snippet
                 const titleElement = this.findFirstElement(item, ['h3', '.DI9d6d', '.LC20lb', '.mCBkyc', '[role="heading"]']);
                 const titleText = titleElement ? this.cleanText(titleElement.textContent) : '';
-                
+
                 // Selectores actualizados basados en la estructura REAL de Google News (2024)
                 const snippetSelectors = [
                     '.UqSP2b',                // *** SELECTOR CORRECTO para el snippet descriptivo ***
@@ -4049,47 +3934,47 @@
                     '.VwiC3b',                // Backup
                     '.xBbh9',                 // Selector adicional
                     '.ilUpNd.H66NU.aSRlid',
-                    '.GI74Re.nDgy9d', 
-                    '.st', 
+                    '.GI74Re.nDgy9d',
+                    '.st',
                     '.s3v9rd'
                 ];
-                
+
                 for (const selector of snippetSelectors) {
                     const elements = item.querySelectorAll(selector);
-                    
+
                     for (const element of elements) {
                         if (element && element.textContent?.trim()) {
                             // Excluir si tiene role="heading" (es el título)
                             if (element.getAttribute('role') === 'heading') {
                                 continue;
                             }
-                            
+
                             // Excluir si está dentro del contenedor del nombre del periódico
                             if (element.closest('.MgUUmf')) {
                                 continue;
                             }
-                            
+
                             // Verificar que no esté dentro del elemento h3 (título)
                             if (element.closest('h3')) {
                                 continue;
                             }
-                            
+
                             let snippetText = element.textContent.trim();
-                            
+
                             // IMPORTANTE: Verificar que NO sea el título
                             if (titleText && snippetText === titleText) {
                                 continue;
                             }
-                            
+
                             // Verificar que no sea solo el nombre del periódico
                             if (snippetText.length < 20) {
                                 continue;
                             }
-                            
+
                             // Limpiar marcas de tiempo y fechas del snippet
                             snippetText = snippetText.replace(/\s*\d+\s+(hours?|days?|minutes?|hora|horas|día|días|minuto|minutos)\s+(ago|atrás)?$/gi, '');
                             snippetText = snippetText.replace(/^Hace\s+\d+.*?[-—·]\s*/i, '');
-                            
+
                             if (snippetText.length > 20) {
                                 return element;
                             }
@@ -4127,62 +4012,37 @@
             parseDate(dateStr) {
                 if (!dateStr) return 'Fecha no disponible';
 
-                const now = new Date();
-                const originalDate = dateStr;
-
-
-                // Minutos - Español
-                if (dateStr.includes('minuto')) {
-                    const match = dateStr.match(/(\d+)\s*minuto/i);
+                // Minutos - Español e Inglés
+                if (dateStr.includes('minuto') || dateStr.includes('minute') || dateStr.includes('min')) {
+                    const match = dateStr.match(/(\d+)\s*(minuto|minute|min)/i);
                     const minutes = match ? parseInt(match[1]) : 1;
                     return minutes === 1 ? 'Hace 1 minuto' : `Hace ${minutes} minutos`;
                 }
 
-                // Horas - Español
-                if (dateStr.includes('hora')) {
-                    const match = dateStr.match(/(\d+)\s*hora/i);
+                // Horas - Español e Inglés
+                if (dateStr.includes('hora') || dateStr.includes('hour') || dateStr.includes('hr')) {
+                    const match = dateStr.match(/(\d+)\s*(hora|hour|hr)/i);
                     const hours = match ? parseInt(match[1]) : 1;
                     return hours === 1 ? 'Hace 1 hora' : `Hace ${hours} horas`;
                 }
 
-                // Días - Español
-                if (dateStr.includes('día')) {
-                    const match = dateStr.match(/(\d+)\s*día/i);
+                // Días - Español e Inglés
+                if (dateStr.includes('día') || dateStr.includes('day')) {
+                    const match = dateStr.match(/(\d+)\s*(día|day)/i);
                     const days = match ? parseInt(match[1]) : 1;
                     return days === 1 ? 'Hace 1 día' : `Hace ${days} días`;
                 }
 
-                // Horas - Inglés
-                if (dateStr.includes('hour') || dateStr.includes('hr')) {
-                    const match = dateStr.match(/(\d+)\s*(hour|hr)/i);
-                    const hours = match ? parseInt(match[1]) : 1;
-                    return hours === 1 ? 'Hace 1 hora' : `Hace ${hours} horas`;
-                }
-
-                // Minutos - Inglés
-                if (dateStr.includes('minute') || dateStr.includes('min')) {
-                    const match = dateStr.match(/(\d+)\s*(minute|min)/i);
-                    const minutes = match ? parseInt(match[1]) : 1;
-                    return minutes === 1 ? 'Hace 1 minuto' : `Hace ${minutes} minutos`;
-                }
-
-                // Días - Inglés
-                if (dateStr.includes('day')) {
-                    const match = dateStr.match(/(\d+)\s*day/i);
-                    const days = match ? parseInt(match[1]) : 1;
-                    return days === 1 ? 'Hace 1 día' : `Hace ${days} días`;
-                }
-
-                // Semanas
-                if (dateStr.includes('week') || dateStr.includes('semana')) {
-                    const match = dateStr.match(/(\d+)\s*(week|semana)/i);
+                // Semanas - Español e Inglés
+                if (dateStr.includes('semana') || dateStr.includes('week')) {
+                    const match = dateStr.match(/(\d+)\s*(semana|week)/i);
                     const weeks = match ? parseInt(match[1]) : 1;
                     return weeks === 1 ? 'Hace 1 semana' : `Hace ${weeks} semanas`;
                 }
 
-                // Meses
-                if (dateStr.includes('month') || dateStr.includes('mes')) {
-                    const match = dateStr.match(/(\d+)\s*(month|mes)/i);
+                // Meses - Español e Inglés
+                if (dateStr.includes('mes') || dateStr.includes('month')) {
+                    const match = dateStr.match(/(\d+)\s*(mes|month)/i);
                     const months = match ? parseInt(match[1]) : 1;
                     return months === 1 ? 'Hace 1 mes' : `Hace ${months} meses`;
                 }
@@ -4198,7 +4058,6 @@
                     return this.formatDate(parsed);
                 }
 
-                // Si nada funciona, devolver el original
                 return dateStr;
             }
 
@@ -4330,7 +4189,7 @@
 
                 this.isDisplaying = true;
                 const isMobile = DeviceManager.isMobile();
-                
+
                 // Timeout de seguridad adaptativo (más corto en desktop)
                 const safetyTimeout = setTimeout(() => {
                     if (this.isDisplaying) {
@@ -4355,18 +4214,17 @@
 
                     // Crear un fragmento de documento para mejor rendimiento
                     const fragment = document.createDocumentFragment();
-                    
-                    // Set para asegurar que no añadimos URLs duplicadas (solo en móvil)
-                    const addedLinks = isMobile ? new Set() : null;
+
+                    // Set para asegurar que no añadimos noticias duplicadas (clave normalizada)
+                    const addedKeys = new Set();
 
                     news.forEach((item, index) => {
-                        // Evitar duplicados por URL (solo en móvil donde es necesario)
-                        if (addedLinks) {
-                            if (addedLinks.has(item.link)) {
-                                return;
-                            }
-                            addedLinks.add(item.link);
+                        // Evitar duplicados por clave normalizada (móvil y desktop)
+                        const dedupKey = this.getDedupKey(item.link);
+                        if (addedKeys.has(dedupKey)) {
+                            return;
                         }
+                        addedKeys.add(dedupKey);
 
                         const isPopupMode = this.elements.readingModeSwitch.checked;
                         const linkHTML = isPopupMode ?
@@ -4458,7 +4316,7 @@
 
                 // Marcar como cambio programático para evitar disparar eventos
                 this.isProgrammaticChange = true;
-                
+
                 this.elements.sourcesSelect.innerHTML = optionsHTML;
 
                 if (currentValue && this.elements.sourcesSelect.querySelector(`option[value="${currentValue}"]`)) {
@@ -4466,7 +4324,7 @@
                 } else {
                     this.elements.sourcesSelect.value = 'all';
                 }
-                
+
                 // Restaurar el flag después de un pequeño delay
                 setTimeout(() => {
                     this.isProgrammaticChange = false;
@@ -4476,10 +4334,10 @@
             resetDropdownOptions() {
                 // Marcar como cambio programático
                 this.isProgrammaticChange = true;
-                
+
                 this.elements.sourcesSelect.innerHTML = `<option value="all">Todos los periódicos</option>`;
                 this.elements.sourcesSelect.value = 'all';
-                
+
                 // Restaurar el flag después de un pequeño delay
                 setTimeout(() => {
                     this.isProgrammaticChange = false;
@@ -4521,7 +4379,8 @@
                     let allResults = [];
                     let startIndex = 0;
                     let attemptCount = 0;
-                    const maxAttempts = 5; // Reducido a 5 intentos para mayor velocidad
+                    const isMobileGlobal = DeviceManager.isMobile();
+                    const maxAttempts = isMobileGlobal ? 3 : 5; // Menos intentos en móvil para mejorar velocidad
 
                     // Buscar hasta obtener suficientes noticias o hasta que no haya más resultados
                     while (allResults.length < maxCount && attemptCount < maxAttempts) {
@@ -4634,9 +4493,12 @@
                                 });
                             });
 
-                            // Añadir noticias evitando duplicados por URL
-                            const existingUrls = new Set(allResults.map(n => n.link));
-                            const newNews = firstSuccessfulResult.news.filter(n => !existingUrls.has(n.link));
+                            // Añadir noticias evitando duplicados por contenido (clave normalizada)
+                            const existingKeys = new Set(allResults.map(n => this.getDedupKey(n.link)));
+                            const newNews = firstSuccessfulResult.news.filter(n => {
+                                const key = this.getDedupKey(n.link);
+                                return !existingKeys.has(key);
+                            });
                             allResults.push(...newNews);
 
                             // Si no se obtuvieron noticias nuevas, Google no tiene más resultados
@@ -4717,22 +4579,22 @@
                 const now = Date.now();
                 const isMobile = DeviceManager.isMobile();
                 const minTimeBetweenRenders = isMobile ? 500 : 100; // Más rápido en desktop
-                
+
                 // Si ya estamos mostrando noticias, ignorar
                 if (this.isDisplaying) {
                     return;
                 }
-                
+
                 // Si ya mostramos este filtro exacto RECIENTEMENTE, no hacer nada
-                if (this.lastFilterApplied === filterKey && 
-                    this.lastFilterTimestamp && 
+                if (this.lastFilterApplied === filterKey &&
+                    this.lastFilterTimestamp &&
                     (now - this.lastFilterTimestamp) < minTimeBetweenRenders) {
                     return;
                 }
-                
+
                 this.lastFilterApplied = filterKey;
                 this.lastFilterTimestamp = now;
-                
+
                 let newsToShow = this.allNews;
 
                 if (selectedValue !== 'all') {
@@ -5807,6 +5669,161 @@
                 return videos;
             }
 
+            detectCatalunyaPressVideos(html, doc) {
+                const videos = [];
+                const seen = new Set();
+
+                console.log('🎬 [CatalunyaPress] Iniciando detección de videos...');
+
+                // DEBUG: Verificar si existen iframes en el documento
+                const allIframes = doc.querySelectorAll('iframe');
+                console.log(`🎬 [CatalunyaPress] Total iframes en el documento: ${allIframes.length}`);
+                allIframes.forEach((iframe, idx) => {
+                    const src = iframe.getAttribute('src') || '';
+                    console.log(`   iframe ${idx + 1}: ${src.substring(0, 100)}`);
+                });
+
+                // Método 1: Buscar iframes de YouTube en el contenido del artículo
+                const youtubeIframes = doc.querySelectorAll('#article_content iframe[src*="youtube"], #article_content iframe[src*="youtu.be"], article iframe[src*="youtube"], article iframe[src*="youtu.be"], iframe[src*="youtube"], iframe[src*="youtu.be"]');
+                console.log(`🎬 [CatalunyaPress] iframes de YouTube encontrados: ${youtubeIframes.length}`);
+                youtubeIframes.forEach(iframe => {
+                    const src = iframe.getAttribute('src') || '';
+
+                    // Extraer ID del video de youtube.com/embed/VIDEO_ID
+                    const embedMatch = src.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
+                    if (embedMatch) {
+                        const videoId = embedMatch[1];
+                        if (!seen.has(videoId)) {
+                            seen.add(videoId);
+                            console.log(`   ✅ Video YouTube detectado (embed): ${videoId}`);
+                            videos.push({
+                                type: 'YouTube',
+                                id: videoId,
+                                embedUrl: `https://www.youtube.com/embed/${videoId}`
+                            });
+                        }
+                    }
+
+                    // Extraer ID de youtu.be/VIDEO_ID (URL corta)
+                    const shortMatch = src.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+                    if (shortMatch) {
+                        const videoId = shortMatch[1];
+                        if (!seen.has(videoId)) {
+                            seen.add(videoId);
+                            console.log(`   ✅ Video YouTube detectado (youtu.be): ${videoId}`);
+                            videos.push({
+                                type: 'YouTube',
+                                id: videoId,
+                                embedUrl: `https://www.youtube.com/embed/${videoId}`
+                            });
+                        }
+                    }
+                });
+
+                // Método 2: Buscar elementos <video> y <source> en el contenido del artículo
+                const videoElements = doc.querySelectorAll('#article_content video, #article_content source, article video, article source, video, source');
+                console.log(`🎬 [CatalunyaPress] Elementos <video>/<source> encontrados: ${videoElements.length}`);
+                videoElements.forEach(el => {
+                    const src = el.getAttribute('src') || '';
+                    if (src && (src.includes('.mp4') || src.includes('.m3u8'))) {
+                        let videoUrl = src;
+                        if (videoUrl.startsWith('//')) videoUrl = 'https:' + videoUrl;
+                        if (videoUrl.startsWith('/')) {
+                            videoUrl = 'https://www.catalunyapress.es' + videoUrl;
+                        }
+                        if (!videoUrl.startsWith('http')) return;
+
+                        const normalizedUrl = videoUrl.split('?')[0].toLowerCase();
+                        if (!seen.has(normalizedUrl)) {
+                            seen.add(normalizedUrl);
+                            const filename = videoUrl.split('/').pop().split('?')[0];
+                            videos.push({
+                                type: videoUrl.includes('.m3u8') ? 'HLS-Stream' : 'MP4-Direct',
+                                id: filename,
+                                embedUrl: videoUrl,
+                                isDirect: true
+                            });
+                        }
+                    }
+                });
+
+                // Método 3: Buscar iframes genéricos (Vimeo, Dailymotion, videos propios, etc.)
+                const genericIframes = doc.querySelectorAll('#article_content iframe, article iframe, iframe');
+                console.log(`🎬 [CatalunyaPress] iframes genéricos para Vimeo/Dailymotion/propios: ${genericIframes.length}`);
+                genericIframes.forEach(iframe => {
+                    const src = iframe.getAttribute('src') || '';
+                    console.log(`   Analizando iframe: ${src}`);
+
+                    // Videos propios de CatalunyaPress (formato: /videos/embed/ID/)
+                    if (src.includes('/videos/embed/')) {
+                        const videoMatch = src.match(/\/videos\/embed\/(\d+)/i);
+                        if (videoMatch) {
+                            const videoId = videoMatch[1];
+                            const key = `catalunyapress-${videoId}`;
+                            if (!seen.has(key)) {
+                                seen.add(key);
+                                // Convertir URL relativa a absoluta
+                                let embedUrl = src;
+                                if (embedUrl.startsWith('/')) {
+                                    embedUrl = 'https://www.catalunyapress.es' + embedUrl;
+                                }
+                                console.log(`   ✅ Video propio de CatalunyaPress detectado: ${videoId} - ${embedUrl}`);
+                                videos.push({
+                                    type: 'CatalunyaPress-Video',
+                                    id: videoId,
+                                    embedUrl: embedUrl
+                                });
+                            }
+                        }
+                    }
+
+                    // Vimeo
+                    else if (src.includes('vimeo.com')) {
+                        const vimeoMatch = src.match(/vimeo\.com\/video\/(\d+)/i);
+                        if (vimeoMatch) {
+                            const videoId = vimeoMatch[1];
+                            const key = `vimeo-${videoId}`;
+                            if (!seen.has(key)) {
+                                seen.add(key);
+                                console.log(`   ✅ Video Vimeo detectado: ${videoId}`);
+                                videos.push({
+                                    type: 'Vimeo',
+                                    id: videoId,
+                                    embedUrl: `https://player.vimeo.com/video/${videoId}`
+                                });
+                            }
+                        }
+                    }
+
+                    // Dailymotion
+                    else if (src.includes('dailymotion.com')) {
+                        const dmMatch = src.match(/dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/i);
+                        if (dmMatch) {
+                            const videoId = dmMatch[1];
+                            const key = `dm-${videoId}`;
+                            if (!seen.has(key)) {
+                                seen.add(key);
+                                console.log(`   ✅ Video Dailymotion detectado: ${videoId}`);
+                                videos.push({
+                                    type: 'Dailymotion',
+                                    id: videoId,
+                                    embedUrl: `https://www.dailymotion.com/embed/video/${videoId}`
+                                });
+                            }
+                        }
+                    }
+                });
+
+                console.log(`🎬 [CatalunyaPress] ===== RESUMEN DE DETECCIÓN =====`);
+                console.log(`🎬 [CatalunyaPress] Total videos detectados: ${videos.length}`);
+                videos.forEach((video, idx) => {
+                    console.log(`   Video ${idx + 1}: ${video.type} - ID: ${video.id} - URL: ${video.embedUrl.substring(0, 80)}`);
+                });
+                console.log(`🎬 [CatalunyaPress] ==============================`);
+
+                return videos;
+            }
+
             detectDailymotionVideos(html, domain = '') {
                 const videos = [];
                 const seen = new Set();
@@ -6697,6 +6714,7 @@
                 const brightcoveVideos = this.detectBrightcoveVideos(html, doc, domain);
                 const elPaisVideos = (domain === 'elpais.com' || domain === 'cadenaser.com') ? this.detectElPaisVideos(html, doc) : [];
                 const antena3Videos = domain === 'antena3.com' ? this.detectAntena3Videos(html, doc) : [];
+                const catalunyaPressVideos = domain === 'catalunyapress.es' ? this.detectCatalunyaPressVideos(html, doc) : [];
                 const twitterVideos = this.detectTwitterVideos(html, doc, domain);
 
                 // Instagram embeds: NO los detectamos como objetos separados
@@ -6715,7 +6733,17 @@
                     }
                 }
 
-                const videos = [...youtubeVideos, ...elPaisVideos, ...antena3Videos, ...dailymotionVideos, ...brightcoveVideos, ...twitterVideos, ...blueskyVideos];
+                const videos = [...youtubeVideos, ...elPaisVideos, ...antena3Videos, ...catalunyaPressVideos, ...dailymotionVideos, ...brightcoveVideos, ...twitterVideos, ...blueskyVideos];
+
+                // DEBUG: Log para CatalunyaPress
+                if (domain === 'catalunyapress.es') {
+                    console.log(`🎥 [CatalunyaPress] Videos finales en el array combinado: ${videos.length}`);
+                    console.log(`   - YouTube: ${youtubeVideos.length}`);
+                    console.log(`   - CatalunyaPress específicos: ${catalunyaPressVideos.length}`);
+                    console.log(`   - Dailymotion: ${dailymotionVideos.length}`);
+                    console.log(`   - Twitter: ${twitterVideos.length}`);
+                    console.log(`   - Bluesky: ${blueskyVideos.length}`);
+                }
 
                 // SEGUNDO: Extraer imágenes, autor Y CONTENIDO ADICIONAL ANTES de eliminar elementos
                 const images = this.extractImages(doc, config, url);
@@ -6794,6 +6822,14 @@
 
                 const wordCount = text.replace(/<[^>]*>/g, '').split(/\s+/).length;
                 const readingTime = Math.ceil(wordCount / 200);
+
+                // DEBUG: Log final para CatalunyaPress
+                if (domain === 'catalunyapress.es') {
+                    console.log(`📦 [CatalunyaPress] Objeto final - Videos que se van a retornar: ${videos.length}`);
+                    videos.forEach((v, idx) => {
+                        console.log(`   Video ${idx + 1}: ${v.type} - ${v.embedUrl}`);
+                    });
+                }
 
                 return {
                     title: title,
@@ -8298,429 +8334,170 @@
             extractImages(doc, config, url) {
                 const images = [];
                 const domain = new URL(url).hostname.replace('www.', '');
-                const imageElements = doc.querySelectorAll(config.images);
+                const imageElements = doc.querySelectorAll(config.images.selector || config.images);
 
                 // DEBUG para catalunyapress
                 if (domain === 'catalunyapress.es') {
-                    console.log('🖼️ CatalunyaPress - Selector de imágenes:', config.images);
+                    console.log('🖼️ CatalunyaPress - Selector de imágenes:', config.images.selector || config.images);
                     console.log('🖼️ CatalunyaPress - Imágenes encontradas:', imageElements.length);
-                    imageElements.forEach((img, idx) => {
-                        console.log(`   Imagen ${idx + 1}:`);
-                        console.log('     - src:', img.src);
-                        console.log('     - data-src:', img.getAttribute('data-src'));
-                        console.log('     - data-lazy-src:', img.getAttribute('data-lazy-src'));
-                        console.log('     - srcset:', img.getAttribute('srcset'));
-                        console.log('     - Todos los atributos:', img.attributes);
-                        console.log('     - Parent:', img.parentElement.tagName, img.parentElement.className);
-                    });
                 }
 
                 imageElements.forEach((img, index) => {
                     // -----------------------------------------------------------------
-                    // COPE.ES - Filtrar imágenes dentro del header/navegación PRIMERO
+                    // Filtrado de imágenes (Exclusiones)
                     // -----------------------------------------------------------------
-                    if (domain === 'cope.es') {
-                        const isInHeader = img.closest('.c-header');
-                        const isInNav = img.closest('.c-nav');
 
-                        // Excluir si está dentro del header o navegación
-                        if (isInHeader || isInNav) {
-                            return; // Saltar esta imagen
+                    // COPE.ES - Filtrar imágenes dentro del header/navegación
+                    if (domain === 'cope.es') {
+                        if (img.closest('.c-header') || img.closest('.c-nav')) return;
+                    }
+
+                    // CADENA SER - Exclusiones específicas
+                    if (domain === 'cadenaser.com') {
+                        if (img.closest('.cnt-txt') || img.closest('aside.upds') ||
+                            img.closest('.lst-pod') || img.closest('.c-d') ||
+                            img.closest('.cnt-player-permanente') || img.closest('.pp-popup') ||
+                            img.closest('.c-sab') || img.closest('.pdc') ||
+                            img.closest('.rec') || img.closest('.pd-re')) {
+                            return;
                         }
                     }
 
-                    // Primero intentar obtener el atributo src ANTES de que el navegador lo convierta
+                    // ABC - Exclusiones específicas
+                    if (domain === 'abc.es') {
+                        if (img.closest('aside') || img.closest('.voc-grid__col--sticky-adver')) return;
+                    }
+
+                    // Exclusiones generales configuradas
+                    if (config.exclude) {
+                        const excludeSelectors = config.exclude.split(',').map(s => s.trim());
+                        if (excludeSelectors.some(selector => img.closest(selector))) {
+                            return;
+                        }
+                    }
+
+                    // -----------------------------------------------------------------
+                    // Extracción de URL
+                    // -----------------------------------------------------------------
                     let src = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
 
-                    // Si getAttribute('src') devuelve una URL relativa o el img.src tiene file:///, usar getAttribute
-                    // De lo contrario, usar img.src (que ya es absoluto)
-                    if (!src || src.length < 10) {
+                    // Si getAttribute devuelve relativa o file://, usar img.src
+                    if (!src || src.length < 10 || src.startsWith('file:///')) {
                         src = img.src;
                     }
 
-                    // Para elementos amp-img, extraer src de sus atributos específicos
+                    // amp-img
                     if (img.tagName.toLowerCase() === 'amp-img') {
-                        src = img.getAttribute('src') ||
-                            img.getAttribute('data-src') ||
+                        src = img.getAttribute('src') || img.getAttribute('data-src') ||
                             img.getAttribute('data-lazy-src') ||
                             img.getAttribute('srcset')?.split(',')[0]?.trim()?.split(' ')[0];
                     }
 
-                    // Si no hay src, intentar extraer de srcset o data-srcset (común en picture elements)
+                    // Fallback a srcset
                     if (!src || src.length < 10) {
                         const srcset = img.getAttribute('srcset') || img.getAttribute('data-srcset');
                         if (srcset) {
-                            // Extraer la primera URL del srcset
-                            const firstUrl = srcset.split(',')[0].trim().split(' ')[0];
-                            if (firstUrl && firstUrl.length > 10) {
-                                src = firstUrl;
-                            }
+                            src = srcset.split(',')[0].trim().split(' ')[0];
                         }
                     }
 
-                    // Corregir URLs que el navegador convirtió a file:// incorrectamente
+                    // Corregir file://
                     if (src && src.startsWith('file:///')) {
-                        // Extraer la parte después de file:///X:/ (donde X es la letra de unidad)
                         const match = src.match(/file:\/\/\/[A-Z]:(.+)/i);
-                        if (match) {
-                            src = match[1]; // Esto nos da algo como "/images/showid2/7590691?w=1200&zc=4"
-                            if (domain === 'catalunyapress.es') {
-                                console.log('     ✅ Corregido file:// a:', src);
-                            }
-                        }
+                        if (match) src = match[1];
                     }
 
                     // -----------------------------------------------------------------
-                    // CADENA SER - Excluir imágenes no deseadas
+                    // Limpieza y Validación de URL
                     // -----------------------------------------------------------------
-                    if (domain === 'cadenaser.com') {
-                        // Excluir imágenes dentro de .cnt-txt
-                        if (img.closest('.cnt-txt')) {
-                            return; // Saltar imágenes dentro de .cnt-txt
-                        }
-
-                        // Excluir imágenes dentro de aside.upds (lista de podcasts relacionados)
-                        if (img.closest('aside.upds')) {
-                            return; // Saltar imágenes de podcasts relacionados
-                        }
-
-                        // Excluir imágenes dentro de .lst-pod (lista de podcasts)
-                        if (img.closest('.lst-pod')) {
-                            return; // Saltar imágenes de lista de podcasts
-                        }
-
-                        // Excluir imágenes dentro de .c-d (columna derecha con contenido relacionado)
-                        if (img.closest('.c-d')) {
-                            return; // Saltar imágenes de contenido relacionado
-                        }
-
-                        // Excluir imágenes del reproductor permanente
-                        if (img.closest('.cnt-player-permanente') || img.closest('.pp-popup')) {
-                            return; // Saltar imágenes del reproductor permanente
-                        }
-
-                        // Excluir imágenes del sidebar y recomendaciones
-                        if (img.closest('.c-sab') || img.closest('.pdc') || img.closest('.rec') || img.closest('.pd-re')) {
-                            return; // Saltar imágenes de sidebar y recomendaciones
-                        }
-                    }
-
-                    // -----------------------------------------------------------------
-                    // EL PAÍS - Filtrar imágenes dentro de contenedores excluidos
-                    // Verificar si la imagen está dentro de cualquier elemento de la lista exclude
-                    // -----------------------------------------------------------------
-                    if (domain === 'elpais.com' && config.exclude) {
-                        // Obtener los selectores de exclusión como array
-                        const excludeSelectors = config.exclude.split(',').map(s => s.trim());
-
-                        // Verificar si la imagen está dentro de algún contenedor excluido
-                        let isInExcludedContainer = false;
-                        for (const selector of excludeSelectors) {
-                            if (img.closest(selector)) {
-                                isInExcludedContainer = true;
-                                break;
-                            }
-                        }
-
-                        if (isInExcludedContainer) {
-                            return; // Saltar esta imagen
-                        }
-                    }
-
-                    // -----------------------------------------------------------------
-                    // ABC - Filtrar imágenes dentro de contenedores no deseados
-                    // Excluir: <aside> o .voc-grid__col--sticky-adver
-                    // NO excluir: <div class="voc-grid__col"> (contiene el artículo)
-                    // -----------------------------------------------------------------
-                    if (domain === 'abc.es') {
-                        const isInAside = img.closest('aside');
-                        const isInStickyAdver = img.closest('.voc-grid__col--sticky-adver');
-
-                        // Excluir si está dentro de <aside> o si tiene la clase sticky-adver
-                        if (isInAside || isInStickyAdver) {
-                            return; // Saltar esta imagen
-                        }
-                    }
-
                     if (src && !src.includes('data:image') && src.length > 10) {
+                        // Convertir a absoluta
                         if (src.startsWith('/')) {
                             src = new URL(url).origin + src;
-                            if (domain === 'catalunyapress.es') {
-                                console.log('     ✅ Convertido a URL absoluta:', src);
-                            }
                         }
 
-                        // -----------------------------------------------------------------
-                        // ABC - Optimizar calidad de imagen
-                        // Elimina parámetros de redimensionamiento para obtener original
-                        // -----------------------------------------------------------------
-                        if (domain === 'abc.es') {
-                            // ABC usa URLs con patrones como abcblogs.abc.es/media/...?width=XXX
-                            if (src.includes('?')) {
-                                const urlObj = new URL(src);
-                                // Eliminar parámetros de tamaño para obtener imagen original
-                                urlObj.searchParams.delete('width');
-                                urlObj.searchParams.delete('height');
-                                urlObj.searchParams.delete('w');
-                                urlObj.searchParams.delete('h');
-                                src = urlObj.toString();
-                            }
-                            // Si tiene dimensiones en el nombre del archivo, reemplazar por original
-                            src = src.replace(/_\d+x?\.(jpg|jpeg|png|webp)/gi, '.$1');
-                            src = src.replace(/\/\d+x\d+\//g, '/');
-                        }
+                        // Usar cleanImageUrl para limpieza específica del dominio
+                        src = this.cleanImageUrl(src, domain);
 
                         // -----------------------------------------------------------------
-                        // EL PAÍS - Optimizar calidad de imagen
-                        // Usa resizer v2 con máxima calidad o imagen original
+                        // Extracción de Pie de Foto (Caption)
                         // -----------------------------------------------------------------
-                        if (domain === 'elpais.com') {
-                            // El País usa URLs con patrones como imagenes.elpais.com/resizer/v2/...?width=XXX&height=XXX
-                            // Eliminar parámetros de redimensionamiento
-                            if (src.includes('?')) {
-                                const urlObj = new URL(src);
-                                // Eliminar todos los parámetros de tamaño
-                                urlObj.searchParams.delete('width');
-                                urlObj.searchParams.delete('height');
-                                urlObj.searchParams.delete('w');
-                                urlObj.searchParams.delete('h');
-                                // Agregar parámetro de máxima calidad si es el resizer v2
-                                if (src.includes('resizer/v2/')) {
-                                    urlObj.searchParams.set('width', '2400');
-                                    urlObj.searchParams.set('height', '1600');
-                                }
-                                src = urlObj.toString();
-                            }
-                            // Si tiene dimensiones en el nombre del archivo (ej: imagen_980x.jpg), reemplazar por original
-                            src = src.replace(/_\d+x?\.(jpg|jpeg|png|webp)/gi, '_original.$1');
-                            src = src.replace(/\/\d+x\d+\//g, '/original/');
-                        }
-
-                        // -----------------------------------------------------------------
-                        // ELDIARIO.ES - Optimizar calidad de imagen
-                        // Elimina parámetros de redimensionamiento para obtener original
-                        // -----------------------------------------------------------------
-                        if (domain === 'eldiario.es') {
-                            if (src.includes('?')) {
-                                const urlObj = new URL(src);
-                                // Eliminar todos los parámetros de tamaño
-                                urlObj.searchParams.delete('width');
-                                urlObj.searchParams.delete('height');
-                                urlObj.searchParams.delete('w');
-                                urlObj.searchParams.delete('h');
-                                urlObj.searchParams.delete('resize');
-                                urlObj.searchParams.delete('quality');
-                                src = urlObj.toString();
-                            }
-                            // Eliminar sufijos de tamaño en URLs de eldiario
-                            src = src.replace(/_(small|medium|large|thumb)\.(jpg|jpeg|png|webp)/gi, '.$2');
-                            src = src.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
-                        }
-
-                        // -----------------------------------------------------------------
-                        // CATALUNYAPRESS - Optimizar calidad de imagen
-                        // Elimina parámetro zc (zoom/crop) para obtener imagen original
-                        // -----------------------------------------------------------------
-                        if (domain === 'catalunyapress.es') {
-                            if (src.includes('?')) {
-                                const urlObj = new URL(src);
-                                // Eliminar parámetro zc (zoom/crop)
-                                urlObj.searchParams.delete('zc');
-                                src = urlObj.toString();
-                            }
-                        }
-
-                        // -----------------------------------------------------------------
-                        // COPE.ES - Optimizar calidad de imagen (MÁXIMA CALIDAD)
-                        // Elimina TODOS los parámetros para obtener la imagen original
-                        // -----------------------------------------------------------------
-                        if (domain === 'cope.es') {
-                            if (src.includes('?')) {
-                                const urlObj = new URL(src);
-                                // Eliminar TODOS los parámetros para obtener imagen original
-                                urlObj.searchParams.delete('width');
-                                urlObj.searchParams.delete('height');
-                                urlObj.searchParams.delete('w');
-                                urlObj.searchParams.delete('h');
-                                urlObj.searchParams.delete('resize');
-                                urlObj.searchParams.delete('quality');
-                                urlObj.searchParams.delete('crop');
-                                urlObj.searchParams.delete('fit');
-                                urlObj.searchParams.delete('format');
-                                urlObj.searchParams.delete('auto');
-                                urlObj.searchParams.delete('cs');
-                                urlObj.searchParams.delete('dpr');
-                                // NO establecer ningún parámetro - imagen original sin modificar
-                                src = urlObj.toString();
-                            }
-                            // Eliminar sufijos de tamaño en el nombre del archivo
-                            src = src.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
-                            src = src.replace(/\/\d+x\d+\//g, '/');
-                            // Eliminar sufijos de ancho (ej: _400.jpg, _800.jpg)
-                            src = src.replace(/_\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
-                        }
-
                         let caption = img.getAttribute('title') || '';
                         let captionAuthor = '';
 
-                        // -----------------------------------------------------------------
-                        // ABC - Extracción de pie de foto
-                        // Busca .voc-figcaption--text y .voc-figcaption--autho
-                        // -----------------------------------------------------------------
-                        if (domain === 'abc.es') {
-                            let container = img.parentElement;
-                            let attempts = 0;
+                        // Lógica específica de captions (se mantiene por ahora, podría centralizarse en el futuro)
+                        let container = img.parentElement;
+                        let attempts = 0;
 
-                            // Subir hasta 5 niveles buscando el contenedor con figcaption
+                        // ABC
+                        if (domain === 'abc.es') {
                             while (container && attempts < 5) {
                                 const figcaption = container.querySelector('figcaption.voc-figcaption-container, .voc-figcaption-container');
                                 if (figcaption) {
                                     const captionText = figcaption.querySelector('.voc-figcaption--text');
                                     const captionAuthorEl = figcaption.querySelector('.voc-figcaption--autho');
-
-                                    if (captionText) {
-                                        caption = this.cleanText(captionText.textContent);
-                                    }
-                                    if (captionAuthorEl) {
-                                        captionAuthor = this.cleanText(captionAuthorEl.textContent);
-                                    }
+                                    if (captionText) caption = this.cleanText(captionText.textContent);
+                                    if (captionAuthorEl) captionAuthor = this.cleanText(captionAuthorEl.textContent);
                                     break;
                                 }
                                 container = container.parentElement;
                                 attempts++;
                             }
                         }
-
-                        // -----------------------------------------------------------------
-                        // EL PAÍS - Extracción de pie de foto
-                        // Busca figcaption con 2 spans: texto y autor
-                        // -----------------------------------------------------------------
-                        if (domain === 'elpais.com') {
-                            // Buscar el contenedor padre que puede ser figure, div con clase a_m, etc.
-                            let container = img.parentElement;
-                            let attempts = 0;
-
-                            // Subir hasta 5 niveles buscando el contenedor con figcaption
+                        // EL PAÍS
+                        else if (domain === 'elpais.com') {
                             while (container && attempts < 5) {
                                 const figcaption = container.querySelector('figcaption.a_m_p, .a_m_p, figcaption');
                                 if (figcaption) {
                                     const spans = figcaption.querySelectorAll('span');
-                                    if (spans.length >= 1) {
-                                        caption = this.cleanText(spans[0].textContent);
-                                    }
-                                    if (spans.length >= 2) {
-                                        captionAuthor = this.cleanText(spans[1].textContent);
-                                    }
+                                    if (spans.length >= 1) caption = this.cleanText(spans[0].textContent);
+                                    if (spans.length >= 2) captionAuthor = this.cleanText(spans[1].textContent);
                                     break;
                                 }
                                 container = container.parentElement;
                                 attempts++;
                             }
                         }
-
-                        // -----------------------------------------------------------------
-                        // ARA (es.ara.cat) - Extracción de pie de foto
-                        // Busca figcaption.footer con .text y .author
-                        // -----------------------------------------------------------------
-                        if (domain === 'es.ara.cat') {
-                            let container = img.parentElement;
-                            let attempts = 0;
-
-                            // Subir hasta 5 niveles buscando el contenedor con figcaption
+                        // ARA
+                        else if (domain === 'es.ara.cat') {
                             while (container && attempts < 5) {
                                 const figcaption = container.querySelector('figcaption.footer, figcaption');
                                 if (figcaption) {
                                     const captionText = figcaption.querySelector('.text');
                                     const captionAuthorEl = figcaption.querySelector('.author');
-
-                                    if (captionText) {
-                                        caption = this.cleanText(captionText.textContent);
-                                    }
-                                    if (captionAuthorEl) {
-                                        captionAuthor = this.cleanText(captionAuthorEl.textContent);
-                                    }
+                                    if (captionText) caption = this.cleanText(captionText.textContent);
+                                    if (captionAuthorEl) captionAuthor = this.cleanText(captionAuthorEl.textContent);
                                     break;
                                 }
                                 container = container.parentElement;
                                 attempts++;
                             }
                         }
-
-                        // -----------------------------------------------------------------
-                        // EL MUNDO - Extracción de pie de foto
-                        // Busca .ue-c-article__media-caption con descripción y autor
-                        // -----------------------------------------------------------------
-                        if (domain === 'elmundo.es') {
-                            let container = img.parentElement;
-                            let attempts = 0;
-
-                            // Subir hasta 5 niveles buscando el contenedor con caption
+                        // EL MUNDO
+                        else if (domain === 'elmundo.es') {
                             while (container && attempts < 5) {
                                 const captionContainer = container.querySelector('.ue-c-article__media-caption');
                                 if (captionContainer) {
                                     const descriptionEl = captionContainer.querySelector('.ue-c-article__media-description');
                                     const authorEl = captionContainer.querySelector('.ue-c-article__media-author');
                                     const agencyEl = captionContainer.querySelector('.ue-c-article__media-agency');
-
-                                    if (descriptionEl) {
-                                        caption = this.cleanText(descriptionEl.textContent);
-                                    }
-
-                                    // Combinar autor y agencia si ambos existen
+                                    if (descriptionEl) caption = this.cleanText(descriptionEl.textContent);
                                     let authorParts = [];
-                                    if (authorEl) {
-                                        authorParts.push(this.cleanText(authorEl.textContent));
-                                    }
-                                    if (agencyEl) {
-                                        authorParts.push(this.cleanText(agencyEl.textContent));
-                                    }
-                                    if (authorParts.length > 0) {
-                                        captionAuthor = authorParts.join(' / ');
-                                    }
+                                    if (authorEl) authorParts.push(this.cleanText(authorEl.textContent));
+                                    if (agencyEl) authorParts.push(this.cleanText(agencyEl.textContent));
+                                    if (authorParts.length > 0) captionAuthor = authorParts.join(' / ');
                                     break;
                                 }
                                 container = container.parentElement;
                                 attempts++;
                             }
                         }
-
-                        // -----------------------------------------------------------------
-                        // CADENA SER - Extracción de pie de foto
-                        // Busca figcaption dentro de .lead-art > .lb.d-none > div > figure
-                        // -----------------------------------------------------------------
-                        if (domain === 'cadenaser.com') {
-                            let container = img.parentElement;
-                            let attempts = 0;
-
-                            // Subir hasta 5 niveles buscando el contenedor figure
+                        // CADENA SER y CATALUNYAPRESS (Genérico figure > figcaption)
+                        else if (domain === 'cadenaser.com' || domain === 'catalunyapress.es') {
                             while (container && attempts < 5) {
                                 if (container.tagName && container.tagName.toLowerCase() === 'figure') {
                                     const figcaption = container.querySelector('figcaption');
-                                    if (figcaption) {
-                                        caption = this.cleanText(figcaption.textContent);
-                                    }
-                                    break;
-                                }
-                                container = container.parentElement;
-                                attempts++;
-                            }
-                        }
-
-                        // -----------------------------------------------------------------
-                        // CATALUNYAPRESS - Extracción de pie de foto
-                        // Busca figcaption dentro de figure.image
-                        // -----------------------------------------------------------------
-                        if (domain === 'catalunyapress.es') {
-                            let container = img.parentElement;
-                            let attempts = 0;
-
-                            // Subir hasta 5 niveles buscando el contenedor figure
-                            while (container && attempts < 5) {
-                                if (container.tagName && container.tagName.toLowerCase() === 'figure') {
-                                    const figcaption = container.querySelector('figcaption');
-                                    if (figcaption) {
-                                        caption = this.cleanText(figcaption.textContent);
-                                    }
+                                    if (figcaption) caption = this.cleanText(figcaption.textContent);
                                     break;
                                 }
                                 container = container.parentElement;
@@ -8734,60 +8511,31 @@
                             caption: caption,
                             captionAuthor: captionAuthor
                         });
-
-                        if (domain === 'catalunyapress.es') {
-                            console.log('     ✅ Imagen añadida al array:', src.substring(0, 80) + '...');
-                        }
                     }
                 });
 
                 // -----------------------------------------------------------------
-                // ELDIARIO.ES - Buscar imágenes en elementos picture dentro de .post-item__body
+                // ELDIARIO.ES - Lógica especial para picture elements
                 // -----------------------------------------------------------------
                 if (domain === 'eldiario.es') {
                     const pictureElements = doc.querySelectorAll('.post-item__body picture');
                     pictureElements.forEach(picture => {
-                        // Buscar en source elements primero
                         const sources = picture.querySelectorAll('source');
                         let src = null;
-
                         if (sources.length > 0) {
-                            // Tomar el srcset del primer source
-                            const firstSource = sources[0];
-                            const srcset = firstSource.getAttribute('srcset');
-                            if (srcset) {
-                                src = srcset.split(',')[0].trim().split(' ')[0];
-                            }
+                            const srcset = sources[0].getAttribute('srcset');
+                            if (srcset) src = srcset.split(',')[0].trim().split(' ')[0];
                         }
-
-                        // Si no hay source, buscar img dentro del picture
                         if (!src) {
                             const img = picture.querySelector('img');
-                            if (img) {
-                                src = img.src || img.getAttribute('data-src') || img.getAttribute('srcset')?.split(',')[0].trim().split(' ')[0];
-                            }
+                            if (img) src = img.src || img.getAttribute('data-src') || img.getAttribute('srcset')?.split(',')[0].trim().split(' ')[0];
                         }
 
                         if (src && !src.includes('data:image') && src.length > 10) {
-                            if (src.startsWith('/')) {
-                                src = new URL(url).origin + src;
-                            }
+                            if (src.startsWith('/')) src = new URL(url).origin + src;
 
-                            // Optimizar calidad de imagen para eldiario.es
-                            if (src.includes('?')) {
-                                const urlObj = new URL(src);
-                                urlObj.searchParams.delete('width');
-                                urlObj.searchParams.delete('height');
-                                urlObj.searchParams.delete('w');
-                                urlObj.searchParams.delete('h');
-                                urlObj.searchParams.delete('resize');
-                                urlObj.searchParams.delete('quality');
-                                src = urlObj.toString();
-                            }
-                            src = src.replace(/_(small|medium|large|thumb)\.(jpg|jpeg|png|webp)/gi, '.$2');
-                            src = src.replace(/_\d+x\d+\.(jpg|jpeg|png|webp)/gi, '.$1');
+                            src = this.cleanImageUrl(src, domain);
 
-                            // Verificar que no esté ya en el array
                             const alreadyExists = images.some(existingImg => existingImg.src === src);
                             if (!alreadyExists) {
                                 const img = picture.querySelector('img');
@@ -8799,14 +8547,6 @@
                                 });
                             }
                         }
-                    });
-                }
-
-                // DEBUG para catalunyapress
-                if (domain === 'catalunyapress.es') {
-                    console.log('📸 CatalunyaPress - Imágenes finales retornadas:', images.length);
-                    images.forEach((img, idx) => {
-                        console.log(`   Final ${idx + 1}: ${img.src.substring(0, 80)}...`);
                     });
                 }
 
@@ -9369,6 +9109,17 @@
                 const videosToShow = (domain === 'cope.es' && content.videos)
                     ? content.videos.filter(v => v.type !== 'YouTube')
                     : (content.videos || []);
+
+                // DEBUG: Log para CatalunyaPress
+                if (domain === 'catalunyapress.es') {
+                    console.log(`📺 [CatalunyaPress] MODAL - Videos recibidos en content.videos: ${content.videos ? content.videos.length : 0}`);
+                    if (content.videos) {
+                        content.videos.forEach((v, idx) => {
+                            console.log(`   Video ${idx + 1}: ${v.type} - ${v.embedUrl}`);
+                        });
+                    }
+                    console.log(`📺 [CatalunyaPress] MODAL - Videos que se van a mostrar: ${videosToShow.length}`);
+                }
 
                 if (videosToShow && videosToShow.length > 0) {
                     // Si hay múltiples videos, añadir título de sección
@@ -9956,8 +9707,9 @@ PERIÓDICOS CONFIGURADOS (NO TOCAR !!)
 2. ARA (es.ara.cat)
 3. Antena 3 (antena3.com)
 4. Cadena SER (cadenaser.com)
-5. CatalunyaPress (catalunyapress.es) (pendiente)
-6. COPE (cope.es)    ===> EN PROCESO
+5. CatalunyaPress (catalunyapress.es)
+6. COPE (cope.es)    
+7. Cuadernos de Seguridad (cuadernosdeseguridad.com) ===> EN PROCESO
 
 
 X. Eldiario.es (eldiario.es)
@@ -9970,4 +9722,3 @@ OJO!! No contemplar MSN porque es un agregador de noticias y no tiene contenido 
 
 
  -->
- 
