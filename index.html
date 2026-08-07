@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buscador de Noticias</title>
 
+    <!-- Sin caché: al editar el archivo el navegador seguía sirviendo la versión vieja. -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- Claves API locales (NO se sube a GitHub; ver .gitignore). Debe cargarse antes del script principal. -->
+    <script src="claves.local.js"></script>
+
     <!-- Preconexiones para proxies CORS - mejora velocidad -->
     <link rel="preconnect" href="https://gg2-proxy.patxi222.workers.dev">
     <link rel="preconnect" href="https://api.allorigins.win">
@@ -552,6 +560,26 @@
             margin-bottom: 20px;
             padding: 0 10px;
             line-height: 1.3;
+        }
+
+        .modal-eurosport-notice {
+            padding: 12px 16px;
+            background: #fff8e6;
+            border: 1px solid #f0d78c;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            font-size: 0.92em;
+            line-height: 1.5;
+            color: #5c4a12;
+        }
+
+        .modal-eurosport-frame {
+            width: 100%;
+            min-height: 520px;
+            height: min(78vh, 920px);
+            border: 1px solid #dde3ea;
+            border-radius: 8px;
+            background: #fff;
         }
 
         .modal-text {
@@ -1679,7 +1707,7 @@
     <!-- Desplegable de periódicos -->
     <div class="newspapers-dropdown" id="newspapersDropdown">
         <div class="newspapers-dropdown__header">
-            <div class="newspapers-dropdown__title">Periódicos (50)</div>
+            <div class="newspapers-dropdown__title">Periódicos (51)</div>
             <button class="newspapers-dropdown__export-btn" id="exportNewspapersBtn">Exportar</button>
             <button class="newspapers-dropdown__info-btn" id="deviceInfoBtn"
                 title="Información del dispositivo">ℹ️</button>
@@ -1770,6 +1798,15 @@
                 </div>
                 <button class="newspapers-dropdown__item-info-btn"
                     onclick="openNewspaperInfo('Diario de Mallorca', event)"
+                    title="Ver información del periódico">📋</button>
+            </li>
+            <li class="newspapers-dropdown__item" data-domain="diariodenavarra.es">
+                <div class="newspapers-dropdown__item-content">
+                    <span class="newspapers-dropdown__text">Diario de Navarra</span>
+                    <span class="newspapers-dropdown__domain">(diariodenavarra.es)</span>
+                </div>
+                <button class="newspapers-dropdown__item-info-btn"
+                    onclick="openNewspaperInfo('Diario de Navarra', event)"
                     title="Ver información del periódico">📋</button>
             </li>
             <li class="newspapers-dropdown__item" data-domain="diariosocialista.net">
@@ -2903,6 +2940,8 @@
                 this.modalHistory = [];
                 this.currentOriginalUrl = '';
                 this.currentSubtitle = '';
+                this.currentAuthor = '';
+                this.currentDate = '';
 
                 // Proxies diferenciados para móvil y escritorio
                 // Proxy propio (Cloudflare Worker) como primario, resto como fallback
@@ -3043,6 +3082,17 @@
                 };
 
                 // =====================================================================
+                // SITEMAPS DE NOTICIAS (Google News) POR PERIÓDICO
+                // =====================================================================
+                // Fuente PRIMARIA para el listado por periódico: cubre TODO el sitio
+                // (incluidas secciones nicho profundas) y es lo más reciente, algo que
+                // Brave/Google no garantizan. Los buscadores rankean por relevancia y
+                // dejan fuera noticias recientes de subsecciones (p. ej. Invertia/Disruptores).
+                this.newspaperNewsFeeds = {
+                    'elespanol.com': 'https://www.elespanol.com/sitemap_google_news.xml'
+                };
+
+                // =====================================================================
                 // CONFIGURACIÓN DE SELECTORES CSS POR PERIÓDICO
                 // =====================================================================
                 // Aquí se definen los selectores CSS específicos para extraer contenido
@@ -3078,6 +3128,39 @@
                         ],
                         date: 'meta[property="article:published_time"], meta[property="article:modified_time"], [data-testid="segment-content-date"], time[datetime]',
                         exclude: 'header, nav, footer, aside, [role="navigation"], [role="contentinfo"], [data-testid="ad"], [class*="ad-"], [class*="ads-"], [class*="banner"], [class*="related"], [class*="recommended"], [data-testid="secondary-card-content"], [class*="newsletter"], [class*="subscribe"], [class*="share"], [class*="cookie"], [class*="consent"], #didomi-host, #onetrust-banner-sdk, [class*="marketing-banner"], .sr-only, [hidden], script, style, noscript'
+                    },
+
+                    // -----------------------------------------------------------------
+                    // EL ESPAÑOL (elespanol.com)
+                    // Imágenes en div.article-media (no <figure> ni itemprop="image"); og:image de respaldo.
+                    // -----------------------------------------------------------------
+                    'elespanol.com': {
+                        title: 'h1.article-header__heading, .article-header h1, h1',
+                        subtitle: '.article-header__subheading, .container__subheading h2',
+                        content: '#article-body-content, .article-body__content, .article-body',
+                        author:
+                            '.data-author .data-name a[rel="author"], .author a[rel="author"], meta[name="author"], meta[property="article:author"]',
+                        images: {
+                            selector:
+                                'article.article .article-media img[data-imgm], .article-body .article-media img[data-imgm], .article-body__content .article-media img',
+                            cleanUrl: null
+                        },
+                        videos: [
+                            {
+                                type: 'youtube',
+                                selector:
+                                    'iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[data-src*="youtube"], iframe[data-src*="youtu.be"]'
+                            },
+                            {
+                                type: 'iframe',
+                                selector:
+                                    'iframe[src*="vimeo"], iframe[src*="dailymotion"], iframe[src*="instagram.com"], blockquote.instagram-media'
+                            }
+                        ],
+                        date:
+                            'time[datetime].date__hour, time[datetime], meta[property="article:published_time"], meta[property="article:modified_time"]',
+                        exclude:
+                            'nav, header.site-header, footer, .article-body__sidebar, .article-body__adv, .container__outbrain, #taboola-below-article-thumbnails, #taboola-organic-below-article-thumbnails, .article-body__tags, .comments, [class*="related"], .key__news, .article-inline_top, .article-inline_final, .article-media--iframes, script, style, noscript'
                     },
 
                     // -----------------------------------------------------------------
@@ -3324,6 +3407,30 @@
                     },
 
                     // -----------------------------------------------------------------
+                    // LASEXTA.COM (Atresmedia — mismo CMS que Antena 3; player a3mod / atresplayer)
+                    // Cuerpo en #intext; imágenes .L6-media__picture; vídeo/audio nativos con
+                    // metadatos dinámicos (a3mod_player). Resumen IA en .L6-ia-summary.
+                    // -----------------------------------------------------------------
+                    'lasexta.com': {
+                        title: 'h1.L6-news-detail__title, .article-main__title, h1',
+                        subtitle: '.L6-news-detail__intro, .L6-news-detail__pre-title, .article-main__description',
+                        content: '#intext, .article-main__content, .article-main, article',
+                        author: '.article-author__name a, .article-author__body, meta[name="author"], meta[property="article:author"]',
+                        authorImage: '.article-author__avatar img',
+                        images: {
+                            selector: '.L6-media__picture img, .multimedia img, .video-main-picture img, .article-main__content img, article img',
+                            cleanUrl: null
+                        },
+                        imageCaption: '.L6-media__caption',
+                        videos: [
+                            { type: 'iframe', selector: 'iframe[src*="lasexta.com/embed"], iframe[src*="atresplayer"], iframe[data-src*="atresplayer"]' },
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"]' }
+                        ],
+                        date: 'meta[property="article:published_time"], meta[property="og:article:published_time"], .article-dates__detail time, time[datetime]',
+                        exclude: '#menu-custom, .cont-menu-custom, .container-menu, header, footer, aside, .ad, .advertisement, .publicidad, .recirculation, .most-viewed-list, .article-share, .comments, #disqus_thread, .taboola, .outbrain, .L6-ia-summary__close, .L6-ia-summary__finger, .screen-reader-text'
+                    },
+
+                    // -----------------------------------------------------------------
                     // ARA (es.ara.cat)
                     // -----------------------------------------------------------------
                     'es.ara.cat': {
@@ -3371,6 +3478,28 @@
                     },
 
                     // -----------------------------------------------------------------
+                    // OKDIARIO.COM (Scraper Web — IA · alta)
+                    // WordPress clásico: h1.entry-title, div.entry-content#contentid-0,
+                    // address.autor, figure.main-image. Excluir Taboola, AddThis, Disqus y ads.
+                    // -----------------------------------------------------------------
+                    'okdiario.com': {
+                        title: 'h1.entry-title',
+                        subtitle: 'header.entry-header .subtitles h2, .subtitles h2',
+                        content: 'div.entry-content#contentid-0, div.entry-content',
+                        author: 'address.autor ul.author li.author-name strong a, .author-name a, meta[name="author"], meta[property="article:author"]',
+                        images: {
+                            selector: 'section.content figure.main-image img, figure.main-image img, div.entry-content img',
+                            cleanUrl: null
+                        },
+                        videos: [
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[data-src*="youtube"], iframe[data-src*="youtu.be"]' },
+                            { type: 'iframe', selector: 'iframe[src*="vimeo"], iframe[src*="dailymotion"]' }
+                        ],
+                        date: 'address.autor li.publish-time time.date, address.autor li.updated-time time.date, meta[property="article:published_time"], meta[property="article:modified_time"], time[datetime]',
+                        exclude: "header nav, footer, aside, .aux-col, #native-addthis, .native-share-buttons, .addthis-item, [class*='share'], .megaContainer, #comments, .comments-area, #disqus_thread, .disqusComments, .commentsPolitics, #taboola-related-article-up, #taboola-related-article-down, [id*='taboola'], .loteria-navidad-related, .topics, address.autor li.user-bio, [class*='related'], [class*='ad-'], [id*='ad-'], [class*='banner'], script, style, noscript"
+                    },
+
+                    // -----------------------------------------------------------------
                     // ELPLURAL.COM (generado por IA - confianza: alta)
                     // Estructura semántica clara con <article> y clases específicas.
                     // Mucha publicidad (cs-ads/dfp). Soft paywall (.c-cta-member).
@@ -3391,6 +3520,41 @@
                         ],
                         date: '.article-info .date time, .article-info time.time',
                         exclude: 'header.c-header, .c-header__wrapper, .c-header__menu, .breadcrumb-wrapper, .social, .m-social-share, .article-related, .article-tags, .addoor-widget, .OUTBRAIN, #outbrain-widget, .article-home-articles, [data-hoy-destacamos], .c-banner, .adk-slot, cs-ads, [class*="banner"], [class*="ad-"], [class*="publi"], .subscribe-block, .c-topics-wrapper, #topics-slide, footer, nav, aside, .tpx-player-editorial, .ads-to-swipe, .c-cta-member'
+                    },
+
+                    // -----------------------------------------------------------------
+                    // DIARIO DE NAVARRA (diariodenavarra.es)
+                    // Artículo con prefijo BEM 'c-detail__' (mismo CMS que cope.es).
+                    // content NO puede llevar respaldos genéricos ('article'/'main'):
+                    // querySelector devuelve el primero en orden de documento y las
+                    // noticias relacionadas van en <article> ANTES del cuerpo.
+                    // Las fechas salen de los meta y del JSON-LD ReportageNewsArticle,
+                    // porque el datetime de p.c-detail__signature__info no siempre es
+                    // ISO (hay artículos con dd-mm-aaaa).
+                    // La foto de apertura se repite dentro del modal de zoom (.o-modal),
+                    // excluido para no duplicarla.
+                    // -----------------------------------------------------------------
+                    'diariodenavarra.es': {
+                        title: 'h1.c-detail__title, .c-detail__header h1',
+                        subtitle: 'h2.c-detail__subtitle',
+                        content: 'div.c-detail__body, .c-detail__body',
+                        author: 'p.c-detail__signature__author a.c-detail__signature__name, p.c-detail__signature__author .c-detail__signature__name, .c-detail__signature__name',
+                        images: {
+                            selector: '.c-detail__media--main figure.c-detail__media__thumb img, .c-detail__body figure.c-detail__media__thumb img, figure.c-detail__media__thumb img',
+                            // El <img> sirve la variante pequeña (449x252) y las grandes
+                            // solo están en los <source>; el mismo fichero existe en
+                            // /files/image_1920_1080/.
+                            cleanUrl: (url) => url.replace(
+                                /\/files\/(?:article_image_\d+_\d+|gallery_image_\d+_\d+|low_quality|og_thumbnail)\//,
+                                '/files/image_1920_1080/'
+                            )
+                        },
+                        videos: [
+                            { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[data-src*="youtube"], iframe[data-src*="youtu.be"]' },
+                            { type: 'iframe', selector: 'iframe[src*="vimeo"], iframe[src*="dailymotion"], iframe[src*="tiktok.com"], iframe[src*="instagram.com"], iframe[src*="twitter.com"], iframe[src*="x.com"]' }
+                        ],
+                        date: 'meta[property="article:published_time"], meta[property="article:modified_time"], p.c-detail__signature__info[datetime]',
+                        exclude: "header, nav, footer, aside, [class*='sidebar'], [class*='ad-'], [class*='ads-'], [id*='ad-'], [class*='banner'], [class*='publi'], [class*='promo'], .c-detail__sponsored, .addoor_underarticle_wrapper, .addoor_underarticle_container, [id*='taboola'], [id*='outbrain'], [class*='related'], [class*='recommended'], [class*='newsletter'], [class*='subscribe'], [class*='comment'], [class*='share'], [class*='social'], [class*='cookie'], [class*='consent'], .c-detail__toolbar, .c-detail__signature__bookmark, .o-modal, .c-detail__media--zoom, .js-open-modal, .c-icon, .sr-only, #paywall_message, script, style, noscript"
                     }
                 };
 
@@ -3642,6 +3806,14 @@
                     }
                 });
 
+                // El contador de la cabecera se calcula solo: escrito a mano se
+                // quedaba desfasado cada vez que se añadía un periódico.
+                const newspapersTitle = document.querySelector('.newspapers-dropdown__title');
+                if (newspapersTitle) {
+                    const total = document.querySelectorAll('.newspapers-dropdown__item').length;
+                    newspapersTitle.textContent = `Periódicos (${total})`;
+                }
+
                 // Buscador / filtro del desplegable de periódicos
                 const newspapersSearch = document.getElementById('newspapersSearch');
                 const newspapersEmpty = document.getElementById('newspapersEmpty');
@@ -3720,6 +3892,7 @@
                     { name: 'Deia.eus', domain: 'deia.eus' },
                     { name: 'Demócrata', domain: 'democrata.es' },
                     { name: 'DIARIODEMALLORCA.ES', domain: 'diariodemallorca.es' },
+                    { name: 'Diario de Navarra', domain: 'diariodenavarra.es' },
                     { name: 'DIARIOSOCIALISTA.NET', domain: 'diariosocialista.net' },
                     { name: 'DIARIOSUR.ES', domain: 'diariosur.es' },
                     { name: 'Diariosigloxxi.com', domain: 'diariosigloxxi.com' },
@@ -3839,26 +4012,19 @@
             // MODO APRENDIZAJE - Genera config de periódico vía múltiples IAs
             // =================================================================
 
-            static AI_KEYS = {
-                gemini: 'AIzaSyCOL0snwGzAnXVEuXJidsEb_VL71tjLSl0',
-                groq: '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',
-                claude: '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'
+            // Las claves se cargan desde claves.local.js (window.AI_KEYS), que NO se sube a GitHub.
+            static AI_KEYS = (typeof window !== 'undefined' && window.AI_KEYS) || {
+                gemini: '',
+                groq: '',
+                claude: ''
             };
 
             static AI_MODELS = {
-                'gemini-3.1-flash-lite': { nombre: 'Gemini 3.1 Flash-Lite', proveedor: 'gemini', modelo: 'gemini-3.1-flash-lite' },
-                'gemini-2.5-flash': { nombre: 'Gemini 2.5 Flash', proveedor: 'gemini', modelo: 'gemini-2.5-flash' },
+                'gemini-3.5-flash': { nombre: 'Gemini 3.5 Flash', proveedor: 'gemini', modelo: 'gemini-3.5-flash' },
                 'gemini-3.1-pro': { nombre: 'Gemini 3.1 Pro (Preview)', proveedor: 'gemini', modelo: 'gemini-3.1-pro-preview' },
-                'gemini-2.5-pro': { nombre: 'Gemini 2.5 Pro', proveedor: 'gemini', modelo: 'gemini-2.5-pro' },
                 'groq-gpt-oss-120b': { nombre: 'GPT-OSS 120B (Groq)', proveedor: 'groq', modelo: 'openai/gpt-oss-120b' },
-                'groq-llama-4-maverick': { nombre: 'Llama 4 Maverick 17B 128E (Groq)', proveedor: 'groq', modelo: 'meta-llama/llama-4-maverick-17b-128e-instruct' },
-                'groq-llama-4-scout': { nombre: 'Llama 4 Scout 17B 16E (Groq)', proveedor: 'groq', modelo: 'meta-llama/llama-4-scout-17b-16e-instruct' },
-                'groq-qwen3-32b': { nombre: 'Qwen3 32B (Groq)', proveedor: 'groq', modelo: 'qwen/qwen3-32b' },
-                'groq-llama-3.3-70b': { nombre: 'Llama 3.3 70B Versatile', proveedor: 'groq', modelo: 'llama-3.3-70b-versatile' },
                 'groq-gpt-oss-20b': { nombre: 'GPT-OSS 20B (Groq)', proveedor: 'groq', modelo: 'openai/gpt-oss-20b' },
-                'groq-llama-3.1-8b': { nombre: 'Llama 3.1 8B Instant', proveedor: 'groq', modelo: 'llama-3.1-8b-instant' },
-                'claude-haiku': { nombre: 'Claude 4.5 Haiku', proveedor: 'claude', modelo: 'claude-haiku-4-5-20251001' },
-                'claude-sonnet': { nombre: 'Claude Sonnet 4.6', proveedor: 'claude', modelo: 'claude-sonnet-4-6' },
+                'claude-sonnet': { nombre: 'Claude Sonnet 5', proveedor: 'claude', modelo: 'claude-sonnet-5' },
                 'claude-opus': { nombre: 'Claude Opus 4.8', proveedor: 'claude', modelo: 'claude-opus-4-8' }
             };
 
@@ -4068,7 +4234,7 @@
                     section: `[itemprop="articleSection"], [class*="breadcrumb"]`,
                     tags: `[rel="tag"], [property="article:tag"]`,
                     images: {
-                        selector: `[itemprop="image"] img, figure img`,
+                        selector: `[itemprop="image"] img, .article-media img[data-imgm], figure img`,
                         lazy_attr: 'data-src,data-original',
                         srcset_attr: 'srcset,data-srcset',
                         caption: 'figcaption,[class*="caption"]',
@@ -4620,24 +4786,9 @@ HTML A ANALIZAR:
                     throw e;
                 }
 
-                const fromLd = this.extractLearnSelectorsFromEmbeddedJsonLd(html, domain);
-                if (fromLd) {
-                    this.normalizeLearnedIAConfig(fromLd);
-                    const cfl = (
-                        ((((fromLd.meta || {}).confidence) || '') + '').toLowerCase() || ''
-                    ).trim();
-                    if (cfl !== 'baja') this.ensureLearnConfigTitleAndContent(fromLd);
-                    this.consolidateLearnMetaNotes(fromLd);
-                    this._flagLearnProductionIfNeeded(fromLd);
-                    const modelInfo = NewsSearcher.AI_MODELS[modelKey];
-                    return {
-                        domain,
-                        config: fromLd,
-                        elapsed: 0,
-                        modelName: `${(modelInfo && modelInfo.nombre) || ''} (+ JSON-LD)`.trim(),
-                        learnUi: { hide_copy: false, production_banner: !!fromLd.meta?.ui_warn_production }
-                    };
-                }
+                // NOTA: se eliminó el atajo por JSON-LD a propósito. "Aprender" debe
+                // SIEMPRE pasar el HTML real por la IA para que deduzca los selectores
+                // CSS específicos del periódico (no una plantilla genérica del JSON-LD).
 
                 const cleanedHtml = this.cleanHtmlForAI(html);
 
@@ -5143,7 +5294,7 @@ HTML A ANALIZAR:
                 }
             }
 
-            _selectedAIModel = 'gemini-3.1-flash-lite';
+            _selectedAIModel = 'gemini-3.5-flash';
             /** Listener pendiente para cerrar el desplegable de modelos por clic fuera. */
             _aiDropdownDocCloser = null;
 
@@ -5227,6 +5378,11 @@ HTML A ANALIZAR:
 
                 if (!btn || !status) return;
 
+                // Conservar etiqueta/color originales: el botón puede ser "🧠 Aprender"
+                // (periódico nuevo) o "🔄 Volver a leer" (periódico ya configurado).
+                const originalLabel = btn.innerHTML;
+                const originalBg = btn.style.background;
+
                 btn.disabled = true;
                 btn.style.opacity = '0.7';
                 btn.innerHTML = forceRemotePlaywright ? '⏳ Navegador completo…' : '⏳ Analizando...';
@@ -5241,10 +5397,10 @@ HTML A ANALIZAR:
                 status.textContent = `${modelName} · 0s`;
 
                 const resetBtn = () => {
-                    btn.innerHTML = '🧠 Aprender';
+                    btn.innerHTML = originalLabel;
                     btn.disabled = false;
                     btn.style.opacity = '1';
-                    btn.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                    btn.style.background = originalBg;
                 };
 
                 let domainHint = '';
@@ -5264,9 +5420,7 @@ HTML A ANALIZAR:
                     const mf = typeof out.modelName === 'string' && out.modelName.trim() ? out.modelName.trim() : modelName;
                     const lu = typeof out.learnUi === 'object' && out.learnUi ? out.learnUi : {};
 
-                    const secShown = mf.includes('JSON-LD')
-                        ? 'JSON-LD'
-                        : `${(elapsed / 1000).toFixed(1)}s`;
+                    const secShown = `${(elapsed / 1000).toFixed(1)}s`;
                     status.textContent = `✅ ${mf} · ${secShown}`;
                     status.style.color = '#38a169';
                     this.showLearnedConfigModal(dn, cfg, mf, elapsed, lu);
@@ -5498,79 +5652,75 @@ HTML A ANALIZAR:
                 }
             }
 
-            async fetchSinglePage(googleNewsUrl, proxies, timeout, searchEngine = 'brave') {
-                const controllers = [];
-                const proxyPromises = proxies.map(async (proxy) => {
-                    const controller = new AbortController();
-                    controllers.push(controller);
+            async fetchViaSingleProxy(proxy, targetUrl, timeout, referer, validate) {
+                const controller = new AbortController();
+                try {
+                    const proxyUrl = this.buildProxyUrl(proxy, targetUrl);
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+                    const headers = {
+                        'Accept': 'application/json, text/html, */*;q=0.8',
+                        'Accept-Language': 'es-ES,es;q=0.9',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    };
+                    if (referer) headers['Referer'] = referer;
+                    if (proxy.includes('proxy.cors.sh')) {
+                        headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
+                    }
+                    const response = await fetch(proxyUrl, { signal: controller.signal, headers });
+                    clearTimeout(timeoutId);
+                    if (response.ok) {
+                        const text = await response.text();
+                        if (text && text.length > 0 && (!validate || validate(text))) {
+                            return text;
+                        }
+                    }
+                } catch (e) { /* siguiente proxy */ }
+                return null;
+            }
 
+            async fetchSinglePage(googleNewsUrl, proxies, timeout, searchEngine = 'brave') {
+                const referer = searchEngine === 'google' ? 'https://www.google.com/' : 'https://search.brave.com/';
+                const tryProxy = async (proxy) => {
+                    const controller = new AbortController();
                     try {
                         const proxyUrl = this.buildProxyUrl(proxy, googleNewsUrl);
                         const timeoutId = setTimeout(() => controller.abort(), timeout);
-
                         const headers = {
                             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                             'Accept-Language': 'es-ES,es;q=0.9',
                             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                            Referer:
-                                searchEngine === 'google'
-                                    ? 'https://www.google.com/'
-                                    : 'https://search.brave.com/'
+                            Referer: referer
                         };
-
                         if (proxy.includes('proxy.cors.sh')) {
                             headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
                         }
-
-                        const response = await fetch(proxyUrl, {
-                            signal: controller.signal,
-                            headers: headers
-                        });
-
+                        const response = await fetch(proxyUrl, { signal: controller.signal, headers });
                         clearTimeout(timeoutId);
-
                         if (response.ok) {
                             const htmlContent = await response.text();
-                            const news =
-                                searchEngine === 'google'
-                                    ? this.parseGoogleNewsResults(htmlContent)
-                                    : this.parseBraveNewsResults(htmlContent);
-                            if (news.length > 0) {
-                                return { success: true, news, proxy };
-                            }
+                            const news = searchEngine === 'google'
+                                ? this.parseGoogleNewsResults(htmlContent)
+                                : this.parseBraveNewsResults(htmlContent);
+                            if (news.length > 0) return news;
                         }
-                        return { success: false, proxy };
-                    } catch (error) {
-                        return { success: false, proxy };
-                    }
-                });
+                    } catch (e) { /* siguiente proxy */ }
+                    return null;
+                };
 
-                try {
-                    const result = await new Promise((resolve, reject) => {
-                        let completed = 0;
-                        let hasResolved = false;
-                        proxyPromises.forEach(promise => {
-                            promise.then(result => {
-                                completed++;
-                                if (!hasResolved && result.success && result.news.length > 0) {
-                                    hasResolved = true;
-                                    controllers.forEach(ctrl => ctrl.abort());
-                                    resolve(result);
-                                } else if (completed === proxyPromises.length && !hasResolved) {
-                                    reject(new Error('Sin resultados'));
-                                }
-                            }).catch(() => {
-                                completed++;
-                                if (completed === proxyPromises.length && !hasResolved) {
-                                    reject(new Error('Proxies fallaron'));
-                                }
-                            });
-                        });
-                    });
-                    return result.news;
-                } catch (e) {
-                    return [];
+                const worker = proxies.find(p => p.includes('workers.dev'));
+                const others = worker ? proxies.filter(p => p !== worker) : proxies;
+                if (worker) {
+                    for (let attempt = 0; attempt < 3; attempt++) {
+                        if (attempt > 0) await new Promise(r => setTimeout(r, 700 * attempt));
+                        const news = await tryProxy(worker);
+                        if (news) return news;
+                    }
                 }
+                for (const proxy of others) {
+                    const news = await tryProxy(proxy);
+                    if (news) return news;
+                }
+                return [];
             }
 
             async fetchPagesUntilFull(baseUrl, targetCount, proxies, timeout, label = '', searchEngine = 'brave') {
@@ -5637,65 +5787,24 @@ HTML A ANALIZAR:
                 return allNews;
             }
 
-            // Descarga texto de una URL probando los proxies en paralelo y devolviendo
-            // el primero que responda correctamente y, si se indica, que además pase
-            // la función "validate" (p. ej. que contenga el token vqd o JSON válido).
-            // Esto evita que gane un proxy que responde una página inservible.
+            // Descarga texto vía proxy: primero el Worker propio (con reintentos y pausa
+            // para evitar rate limit), luego el resto en serie. Antes se lanzaban todos
+            // en paralelo y saturaban el Worker o ganaba un proxy con HTML basura.
             async fetchTextViaProxies(targetUrl, proxies, timeout, referer, validate) {
-                const controllers = [];
-                const proxyPromises = proxies.map(async (proxy) => {
-                    const controller = new AbortController();
-                    controllers.push(controller);
-                    try {
-                        const proxyUrl = this.buildProxyUrl(proxy, targetUrl);
-                        const timeoutId = setTimeout(() => controller.abort(), timeout);
-                        const headers = {
-                            'Accept': 'application/json, text/html, */*;q=0.8',
-                            'Accept-Language': 'es-ES,es;q=0.9',
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                        };
-                        if (referer) headers['Referer'] = referer;
-                        if (proxy.includes('proxy.cors.sh')) {
-                            headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
-                        }
-                        const response = await fetch(proxyUrl, { signal: controller.signal, headers });
-                        clearTimeout(timeoutId);
-                        if (response.ok) {
-                            const text = await response.text();
-                            if (text && text.length > 0 && (!validate || validate(text))) {
-                                return { success: true, text };
-                            }
-                        }
-                        return { success: false };
-                    } catch (e) {
-                        return { success: false };
+                const worker = proxies.find(p => p.includes('workers.dev'));
+                const others = worker ? proxies.filter(p => p !== worker) : proxies;
+                if (worker) {
+                    for (let attempt = 0; attempt < 3; attempt++) {
+                        if (attempt > 0) await new Promise(r => setTimeout(r, 700 * attempt));
+                        const text = await this.fetchViaSingleProxy(worker, targetUrl, timeout, referer, validate);
+                        if (text) return text;
                     }
-                });
-                try {
-                    return await new Promise((resolve, reject) => {
-                        let completed = 0;
-                        let done = false;
-                        proxyPromises.forEach(pr => {
-                            pr.then(res => {
-                                completed++;
-                                if (!done && res.success) {
-                                    done = true;
-                                    controllers.forEach(c => c.abort());
-                                    resolve(res.text);
-                                } else if (completed === proxyPromises.length && !done) {
-                                    reject(new Error('Proxies fallaron'));
-                                }
-                            }).catch(() => {
-                                completed++;
-                                if (completed === proxyPromises.length && !done) {
-                                    reject(new Error('Proxies fallaron'));
-                                }
-                            });
-                        });
-                    });
-                } catch (e) {
-                    return null;
                 }
+                for (const proxy of others) {
+                    const text = await this.fetchViaSingleProxy(proxy, targetUrl, timeout, referer, validate);
+                    if (text) return text;
+                }
+                return null;
             }
 
             // Heurística para distinguir un artículo de una página de sección/índice
@@ -5772,40 +5881,56 @@ HTML A ANALIZAR:
                 return news;
             }
 
-            // Búsqueda WEB de Brave con filtro de recencia (semana y luego mes), paginando.
-            // Es la fuente principal por periódico: aporta muchas más noticias recientes.
+            // Búsqueda WEB de Brave con filtro de recencia (última semana), paginando poco.
+            // Complemento de Brave News; pocas peticiones para no saturar el Worker.
             async fetchBraveWebRecent(siteQuery, maxCount, proxies, timeout) {
                 const all = [];
                 const seen = new Set();
-                const valid = (t) => t.includes('data-type="web"') || t.includes('class="snippet');
-                const freshness = ['pw', 'pm'];
-                for (const tf of freshness) {
-                    for (let page = 0; page < 3; page++) {
-                        let url = 'https://search.brave.com/search?q=' + encodeURIComponent(siteQuery) + '&tf=' + tf;
-                        if (page > 0) url += '&offset=' + page;
-                        const text = await this.fetchTextViaProxies(url, proxies, timeout, 'https://search.brave.com/', valid);
-                        if (!text) break;
-                        const items = this.parseBraveWebResults(text);
-                        if (items.length === 0) break;
-                        let added = 0;
-                        items.forEach(n => {
-                            const key = this.getDedupKey(n.link);
-                            if (seen.has(key)) return;
-                            seen.add(key);
-                            all.push(n);
-                            added++;
-                        });
-                        if (added === 0) break;
-                        if (all.length >= maxCount + 10) break;
-                    }
+                const valid = (t) => t.includes('data-type="web"') && t.includes('search.brave.com');
+                for (let page = 0; page < 2; page++) {
+                    if (page > 0) await new Promise(r => setTimeout(r, 450));
+                    let url = 'https://search.brave.com/search?q=' + encodeURIComponent(siteQuery) + '&tf=pw';
+                    if (page > 0) url += '&offset=' + page;
+                    const text = await this.fetchTextViaProxies(url, proxies, timeout, 'https://search.brave.com/', valid);
+                    if (!text) break;
+                    const items = this.parseBraveWebResults(text);
+                    if (items.length === 0) break;
+                    let added = 0;
+                    items.forEach(n => {
+                        const key = this.getDedupKey(n.link);
+                        if (seen.has(key)) return;
+                        seen.add(key);
+                        all.push(n);
+                        added++;
+                    });
+                    if (added === 0) break;
                     if (all.length >= maxCount + 10) break;
                 }
                 return all;
             }
 
-            // Reúne noticias de un periódico concreto combinando varias fuentes que SÍ
-            // funcionan a través de los proxies: búsqueda web de Brave con recencia
-            // (principal) + vertical de noticias de Brave + Google News (respaldo).
+            // Vertical de noticias de Brave, páginas en serie (no 5 en paralelo).
+            async fetchBraveNewsSequential(baseUrl, targetCount, proxies, timeout) {
+                const all = [];
+                const seen = new Set();
+                for (let page = 0; page < 3 && all.length < targetCount; page++) {
+                    if (page > 0) await new Promise(r => setTimeout(r, 450));
+                    const sep = baseUrl.includes('?') ? '&' : '?';
+                    const url = page === 0 ? baseUrl : `${baseUrl}${sep}offset=${page}`;
+                    const pageNews = await this.fetchSinglePage(url, proxies, timeout, 'brave');
+                    if (!pageNews.length) break;
+                    pageNews.forEach(n => {
+                        const key = this.getDedupKey(n.link);
+                        if (seen.has(key)) return;
+                        seen.add(key);
+                        all.push(n);
+                    });
+                }
+                return all;
+            }
+
+            // Reúne noticias de un periódico concreto: Brave News (principal, pocas
+            // peticiones en serie) + búsqueda web reciente (complemento) + Google (respaldo).
             async fetchNewspaperNews(siteQuery, maxCount, proxies, timeout) {
                 const merged = [];
                 const seen = new Set();
@@ -5827,11 +5952,21 @@ HTML A ANALIZAR:
                     });
                 };
 
-                addAll(await this.fetchBraveWebRecent(siteQuery, maxCount, proxies, timeout));
+                // 1) Sitemap de noticias del propio medio (si está configurado): es la
+                //    fuente más completa y reciente, cubre TODAS las secciones. Si aporta
+                //    suficientes resultados, evitamos saturar el Worker con Brave/Google.
+                const feedUrl = wantedDomain ? this.newspaperNewsFeeds[wantedDomain] : null;
+                if (feedUrl) {
+                    addAll(await this.fetchNewspaperViaNewsSitemap(feedUrl, wantedDomain, proxies, timeout));
+                }
 
-                if (merged.length < maxCount + 10) {
-                    const braveNewsUrl = this.buildBraveNewsUrl(siteQuery, 'all');
-                    addAll(await this.fetchPagesUntilFull(braveNewsUrl, maxCount + 15, proxies, timeout, '[news]', 'brave'));
+                if (merged.length < maxCount) {
+                    const braveNewsUrl = `https://search.brave.com/news?q=${encodeURIComponent(siteQuery)}&source=web`;
+                    addAll(await this.fetchBraveNewsSequential(braveNewsUrl, maxCount + 15, proxies, timeout));
+                }
+
+                if (merged.length < maxCount) {
+                    addAll(await this.fetchBraveWebRecent(siteQuery, maxCount - merged.length, proxies, timeout));
                 }
 
                 if (merged.length === 0) {
@@ -5840,6 +5975,74 @@ HTML A ANALIZAR:
                 }
 
                 return merged;
+            }
+
+            // Descarga y parsea el sitemap de noticias (Google News) de un periódico.
+            // Devuelve items {title, subtitle, link, date, author} compatibles con el listado.
+            async fetchNewspaperViaNewsSitemap(sitemapUrl, wantedDomain, proxies, timeout) {
+                const validate = (t) => /<url>|<urlset|<loc>/i.test(t);
+                const referer = 'https://' + (wantedDomain || 'www.google.com') + '/';
+                const xml = await this.fetchTextViaProxies(sitemapUrl, proxies, timeout, referer, validate);
+                if (!xml) return [];
+                const name = this.inferAuthorFromHost(wantedDomain);
+                return this.parseNewsSitemapXml(xml, wantedDomain, name);
+            }
+
+            // Parsea un sitemap de noticias (formato Google News). Cada <url> lleva
+            // <loc>, <news:title>, <news:publication_date>, <news:keywords>. Se usa regex
+            // por bloque para evitar problemas con espacios de nombres del XML.
+            parseNewsSitemapXml(xml, wantedDomain, newspaperName) {
+                const items = [];
+                const seen = new Set();
+                const strip = (s) => (s || '').replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+                const blocks = String(xml).split(/<url>/i).slice(1);
+                for (const block of blocks) {
+                    const locM = block.match(/<loc>\s*([\s\S]*?)\s*<\/loc>/i);
+                    if (!locM) continue;
+                    const link = this.decodeHtmlEntities(strip(locM[1]));
+                    if (!link || !/^https?:\/\//i.test(link)) continue;
+
+                    const host = (this.extractHostname(link) || '').replace(/^www\./, '').toLowerCase();
+                    if (wantedDomain && host !== wantedDomain && !host.endsWith('.' + wantedDomain)) continue;
+
+                    const key = this.getDedupKey(link);
+                    if (seen.has(key)) continue;
+                    seen.add(key);
+
+                    const titleM = block.match(/<news:title>\s*([\s\S]*?)\s*<\/news:title>/i);
+                    const title = this.cleanText(strip(titleM ? titleM[1] : ''));
+                    if (!title || title.length < 8) continue;
+
+                    const pubM = block.match(/<news:publication_date>\s*([\s\S]*?)\s*<\/news:publication_date>/i)
+                        || block.match(/<lastmod>\s*([\s\S]*?)\s*<\/lastmod>/i);
+                    const dateObj = pubM ? new Date(strip(pubM[1])) : null;
+                    const date = (dateObj && !isNaN(dateObj.getTime())) ? this.humanizeAge(dateObj) : 'Reciente';
+
+                    const kwM = block.match(/<news:keywords>\s*([\s\S]*?)\s*<\/news:keywords>/i);
+                    let subtitle = '';
+                    if (kwM) {
+                        subtitle = this.cleanText(strip(kwM[1])).split(',').map(s => s.trim()).filter(Boolean).slice(0, 6).join(', ');
+                    }
+
+                    items.push({ title, subtitle, link, date, author: newspaperName });
+                }
+                return items;
+            }
+
+            // Convierte una fecha en un texto relativo ("Hace 2 horas", "Hace 3 días")
+            // compatible con parseDateToObject para que el ordenado por fecha funcione.
+            humanizeAge(date) {
+                const diffMs = Date.now() - date.getTime();
+                const min = Math.floor(diffMs / 60000);
+                if (min < 60) { const m = Math.max(min, 1); return m === 1 ? 'Hace 1 minuto' : `Hace ${m} minutos`; }
+                const h = Math.floor(min / 60);
+                if (h < 24) return h === 1 ? 'Hace 1 hora' : `Hace ${h} horas`;
+                const d = Math.floor(h / 24);
+                if (d < 7) return d === 1 ? 'Hace 1 día' : `Hace ${d} días`;
+                const w = Math.floor(d / 7);
+                if (w < 5) return w === 1 ? 'Hace 1 semana' : `Hace ${w} semanas`;
+                const mo = Math.floor(d / 30);
+                return mo <= 1 ? 'Hace 1 mes' : `Hace ${mo} meses`;
             }
 
             async searchWithDifferentProxies(query) {
@@ -5938,6 +6141,42 @@ HTML A ANALIZAR:
                 const news = [];
                 const seenUrls = new Set();
                 const skipTitles = ['google', 'bing', 'mojeek', 'find elsewhere', 'brave', 'ask', 'all', 'images', 'videos', 'next'];
+
+                // Parser preferente: bloques SSR de Brave News (más fiable que recorrer todos los <a>).
+                doc.querySelectorAll('.snippet[data-type="news"]').forEach(snip => {
+                    const a = snip.querySelector('a.l1[href^="http"]') || snip.querySelector('a[href^="http"]');
+                    if (!a) return;
+                    const href = (a.href || a.getAttribute('href') || '').trim();
+                    if (!href || href.includes('brave.com') || seenUrls.has(href)) return;
+                    if (!this.isLikelyArticleUrl(href)) return;
+
+                    const titleEl = snip.querySelector('.title') || a.querySelector('.title');
+                    const title = this.cleanText(
+                        (titleEl && (titleEl.getAttribute('title') || titleEl.textContent)) || a.textContent || ''
+                    );
+                    if (title.length < 15 || title.length > 250) return;
+                    if (skipTitles.some(s => title.toLowerCase().includes(s))) return;
+
+                    let relDate = '';
+                    const ageEl = snip.querySelector('.age-header, [class*="age-header"]');
+                    if (ageEl) relDate = this.cleanText(ageEl.textContent);
+
+                    let subtitle = '';
+                    const descEl = snip.querySelector('.description, .snippet-description, .generic-snippet .content');
+                    if (descEl) subtitle = this.cleanText(descEl.textContent).substring(0, 300);
+
+                    const hostname = this.extractHostname(href);
+                    if (!hostname) return;
+                    seenUrls.add(href);
+                    news.push({
+                        title: title,
+                        subtitle: subtitle,
+                        link: href,
+                        date: this.normalizeRelativeDate(relDate) || 'Reciente',
+                        author: this.inferAuthorFromHost(hostname)
+                    });
+                });
+                if (news.length > 0) return news;
 
                 doc.querySelectorAll('a[href^="http"]').forEach(link => {
                     const href = (link.href || link.getAttribute('href') || '').trim();
@@ -6730,9 +6969,8 @@ HTML A ANALIZAR:
                     const term = query === 'a' ? '' : query;
                     const siteQuery = `site:${domain} ${term}`.trim();
 
-                    // Combina búsqueda web de Brave con recencia (principal) + vertical
-                    // de noticias de Brave + Google News (respaldo). Todas funcionan a
-                    // través de los proxies y juntas aportan muchas más noticias recientes.
+                    // Combina Brave News (principal) + búsqueda web reciente (complemento)
+                    // + Google News (respaldo). Peticiones en serie al Worker para evitar bloqueos.
                     const allResults = await this.fetchNewspaperNews(siteQuery, maxCount, proxies, timeout);
 
                     if (allResults.length === 0) {
@@ -6812,6 +7050,8 @@ HTML A ANALIZAR:
 
                 this.currentOriginalUrl = link;
                 this.currentSubtitle = subtitle;
+                this.currentAuthor = author;
+                this.currentDate = date;
 
                 this.modalHistory.push({ url: link, title: title });
 
@@ -6945,8 +7185,221 @@ HTML A ANALIZAR:
                 this.elements.modalBody.innerHTML = `<div class="modal-error">${message}</div>`;
             }
 
+            getArticleFetchHeaders(url) {
+                let referer = 'https://www.google.com/';
+                try {
+                    const host = new URL(url).hostname.replace(/^www\./, '');
+                    if (host === 'eurosport.es') referer = 'https://www.eurosport.es/';
+                } catch (e) { /* noop */ }
+                return {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+                    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+                    'Sec-Ch-Ua': '"Chromium";v="130", "Google Chrome";v="130"',
+                    'Sec-Ch-Ua-Mobile': '?0',
+                    'Sec-Ch-Ua-Platform': '"Windows"',
+                    'Sec-Fetch-Dest': 'document',
+                    'Sec-Fetch-Mode': 'navigate',
+                    'Sec-Fetch-Site': 'none',
+                    'Sec-Fetch-User': '?1',
+                    'Upgrade-Insecure-Requests': '1',
+                    Referer: referer
+                };
+            }
+
+            isBlockedArticleHtml(html) {
+                if (!html || html.length < 200) return true;
+                return /Access Denied|errors\.edgesuite\.net|<TITLE>Access Denied<\/TITLE>/i.test(html);
+            }
+
+            isUsableArticleHtml(html, url) {
+                if (this.isBlockedArticleHtml(html)) return false;
+                try {
+                    const domain = new URL(url).hostname.replace(/^www\./, '');
+                    if (domain === 'eurosport.es') {
+                        return /<[^>]+data-testid="body-paragraph"/i.test(html) ||
+                            /<[^>]+data-testid="body-subtitle"/i.test(html);
+                    }
+                } catch (e) { /* noop */ }
+                return html.length > 1500;
+            }
+
+            hasEurosportArticleBody(content) {
+                if (!content) return false;
+                const plainLen = (content.text || '').replace(/<[^>]+>/g, '').trim().length;
+                return plainLen >= 80;
+            }
+
+            escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            parseEurosportHtmlFallback(html) {
+                const parts = [];
+                const subRe = /<h2[^>]*data-testid="body-subtitle"[^>]*>([\s\S]*?)<\/h2>/gi;
+                let m;
+                while ((m = subRe.exec(html)) !== null) {
+                    const t = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                    if (t.length > 8) parts.push(`<h2>${t}</h2>`);
+                }
+                const paraRe = /<div[^>]*data-testid="body-paragraph"[^>]*>([\s\S]*?)<\/div>/gi;
+                while ((m = paraRe.exec(html)) !== null) {
+                    const t = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                    if (t.length > 15) parts.push(`<p>${t}</p>`);
+                }
+                return parts.join('\n');
+            }
+
+            getEurosportJinaUrl(articleUrl) {
+                return 'https://r.jina.ai/' + articleUrl;
+            }
+
+            async fetchEurosportViaJina(jinaUrl) {
+                const isJinaText = (t) =>
+                    t && t.length > 400 &&
+                    !/^<!DOCTYPE html/i.test(t.trim()) &&
+                    (t.includes('Markdown Content:') || t.includes('Published Time:'));
+
+                const tryFetch = async (fetchFn) => {
+                    try {
+                        const t = await fetchFn();
+                        return isJinaText(t) ? t : null;
+                    } catch (e) {
+                        return null;
+                    }
+                };
+
+                // Directo (sin proxy CORS si el navegador lo permite)
+                let text = await tryFetch(async () => {
+                    const r = await fetch(jinaUrl, { headers: { Accept: 'text/plain, text/markdown, */*' } });
+                    return r.ok ? r.text() : null;
+                });
+                if (text) return text;
+
+                // corsproxy.io funciona desde el navegador del usuario (no desde servidor)
+                text = await tryFetch(async () => {
+                    const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(jinaUrl), {
+                        headers: { Accept: 'text/plain, text/markdown, */*' }
+                    });
+                    return r.ok ? r.text() : null;
+                });
+                if (text) return text;
+
+                // allorigins (JSON con CORS *)
+                text = await tryFetch(async () => {
+                    const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(jinaUrl));
+                    if (!r.ok) return null;
+                    const j = await r.json();
+                    return j.contents || null;
+                });
+                if (text) return text;
+
+                return null;
+            }
+
+            parseJinaReaderToArticleHtml(raw) {
+                if (!raw || typeof raw !== 'string') return '';
+                const marker = 'Markdown Content:';
+                let body = raw.includes(marker) ? raw.slice(raw.indexOf(marker) + marker.length) : raw;
+                const parts = [];
+                body.split('\n').forEach((line) => {
+                    const l = line.trim();
+                    if (l.length < 45) return;
+                    if (/\]\(/.test(l)) return;
+                    if (/^\*/.test(l)) return;
+                    if (/^#/.test(l)) return;
+                    if (/^©/.test(l) || /Todos los derechos reservados/i.test(l)) return;
+                    if (/Mantente al día con las últimas noticias/i.test(l)) return;
+                    if (/^Published Time:/i.test(l)) return;
+                    let t = l.replace(/\*\*([^*]+)\*\*/g, '§B$1§/B§');
+                    t = this.escapeHtml(t);
+                    t = t.replace(/§B/g, '<strong>').replace(/§\/B§/g, '</strong>');
+                    parts.push(`<p>${t}</p>`);
+                });
+                return parts.join('\n');
+            }
+
+            displayEurosportParsedContent(url, title, articleHtml) {
+                const sub = (this.currentSubtitle || '').trim();
+                const author = this.currentAuthor || 'EUROSPORT.ES';
+                const date = this.currentDate || '';
+                let html = '<div class="modal-content">';
+                html += '<div class="modal-section modal-info-section"><div class="modal-info-grid">';
+                html += `<div class="modal-info-item" style="grid-column:1/-1"><span class="modal-info-label">Periódico:</span> <span class="modal-info-value">${this.escapeHtml(author)}</span></div>`;
+                if (date) {
+                    html += `<div class="modal-info-item"><span class="modal-info-label">Fecha:</span> <span class="modal-info-value">${this.escapeHtml(date)}</span></div>`;
+                }
+                html += '</div></div>';
+                if (sub.length > 20 && !(articleHtml || '').includes(sub.slice(0, 30))) {
+                    html += '<div class="modal-section modal-summary-section">';
+                    html += '<div class="modal-summary-label">Entradilla</div>';
+                    html += `<div class="modal-summary-text">${this.escapeHtml(sub)}</div></div>`;
+                }
+                html += `<div class="modal-text">${articleHtml}</div>`;
+                html += `<p style="margin-top:18px;text-align:center"><a href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener noreferrer">Abrir en Eurosport ↗</a></p>`;
+                html += '</div>';
+                this.elements.modalBody.innerHTML = html;
+            }
+
+            displayEurosportEmbed(url, title, jinaUrl) {
+                const safeTitle = this.escapeHtml(title || this.elements.modalTitle.textContent || 'Artículo Eurosport');
+                const sub = (this.currentSubtitle || '').trim();
+                const src = jinaUrl || this.getEurosportJinaUrl(url);
+                let html = '<div class="modal-content">';
+                if (sub.length > 15) {
+                    html += `<div class="modal-text"><p>${this.escapeHtml(sub)}</p></div>`;
+                }
+                html += '<p class="modal-eurosport-notice">Cargando artículo completo…</p>';
+                html += `<iframe class="modal-eurosport-frame" src="${src.replace(/"/g, '&quot;')}" title="${safeTitle}" loading="eager"></iframe>`;
+                html += `<p style="margin-top:14px;text-align:center"><a href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener noreferrer">Abrir en Eurosport ↗</a></p>`;
+                html += '</div>';
+                this.elements.modalBody.innerHTML = html;
+            }
+
+            async loadEurosportModal(url, title) {
+                const jinaUrl = this.getEurosportJinaUrl(url);
+                const sub = (this.currentSubtitle || '').trim();
+
+                // Mostrar entradilla al instante (nunca modal vacío)
+                if (sub.length > 15) {
+                    this.displayEurosportParsedContent(url, title, `<p>${this.escapeHtml(sub)}</p><p><em>Cargando artículo completo…</em></p>`);
+                } else {
+                    this.displayEurosportEmbed(url, title, jinaUrl);
+                }
+
+                const jinaText = await this.fetchEurosportViaJina(jinaUrl);
+                if (jinaText) {
+                    const articleHtml = this.parseJinaReaderToArticleHtml(jinaText);
+                    if (articleHtml.length >= 120) {
+                        this.displayEurosportParsedContent(url, title, articleHtml);
+                        return;
+                    }
+                }
+
+                // Respaldo: iframe con el lector Jina (texto plano, sin bloqueo Akamai)
+                this.displayEurosportEmbed(url, title, jinaUrl);
+            }
+
             async loadFullContent(url) {
                 try {
+                    this._lastRawHtml = null;
+                    this._lastArticleUrl = url;
+
+                    const articleDomain = (() => {
+                        try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; }
+                    })();
+                    const modalTitle = this.elements.modalTitle.textContent || '';
+
+                    if (articleDomain === 'eurosport.es') {
+                        await this.loadEurosportModal(url, modalTitle);
+                        return;
+                    }
+
                     const isMobile = DeviceManager.isMobile();
                     const proxies = isMobile ? this.proxiesMobile : this.proxiesDesktop;
                     const timeout = isMobile
@@ -6977,22 +7430,7 @@ HTML A ANALIZAR:
 
                     const fetchHtmlWithProxy = async (proxy, signal) => {
                         const proxyUrl = this.buildProxyUrl(proxy, url);
-                        const headers = {
-                            'User-Agent':
-                                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-                            Accept:
-                                'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                            'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
-                            'Sec-Ch-Ua': '"Chromium";v="130", "Google Chrome";v="130"',
-                            'Sec-Ch-Ua-Mobile': '?0',
-                            'Sec-Ch-Ua-Platform': '"Windows"',
-                            'Sec-Fetch-Dest': 'document',
-                            'Sec-Fetch-Mode': 'navigate',
-                            'Sec-Fetch-Site': 'none',
-                            'Sec-Fetch-User': '?1',
-                            'Upgrade-Insecure-Requests': '1',
-                            Referer: 'https://www.google.com/'
-                        };
+                        const headers = { ...this.getArticleFetchHeaders(url) };
                         if (proxy.includes('proxy.cors.sh')) {
                             headers['x-cors-api-key'] = 'temp_03ae0fce63941fe29e45d6f43b887ed7';
                         }
@@ -7000,42 +7438,21 @@ HTML A ANALIZAR:
                         if (!response.ok) throw new Error('HTTP');
                         const html = await decodeResponseToHtml(response);
                         if (!html || html.length < 400) throw new Error('short');
+                        if (!this.isUsableArticleHtml(html, url)) throw new Error('blocked');
                         return html;
                     };
 
-                    const raceProxiesForHtml = () => {
-                        const controllers = [];
-                        return new Promise((resolve, reject) => {
-                            let settled = false;
-                            let pending = proxies.length;
-                            const failOne = () => {
-                                pending--;
-                                if (!settled && pending === 0) reject(new Error('race failed'));
-                            };
-                            proxies.forEach((proxy) => {
-                                const controller = new AbortController();
-                                controllers.push(controller);
-                                const timeoutId = setTimeout(() => controller.abort(), timeout);
-                                fetchHtmlWithProxy(proxy, controller.signal)
-                                    .then((html) => {
-                                        clearTimeout(timeoutId);
-                                        if (settled) return;
-                                        settled = true;
-                                        controllers.forEach((c) => { try { c.abort(); } catch (e) { /* noop */ } });
-                                        resolve({ html, proxy });
-                                    })
-                                    .catch(() => {
-                                        clearTimeout(timeoutId);
-                                        failOne();
-                                    });
-                            });
-                        });
+                    const rememberArticleHtml = (html) => {
+                        if (html && html.length >= 400) {
+                            this._lastRawHtml = html;
+                            this._lastArticleUrl = url;
+                        }
                     };
 
                     const tryExtract = async (html) => {
+                        if (this.isBlockedArticleHtml(html)) return null;
                         const extractedContent = await this.extractArticleContent(html, url);
                         if (!extractedContent) return null;
-                        // Aceptar: texto suficiente, galería, o fotos/embeds dentro del HTML (p. ej. ABC con images: [])
                         const rawText = extractedContent.text || '';
                         const plainLen = rawText.replace(/<[^>]+>/g, '').trim().length;
                         const hasImgInText = /<img\b/i.test(rawText);
@@ -7043,8 +7460,9 @@ HTML A ANALIZAR:
                             /<iframe\b/i.test(rawText) ||
                             (extractedContent.videos && extractedContent.videos.length > 0);
                         const gal = extractedContent.images && extractedContent.images.length > 0;
+                        const minText = articleDomain === 'eurosport.es' ? 80 : 15;
                         if (
-                            plainLen > 15 ||
+                            plainLen > minText ||
                             gal ||
                             hasImgInText ||
                             hasIframe ||
@@ -7055,47 +7473,72 @@ HTML A ANALIZAR:
                         return null;
                     };
 
-                    const triedProxies = new Set();
-                    let content = null;
-
-                    try {
-                        const raced = await raceProxiesForHtml();
-                        const html = raced.html;
-                        triedProxies.add(raced.proxy);
-                        content = await tryExtract(html);
-                        if (content) {
-                            this._lastRawHtml = html;
-                            this._lastArticleUrl = url;
+                    const tryDirectFetch = async () => {
+                        try {
+                            const response = await fetch(url, { headers: this.getArticleFetchHeaders(url) });
+                            if (!response.ok) return null;
+                            const html = this.fixEncoding(await response.text());
+                            if (!this.isUsableArticleHtml(html, url)) return null;
+                            const extracted = await tryExtract(html);
+                            if (extracted) {
+                                rememberArticleHtml(html);
+                            }
+                            return extracted;
+                        } catch (e) {
+                            return null;
                         }
-                    } catch (e) {
-                        // Todos los fetch en carrera fallaron; se intentará en serie más abajo
+                    };
+
+                    let content = await tryDirectFetch();
+                    if (content) {
+                        this.displayModalContent(content);
+                        return;
                     }
 
+                    const triedProxies = new Set();
+                    const worker = proxies.find(p => p.includes('workers.dev'));
+                    const others = worker ? proxies.filter(p => p !== worker) : proxies;
+
+                    const fetchViaProxy = async (proxy) => {
+                        const controller = new AbortController();
+                        const tid = setTimeout(() => controller.abort(), timeout);
+                        try {
+                            const h = await fetchHtmlWithProxy(proxy, controller.signal);
+                            const extracted = await tryExtract(h);
+                            if (extracted) rememberArticleHtml(h);
+                            return extracted;
+                        } catch (e) {
+                            return null;
+                        } finally {
+                            clearTimeout(tid);
+                        }
+                    };
+
+                    if (worker) {
+                        for (let attempt = 0; attempt < 3 && !content; attempt++) {
+                            if (attempt > 0) await new Promise(r => setTimeout(r, 700 * attempt));
+                            triedProxies.add(worker);
+                            content = await fetchViaProxy(worker);
+                        }
+                    }
+                    if (!content) {
+                        for (const proxy of others) {
+                            if (triedProxies.has(proxy)) continue;
+                            triedProxies.add(proxy);
+                            content = await fetchViaProxy(proxy);
+                            if (content) break;
+                        }
+                    }
                     if (!content) {
                         const extras = [
                             'https://thingproxy.freeboard.io/fetch/',
                             'https://cors-anywhere.herokuapp.com/'
                         ];
-                        for (const proxy of [...proxies, ...extras]) {
+                        for (const proxy of extras) {
                             if (triedProxies.has(proxy)) continue;
                             triedProxies.add(proxy);
-                            try {
-                                const controller = new AbortController();
-                                const tid = setTimeout(() => controller.abort(), timeout);
-                                try {
-                                    const h = await fetchHtmlWithProxy(proxy, controller.signal);
-                                    content = await tryExtract(h);
-                                    if (content) {
-                                        this._lastRawHtml = h;
-                                        this._lastArticleUrl = url;
-                                        break;
-                                    }
-                                } finally {
-                                    clearTimeout(tid);
-                                }
-                            } catch (err) {
-                                continue;
-                            }
+                            content = await fetchViaProxy(proxy);
+                            if (content) break;
                         }
                     }
 
@@ -9931,6 +10374,14 @@ HTML A ANALIZAR:
                     images.push({ src: stdMeta.image, alt: stdMeta.title || '', caption: euroCaption, captionAuthor: '' });
                 }
 
+                // ELESPANOL.COM: pie de foto en .article-media__caption; og:image si no hay <img> en el HTML
+                if (domain === 'elespanol.com' && images.length === 0 && stdMeta.image) {
+                    let espCaption = '';
+                    const espCapEl = doc.querySelector('.article-media__caption-description');
+                    if (espCapEl) espCaption = this.cleanText(espCapEl.textContent);
+                    images.push({ src: stdMeta.image, alt: stdMeta.title || '', caption: espCaption, captionAuthor: '' });
+                }
+
                 const authorImage = this.extractAuthorImage(doc, domain, url) || stdMeta.authorImage || '';
 
                 const { footerSummary, subtitleLink, subtitleLinkText, relatedLinks, timelineNews, cadenaSerIntro, cadenaSerEpisodiosHeader } = this.extractAdditionalContent(doc, domain, url);
@@ -10740,6 +11191,13 @@ HTML A ANALIZAR:
                         null;
                 }
 
+                // EUROSPORT — cuerpo en [data-testid="body"] (párrafos en div, no en <p>).
+                if (domain === 'eurosport.es' && !contentEl) {
+                    contentEl = doc.querySelector('[data-testid="body"]') ||
+                        doc.querySelector('[data-testid="organism-article-main-content"]') ||
+                        doc.querySelector('article');
+                }
+
                 // Si no se encuentra el contenedor específico, usar la configuración general
                 if (!contentEl) {
                     contentEl = doc.querySelector(config.content);
@@ -11033,6 +11491,12 @@ HTML A ANALIZAR:
                         contentSelector = '[data-testid="body-paragraph"], [data-testid="body-subtitle"], p, h2, h3, h4, h5, h6, blockquote, ul, ol, figure';
                     }
 
+                    // ELESPANOL.COM — párrafos .paragraph e imágenes en div.article-media (no <figure>)
+                    if (domain === 'elespanol.com') {
+                        contentSelector =
+                            'p.paragraph, h2, h3, h4, h5, h6, blockquote, ul, ol, ol.content__summary-list, .article-media, .content__btn, div.mceNonEditable';
+                    }
+
                     // COPE.ES - Guardar texto de figcaptions y luego eliminarlas
                     const figcaptionMap = new Map();
                     if (domain === 'cope.es') {
@@ -11071,6 +11535,40 @@ HTML A ANALIZAR:
                         // Excluir figcaption individuales (ya se procesan dentro de figure)
                         if (tagName === 'figcaption') {
                             return; // Saltar este elemento
+                        }
+
+                        // EL ESPAÑOL — imágenes en div.article-media (no <figure>)
+                        if (domain === 'elespanol.com' && tagName === 'div' && el.classList.contains('article-media')) {
+                            if (el.classList.contains('article-media--iframes')) return;
+                            const imgEl = el.querySelector('img[data-imgm]');
+                            if (!imgEl) return;
+
+                            let imgSrc = imgEl.getAttribute('src') || imgEl.getAttribute('data-src') || '';
+                            const srcset = imgEl.getAttribute('srcset') || imgEl.getAttribute('data-srcset');
+                            if (srcset) {
+                                const parts = srcset.split(',').map(s => s.trim()).filter(Boolean);
+                                const last = parts[parts.length - 1];
+                                if (last) imgSrc = last.split(/\s+/)[0];
+                            }
+                            if (!imgSrc || imgSrc.length < 10 || imgSrc.includes('data:image')) return;
+                            if (imgSrc.startsWith('/')) imgSrc = new URL(url).origin + imgSrc;
+                            imgSrc = this.cleanImageUrl(imgSrc, domain);
+
+                            let captionHTML = '';
+                            const desc = el.querySelector('.article-media__caption-description');
+                            const auth = el.querySelector('.article-media__caption-author');
+                            const cap = desc ? this.cleanText(desc.textContent) : '';
+                            const capAuth = auth ? this.cleanText(auth.textContent) : '';
+                            if (cap && capAuth) {
+                                captionHTML = `<div class="modal-image-caption">${cap} <span style="font-style: normal; font-weight: 600;">${capAuth}</span></div>`;
+                            } else if (cap) {
+                                captionHTML = `<div class="modal-image-caption">${cap}</div>`;
+                            } else if (capAuth) {
+                                captionHTML = `<div class="modal-image-caption">${capAuth}</div>`;
+                            }
+
+                            textParts.push(`<img src="${imgSrc}" class="modal-image" style="max-width: 100%; height: auto; margin: 20px 0; border-radius: 8px;" onerror="this.style.display='none'">${captionHTML}`);
+                            return;
                         }
 
                         // Procesar elementos <audio> inline (COPE)
@@ -11473,6 +11971,10 @@ HTML A ANALIZAR:
                                 }
                             } else if (tagName === 'ul' || tagName === 'ol') {
                                 textParts.push(`<${tagName}>${htmlContent}</${tagName}>`);
+                            } else if (domain === 'eurosport.es' && el.getAttribute('data-testid') === 'body-subtitle') {
+                                textParts.push(`<h2>${htmlContent}</h2>`);
+                            } else if (domain === 'eurosport.es' && el.getAttribute('data-testid') === 'body-paragraph') {
+                                textParts.push(`<div class="euro-paragraph">${htmlContent}</div>`);
                             } else {
                                 textParts.push(`<p>${htmlContent}</p>`);
                             }
@@ -11480,6 +11982,10 @@ HTML A ANALIZAR:
                     });
 
                     text = textParts.join('\n\n');
+                }
+
+                if (!text && domain === 'eurosport.es') {
+                    text = this.parseEurosportHtmlFallback(doc.documentElement.outerHTML || '');
                 }
 
                 if (!text && domain === 'eldiario.es') {
@@ -11646,7 +12152,24 @@ HTML A ANALIZAR:
                     if (!src || src.length < 10) {
                         const srcset = img.getAttribute('srcset') || img.getAttribute('data-srcset');
                         if (srcset) {
-                            src = srcset.split(',')[0].trim().split(' ')[0];
+                            if (domain === 'elespanol.com') {
+                                const parts = srcset.split(',').map(s => s.trim()).filter(Boolean);
+                                const last = parts[parts.length - 1];
+                                src = last ? last.split(/\s+/)[0] : '';
+                            } else {
+                                src = srcset.split(',')[0].trim().split(' ')[0];
+                            }
+                        }
+                    }
+
+                    // EL ESPAÑOL — preferir la resolución más alta del srcset aunque ya haya src
+                    if (domain === 'elespanol.com') {
+                        const srcset = img.getAttribute('srcset') || img.getAttribute('data-srcset');
+                        if (srcset) {
+                            const parts = srcset.split(',').map(s => s.trim()).filter(Boolean);
+                            const last = parts[parts.length - 1];
+                            const best = last ? last.split(/\s+/)[0] : '';
+                            if (best && best.length > 10 && !best.includes('data:image')) src = best;
                         }
                     }
 
@@ -11751,6 +12274,26 @@ HTML A ANALIZAR:
                                 }
                                 container = container.parentElement;
                                 attempts++;
+                            }
+                        }
+                        // EL ESPAÑOL — pie en .article-media__caption
+                        else if (domain === 'elespanol.com') {
+                            const media = img.closest('.article-media');
+                            if (media) {
+                                const desc = media.querySelector('.article-media__caption-description');
+                                const auth = media.querySelector('.article-media__caption-author');
+                                if (desc) caption = this.cleanText(desc.textContent);
+                                if (auth) captionAuthor = this.cleanText(auth.textContent);
+                            }
+                        }
+                        // DIARIO DE NAVARRA — pie en .c-detail__media__credit y agencia en .c-detail__media__signature
+                        else if (domain === 'diariodenavarra.es') {
+                            const figure = img.closest('figure.c-detail__media__thumb') || img.closest('figure');
+                            if (figure) {
+                                const desc = figure.querySelector('.c-detail__media__credit');
+                                const sign = figure.querySelector('.c-detail__media__signature');
+                                if (desc) caption = this.cleanText(desc.textContent);
+                                if (sign) captionAuthor = this.cleanText(sign.textContent);
                             }
                         }
 
@@ -12218,20 +12761,20 @@ HTML A ANALIZAR:
                     <div class="modal-info-item" style="grid-column: 1 / -1; margin-bottom: 5px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <span class="modal-info-label" style="color: #000000; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">Periódico:</span>
                         <span class="modal-info-value" style="font-size: 1.3em; font-weight: 700; background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block;">${newspaper}</span>
-                        ${isUnconfigured ? `
+                        ${domain ? `
                             <div style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;">
                                 <button id="learnNewspaperBtn" onclick="window.newsSearcher.runLearnNewspaper()" style="
                                     padding:4px 12px;font-size:0.8em;font-weight:600;
-                                    background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+                                    background:${isUnconfigured ? 'linear-gradient(135deg,#f093fb 0%,#f5576c 100%)' : 'linear-gradient(135deg,#4facfe 0%,#00c2b8 100%)'};
                                     color:#fff;border:none;border-radius:20px;cursor:pointer;
-                                    transition:all 0.2s ease;box-shadow:0 2px 8px rgba(245,87,108,0.3);
-                                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🧠 Aprender</button>
+                                    transition:all 0.2s ease;box-shadow:0 2px 8px rgba(102,126,234,0.3);
+                                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">${isUnconfigured ? '🧠 Aprender' : '🔄 Volver a leer'}</button>
                                 <div style="position:relative;display:inline-block;">
                                     <button id="aiSelectorBtn" onclick="window.newsSearcher.toggleAISelector()" style="
                                         padding:4px 10px;font-size:0.78em;font-weight:600;
                                         background:#667eea;color:#fff;border:none;border-radius:20px;cursor:pointer;
                                         transition:all 0.2s ease;white-space:nowrap;
-                                    ">🤖 <span id="aiSelectorLabel">Gemini 3.1 Flash-Lite</span> ▾</button>
+                                    ">🤖 <span id="aiSelectorLabel">Gemini 3.5 Flash</span> ▾</button>
                                     <div id="aiSelectorDropdown" style="
                                         display:none;position:absolute;top:110%;left:0;z-index:100001;
                                         background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.25);
@@ -12947,47 +13490,49 @@ PERIÓDICOS LISTADOS
 8. Deia (deia.eus)
 9. Demócrata (democrata.es)
 10. Diario de Mallorca (diariodemallorca.es)
-11. Diario Socialista (diariosocialista.net)
-12. Diario Sur (diariosur.es)
-13. Diario Siglo XXI (diariosigloxxi.com)
-14. El Confidencial (elconfidencial.com)
-15. El Confidencial Digital (elconfidencialdigital.com)
-16. El Correo (elcorreo.com)
-17. elDEBATE (eldebate.com)
-18. ELDIA.ES (El Día) (eldia.es)
-19. elDiario.es (eldiario.es)
-20. Eldiariodemadrid.es (eldiariodemadrid.es)
-21. El Español (elespanol.com)
-22. El HuffPost (huffingtonpost.es)
-23. El Independiente (elindependiente.com)
-24. El Mundo (elmundo.es)
-25. ELMUNDOTODAY.COM (elmundotoday.com)
-26. ELNOTICIERODIGITAL.COM (elnoticierodigital.com)
-27. El País (elpais.com)
-28. El Periódico (elperiodico.com)
-29. Epe.es (epe.es)
-30. ESCUDODIGITAL.COM (escudodigital.com)
-31. Estrella Digital (estrelladigital.es)
-32. Europa Press (europapress.es)
-33. Gacetín Madrid (gacetinmadrid.com)
-34. HOY ARAGÓN (hoyaragon.es)
-35. Infobae (infobae.com)
-36. infoLibre (infolibre.es)
-37. INFOPLAY (infoplay.info)
-38. LA RAZÓN (larazon.es)
-39. laSexta (lasexta.com)
-40. Libertad Digital (libertaddigital.com)
-41. La Vanguardia (lavanguardia.com)
-42. NAIZ (naiz.eus)
-43. Newtral (newtral.es)
-44. OKDIARIO (okdiario.com)
-45. Onda Cero (ondacero.es)
-46. PressDigital (pressdigital.es)
-47. Público (publico.es)
-48. RTVE (rtve.es)
-49. Telecinco (telecinco.es)
+11. Diario de Navarra (diariodenavarra.es)
+12. Diario Socialista (diariosocialista.net)
+13. Diario Sur (diariosur.es)
+14. Diario Siglo XXI (diariosigloxxi.com)
+15. El Confidencial (elconfidencial.com)
+16. El Confidencial Digital (elconfidencialdigital.com)
+17. El Correo (elcorreo.com)
+18. elDEBATE (eldebate.com)
+19. ELDIA.ES (El Día) (eldia.es)
+20. elDiario.es (eldiario.es)
+21. Eldiariodemadrid.es (eldiariodemadrid.es)
+22. El Español (elespanol.com)
+23. El HuffPost (huffingtonpost.es)
+24. El Independiente (elindependiente.com)
+25. El Mundo (elmundo.es)
+26. ELMUNDOTODAY.COM (elmundotoday.com)
+27. ELNOTICIERODIGITAL.COM (elnoticierodigital.com)
+28. El País (elpais.com)
+29. El Periódico (elperiodico.com)
+30. Epe.es (epe.es)
+31. ESCUDODIGITAL.COM (escudodigital.com)
+32. Estrella Digital (estrelladigital.es)
+33. Europa Press (europapress.es)
+34. EUROSPORT.ES (eurosport.es)
+35. Gacetín Madrid (gacetinmadrid.com)
+36. HOY ARAGÓN (hoyaragon.es)
+37. Infobae (infobae.com)
+38. infoLibre (infolibre.es)
+39. INFOPLAY (infoplay.info)
+40. LA RAZÓN (larazon.es)
+41. laSexta (lasexta.com)
+42. Libertad Digital (libertaddigital.com)
+43. La Vanguardia (lavanguardia.com)
+44. NAIZ (naiz.eus)
+45. Newtral (newtral.es)
+46. OKDIARIO (okdiario.com)
+47. Onda Cero (ondacero.es)
+48. PressDigital (pressdigital.es)
+49. Público (publico.es)
+50. RTVE (rtve.es)
+51. Telecinco (telecinco.es)
 
-TOTAL: 49 periódicos
+TOTAL: 51 periódicos
 
 PERIÓDICOS CONFIGURADOS (NO TOCAR !!)
 ====================================
