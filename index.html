@@ -12859,11 +12859,12 @@ HTML A ANALIZAR:
                 html += '<div class="modal-info-grid">';
                 const newspaper = (content.stats && content.stats.domain) || this.extractNewspaperFromUrl() || 'Periódico no disponible';
                 const isUnconfigured = domain && !this.siteConfigs[domain];
+                const showLearnControls = domain && !DeviceManager.isMobile();
                 html += `
                     <div class="modal-info-item" style="grid-column: 1 / -1; margin-bottom: 5px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
                         <span class="modal-info-label" style="color: #000000; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">Periódico:</span>
                         <span class="modal-info-value" style="font-size: 1.3em; font-weight: 700; background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block;">${newspaper}</span>
-                        ${domain ? `
+                        ${showLearnControls ? `
                             <div style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;">
                                 <button id="learnNewspaperBtn" onclick="window.newsSearcher.runLearnNewspaper()" style="
                                     padding:4px 12px;font-size:0.8em;font-weight:600;
