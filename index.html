@@ -2908,6 +2908,58 @@
                 }
                 return url;
             };
+
+            // Diario de Navarra sirve miniaturas en <img> y tamaños grandes en <source>.
+            // En móvil conviene 768px (más ligero y fiable); en escritorio, 1920 si existe.
+            static resolveDiarioNavarraImageUrl = (url, preferMobile = DeviceManager.isMobile()) => {
+                if (!url || typeof url !== 'string') return url;
+                if (url.includes('/files/article_related_image_')) return url;
+                if (/\/files\/gallery_image_\d+_\d+\//.test(url)) {
+                    return url.replace(/\/files\/gallery_image_\d+_\d+\//, '/files/gallery_image_768_432/');
+                }
+                if (preferMobile) {
+                    return url
+                        .replace(/\/files\/image_1920_1080\//, '/files/article_image_768_432/')
+                        .replace(
+                            /\/files\/(?:article_image_\d+_\d+|low_quality|og_thumbnail)\//,
+                            '/files/article_image_768_432/'
+                        );
+                }
+                return url.replace(
+                    /\/files\/(?:article_image_\d+_\d+|gallery_image_\d+_\d+|low_quality|og_thumbnail)\//,
+                    '/files/image_1920_1080/'
+                );
+            };
+
+            static pickDiarioNavarraImgSrc = (img, preferMobile = DeviceManager.isMobile()) => {
+                if (!img) return '';
+                let src = img.getAttribute('src') || img.getAttribute('data-src') || img.src || '';
+                const picture = img.closest('picture');
+                if (picture) {
+                    const srcsetUrls = [...picture.querySelectorAll('source[srcset], source[data-srcset]')]
+                        .flatMap(source => {
+                            const srcset = source.getAttribute('srcset') || source.getAttribute('data-srcset') || '';
+                            return srcset.split(',').map(part => part.trim().split(/\s+/)[0]).filter(Boolean);
+                        });
+                    if (srcsetUrls.length) {
+                        if (preferMobile) {
+                            src = srcsetUrls.find(u => /\/files\/(?:article_image_768|gallery_image_768)/.test(u)) ||
+                                srcsetUrls[srcsetUrls.length - 1];
+                        } else {
+                            src = srcsetUrls.find(u => /\/files\/image_1920_1080\//.test(u)) ||
+                                srcsetUrls[srcsetUrls.length - 1];
+                        }
+                    }
+                }
+                if ((!src || src.length < 10) && img.getAttribute('srcset')) {
+                    src = img.getAttribute('srcset').split(',')[0].trim().split(/\s+/)[0];
+                }
+                return src;
+            };
+
+            static diarioNavarraImgAttrs = ' referrerpolicy="no-referrer" loading="eager" decoding="async"';
+
+            static diarioNavarraImgOnError = `onerror="if(!this.dataset.dnRetry){this.dataset.dnRetry=1;this.src=this.src.replace('/files/image_1920_1080/','/files/article_image_768_432/').replace(/\\/files\\/gallery_image_\\d+_\\d+\\//,'/files/gallery_image_768_432/')}else{this.style.display='none'}"`;
             // ===== FIN CONSTANTES =====
 
             constructor() {
@@ -3541,13 +3593,7 @@
                         author: 'p.c-detail__signature__author a.c-detail__signature__name, p.c-detail__signature__author .c-detail__signature__name, .c-detail__signature__name',
                         images: {
                             selector: '.c-detail__media--main figure.c-detail__media__thumb img, .c-detail__body figure.c-detail__media__thumb img, figure.c-detail__media__thumb img',
-                            // El <img> sirve la variante pequeña (449x252) y las grandes
-                            // solo están en los <source>; el mismo fichero existe en
-                            // /files/image_1920_1080/.
-                            cleanUrl: (url) => url.replace(
-                                /\/files\/(?:article_image_\d+_\d+|gallery_image_\d+_\d+|low_quality|og_thumbnail)\//,
-                                '/files/image_1920_1080/'
-                            )
+                            cleanUrl: (url) => NewsSearcher.resolveDiarioNavarraImageUrl(url)
                         },
                         videos: [
                             { type: 'youtube', selector: 'iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[data-src*="youtube"], iframe[data-src*="youtu.be"]' },
@@ -10429,7 +10475,9 @@ HTML A ANALIZAR:
                     cHeaderToRemove.remove();
                 }
 
-                const firstImageSrc = (domain === 'cope.es' && images.length > 0) ? images[0].src : null;
+                const firstImageSrc = ((domain === 'cope.es' || domain === 'diariodenavarra.es') && images.length > 0)
+                    ? images[0].src
+                    : null;
                 let { text, publishDate, updateDate, cadenaSerMainText } = this.extractContent(doc, config, domain, url, firstImageSrc);
 
                 // Fallback de fechas a estandarizado
@@ -11497,6 +11545,12 @@ HTML A ANALIZAR:
                             'p.paragraph, h2, h3, h4, h5, h6, blockquote, ul, ol, ol.content__summary-list, .article-media, .content__btn, div.mceNonEditable';
                     }
 
+                    // DIARIO DE NAVARRA — galerías en figure dentro de .c-detail__media
+                    if (domain === 'diariodenavarra.es') {
+                        contentSelector =
+                            'p.paragraph, h2, h3, h4, h5, h6, blockquote, ul, ol, figure.c-detail__media__thumb, .c-detail__media figure';
+                    }
+
                     // COPE.ES - Guardar texto de figcaptions y luego eliminarlas
                     const figcaptionMap = new Map();
                     if (domain === 'cope.es') {
@@ -11633,6 +11687,15 @@ HTML A ANALIZAR:
                                 return; // Saltar esta figura (es la imagen de portada)
                             }
 
+                            // DIARIO DE NAVARRA — portada arriba; modal de zoom duplicado
+                            if (domain === 'diariodenavarra.es') {
+                                if (el.closest('.c-detail__media--main') ||
+                                    el.closest('.c-detail__media--zoom') ||
+                                    el.closest('.o-modal')) {
+                                    return;
+                                }
+                            }
+
                             // ABC — no incluir firma/autor ni widgets fuera del cuerpo
                             if (domain === 'abc.es' && (el.closest('.v-ath') || el.closest('[data-voc-comments]'))) {
                                 return;
@@ -11652,8 +11715,13 @@ HTML A ANALIZAR:
                             if (imgEl) {
                                 let imgSrc = null;
 
+                                // Diario de Navarra — URL en <picture><source>
+                                if (domain === 'diariodenavarra.es') {
+                                    imgSrc = NewsSearcher.pickDiarioNavarraImgSrc(imgEl);
+                                }
+
                                 // Para eldiario.es y cope.es, priorizar source srcset del picture
-                                if (domain === 'eldiario.es' || domain === 'cope.es' || domain === 'abc.es') {
+                                if (!imgSrc && (domain === 'eldiario.es' || domain === 'cope.es' || domain === 'abc.es')) {
                                     const picture = imgEl.closest('picture');
                                     if (picture) {
                                         const sources = picture.querySelectorAll('source');
@@ -11684,6 +11752,10 @@ HTML A ANALIZAR:
 
                                     if (domain === 'abc.es') {
                                         imgSrc = this.cleanImageUrl(imgSrc, domain);
+                                    }
+
+                                    if (domain === 'diariodenavarra.es') {
+                                        imgSrc = NewsSearcher.resolveDiarioNavarraImageUrl(imgSrc);
                                     }
 
                                     // Optimizar URL de El País
@@ -11757,6 +11829,19 @@ HTML A ANALIZAR:
                                         }
                                     }
 
+                                    if (domain === 'diariodenavarra.es' && firstImageSrc) {
+                                        const normalizeDn = (u) => {
+                                            try {
+                                                return new URL(u).origin + new URL(u).pathname;
+                                            } catch (e) {
+                                                return u;
+                                            }
+                                        };
+                                        if (normalizeDn(imgSrc) === normalizeDn(firstImageSrc)) {
+                                            return;
+                                        }
+                                    }
+
                                     // Extraer pie de foto
                                     let captionHTML = '';
 
@@ -11785,6 +11870,18 @@ HTML A ANALIZAR:
                                             }
                                             fc.remove();
                                         }
+                                    } else if (domain === 'diariodenavarra.es') {
+                                        const credit = el.querySelector('.c-detail__media__credit');
+                                        const sign = el.querySelector('.c-detail__media__signature');
+                                        const cap = credit ? this.cleanText(credit.textContent) : '';
+                                        const capAuth = sign ? this.cleanText(sign.textContent) : '';
+                                        if (cap && capAuth) {
+                                            captionHTML = `<div class="modal-image-caption">${cap} <span style="font-style: normal; font-weight: 600;">${capAuth}</span></div>`;
+                                        } else if (cap) {
+                                            captionHTML = `<div class="modal-image-caption">${cap}</div>`;
+                                        } else if (capAuth) {
+                                            captionHTML = `<div class="modal-image-caption">${capAuth}</div>`;
+                                        }
                                     } else {
                                         // Para otros periódicos, buscar normalmente
                                         const figcaptionEl = el.querySelector('figcaption');
@@ -11795,7 +11892,7 @@ HTML A ANALIZAR:
                                         }
                                     }
 
-                                    textParts.push(`<img src="${imgSrc}" class="modal-image" style="max-width: 100%; height: auto; margin: 20px 0; border-radius: 8px;" onerror="this.style.display='none'">${captionHTML}`);
+                                    textParts.push(`<img src="${imgSrc}" class="modal-image" style="max-width: 100%; height: auto; margin: 20px 0; border-radius: 8px;"${domain === 'diariodenavarra.es' ? NewsSearcher.diarioNavarraImgAttrs + ' ' + NewsSearcher.diarioNavarraImgOnError : ' onerror="this.style.display=\'none\'"'}>${captionHTML}`);
                                 }
                             }
                             return; // Saltar al siguiente elemento
@@ -12160,6 +12257,11 @@ HTML A ANALIZAR:
                                 src = srcset.split(',')[0].trim().split(' ')[0];
                             }
                         }
+                    }
+
+                    // DIARIO DE NAVARRA — resolución real en <picture><source>, no en <img>
+                    if (domain === 'diariodenavarra.es') {
+                        src = NewsSearcher.pickDiarioNavarraImgSrc(img);
                     }
 
                     // EL ESPAÑOL — preferir la resolución más alta del srcset aunque ya haya src
@@ -13023,7 +13125,13 @@ HTML A ANALIZAR:
                 // Imagen - NO mostrar para eldiario.es ni cadenaser.com porque tienen lógica especial
                 if (domain !== 'eldiario.es' && domain !== 'cadenaser.com' && content.images && content.images.length > 0) {
                     const firstImage = content.images[0];
-                    html += `<img src="${firstImage.src}" alt="${firstImage.alt}" class="modal-image" onerror="this.style.display='none'">`;
+                    const dnImgAttrs = domain === 'diariodenavarra.es'
+                        ? NewsSearcher.diarioNavarraImgAttrs
+                        : '';
+                    const dnImgOnError = domain === 'diariodenavarra.es'
+                        ? NewsSearcher.diarioNavarraImgOnError
+                        : 'onerror="this.style.display=\'none\'"';
+                    html += `<img src="${firstImage.src}" alt="${firstImage.alt}" class="modal-image"${dnImgAttrs} ${dnImgOnError}>`;
 
                     // Mostrar pie de foto
                     if (firstImage.caption || firstImage.captionAuthor || firstImage.alt) {
@@ -13227,6 +13335,18 @@ HTML A ANALIZAR:
 
                 modalBody.innerHTML = html;
                 this.syncAISelectorLabelFromSelection();
+
+                // Diario de Navarra: loading="lazy" dentro del modal en móvil no dispara bien
+                // (el scroll va en .modal-body). Forzar carga inmediata de todas las fotos.
+                if (domain === 'diariodenavarra.es') {
+                    modalBody.querySelectorAll('img.modal-image').forEach(img => {
+                        img.loading = 'eager';
+                        if (!img.complete && img.src) {
+                            const retrySrc = img.currentSrc || img.src;
+                            img.src = retrySrc;
+                        }
+                    });
+                }
 
                 // Inicializar videos HLS después de insertar el HTML
                 this.initializeHlsVideos();
